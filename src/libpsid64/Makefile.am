@@ -28,13 +28,13 @@ SUFFIXES = .a65
 
 %.h : %.a65
 	xa -R -G $< -o $(srcdir)/$*.o65
-	od -v -An -w8 -tx1 $(srcdir)/$*.o65 | sed 's/\w\w/0x&,/g' > $(srcdir)/$@
+	od -v -An -w8 -tx1 $(srcdir)/$*.o65 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@
 
 psidboot.h: psidboot.a65
-	xa $< -o - | od -v -An -w8 -tx1 | sed 's/\w\w/0x&,/g' > $(srcdir)/$@
+	xa $< -o - | od -v -An -w8 -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@
 
 psiddrv.h: psiddrv.a65
-	xa -R -G $< -o - | od -v -An -w8 -tx1 | sed 's/\w\w/0x&,/g' > $(srcdir)/$@
+	xa -R -G $< -o - | od -v -An -w8 -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@
 
 psidextdrv.h: psiddrv.a65
-	xa -R -G $< -o - -DSCREEN | od -v -An -w8 -tx1 | sed 's/\w\w/0x&,/g' > $(srcdir)/$@
+	xa -R -G $< -o - -DSCREEN | od -v -An -w8 -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@
