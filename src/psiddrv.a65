@@ -40,7 +40,6 @@ loadvec .word 0
 initvec	.word 0
 playvec	.word 0
 speed	.word 0, 0
-palflag .byte 0
 #ifdef SCREEN
 screen	.byte 0
 dd00	.byte 0
@@ -105,8 +104,9 @@ vicras
 	stx $d012
 
 	; Set CIA 1 Timer A to 60Hz
-	lda palflag
-	beq ntsc
+	lda $dbff			; pal/ntsc flag stored in color ram
+	lsr
+	bcc ntsc
 pal	lda #$25
 	ldx #$40
 	bne timer

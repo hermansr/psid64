@@ -419,7 +419,6 @@ psid_init_driver (BYTE ** ptr, int *n, BYTE driver_page, BYTE screen_page,
     psid_reloc[addr++] = (BYTE) ((psid->speed >> 8) & 0xff);
     psid_reloc[addr++] = (BYTE) ((psid->speed >> 16) & 0xff);
     psid_reloc[addr++] = (BYTE) (psid->speed >> 24);
-    psid_reloc[addr++] = (BYTE) (psid->flags & 0x02 ? 0 : 1);
     if (screen_page != 0x00)
     {
 	psid_reloc[addr++] = screen_page;

@@ -203,15 +203,11 @@ skip	sta $d800+840,x
 	dex
 	bpl stilco2
 
+	lda $02a6			; store pal/ntsc flag (bit 0)
+	sta $dbff			; in color ram
+
 	lda #$34
 	sta 1
-	ldy #0
-	tya
-lowmem	sta $0100,y
-	sta $0200,y
-	sta $0300,y
-	iny
-	bne lowmem
 
 #if r1_len<=$80
 	ldy #r1_len-1
