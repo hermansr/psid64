@@ -59,7 +59,7 @@ INST/DEL		Toggle screen blanking on/off (*)
 RUN/STOP		Stop playback
 LEFT ARROW		Fast forward (**)
 SHIFT LEFT / LOCK	Show rastertime used by player (**)
-CONTROL + CBM + DEL	Reset computer
+CONTROL + CBM + DEL	Reset computer (*)
 
 * not available in minimal driver (i.e. the driver that blanks the screen)
 ** not available for custom players (i.e. play address is $0000).
