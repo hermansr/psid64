@@ -786,14 +786,14 @@ Psid64::initDriver(uint_least8_t** ptr, int* n)
     addr = 6;
 
     // Store parameters for PSID player.
-    psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.startSong);
-    psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.songs);
-    psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.loadAddr & 0xff);
-    psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.loadAddr >> 8);
+    psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.initAddr ? 0x4c : 0x60);
     psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.initAddr & 0xff);
     psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.initAddr >> 8);
+    psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.playAddr ? 0x4c : 0x60);
     psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.playAddr & 0xff);
     psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.playAddr >> 8);
+    psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.startSong);
+    psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.songs);
 
     // get the speed bits (the driver only has space for the first 32 songs)
     uint_least32_t speed = 0;
@@ -810,6 +810,7 @@ Psid64::initDriver(uint_least8_t** ptr, int* n)
     psid_reloc[addr++] = (uint_least8_t) ((speed >> 16) & 0xff);
     psid_reloc[addr++] = (uint_least8_t) (speed >> 24);
 
+    psid_reloc[addr++] = (uint_least8_t) ((m_tuneInfo.loadAddr < 0x31a) ? 0xff : 0x05);
     psid_reloc[addr++] = iomap (m_tuneInfo.initAddr);
     psid_reloc[addr++] = iomap (m_tuneInfo.playAddr);
 

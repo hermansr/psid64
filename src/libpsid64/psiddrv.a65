@@ -34,12 +34,14 @@ start	jmp cold
 	jmp setiomap
 
 	; Parameters
+init	rts
+	.word 0
+play	rts
+	.word 0
 playnum	.byte 0
 playmax	.byte 0
-loadvec .word 0
-initvec	.word 0
-playvec	.word 0
 speed	.word 0, 0
+irqvec	.byte 0
 initiomap .byte 0
 playiomap .byte 0
 #ifdef SCREEN
@@ -79,15 +81,8 @@ cold	sei
 #endif /* SCREEN */
 
 	; Set interrupt vectors
-	; Don't step on the vectors if they're part of the PSID image
-	lda loadvec+1
-	cmp #$03
-	bcc vicras
-	bne initirq
-	lda loadvec
-	cmp #$1a
-	bcc vicras
-initirq	ldx #$05
+	ldx irqvec
+	bmi vicras
 store03	lda irqusr,x
 	sta $0314,x
 	dex
@@ -235,10 +230,6 @@ noreset
 #endif /* SCREEN */
 	plp
 	jmp idle
-
-	; init/play PSID
-init	jmp (initvec)
-play	jmp (playvec)
 
 	; IRQ handler
 irqjob	lda $d020			; save values
