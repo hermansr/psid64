@@ -32,6 +32,7 @@
 #include "config.h"
 #endif
 
+#include <ctype.h>
 #include <errno.h>
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
@@ -49,6 +50,7 @@
 #include "psid.h"
 #include "reloc65.h"
 #include "screen.h"
+#include "stilwrapper.h"
 
 
 /****************************************************************************
@@ -60,12 +62,13 @@
  *                     L O C A L   D E F I N I T I O N S                    *
  ****************************************************************************/
 
-#define STR_GETOPT_OPTIONS		":ho:r:vV"
+#define STR_GETOPT_OPTIONS		":gho:r:vV"
 #define EXIT_ERROR			1
 
 typedef struct config_s
 {
     int                     verbose;
+    int			    global_comment;
     char                   *p_hvsc_root;
     char                   *p_output_filename;
 }
@@ -81,7 +84,9 @@ config_t;
 #define PSID_POSTFIX			".sid"
 #define PRG_POSTFIX			".prg"
 
-#define MAX_BLOCKS			3
+#define STIL_EOT_SPACES			5 /* number of spaces before EOT */
+
+#define MAX_BLOCKS			4
 
 typedef struct block_s
 {
@@ -95,17 +100,22 @@ block_t;
 typedef int             (*SORTFUNC) (const void *, const void *);
 
 
+static BYTE             find_stil_space (BYTE * pages, BYTE scr, BYTE chars,
+                                         BYTE driver, BYTE size);
 static BYTE             find_driver_space (BYTE * pages, BYTE scr, BYTE chars,
 					   BYTE size);
 static void             find_free_space (BYTE * p_driver, BYTE * p_screen,
-					 BYTE * p_chars);
+					 BYTE * p_chars, BYTE *p_stil,
+					 BYTE stil_size);
 static void             psid_init_driver (BYTE ** ptr, int *n,
 					  BYTE driver_page, BYTE screen_page,
-					  BYTE char_page);
+					  BYTE char_page, BYTE stil_page);
 static void             draw_screen (BYTE * p_screen);
 static int              block_cmp (block_t * a, block_t * b);
 static char            *build_output_filename (char *p_psid_file,
 					       config_t * p_config);
+static char            *build_hvsc_filename (const char *p_hvsc_root, const char *p_filename);
+static void             get_stil_text (config_t * p_config, const char *p_psid_file, char **pp_text, int *p_text_size);
 static int              process_file (char *p_psid_file, config_t * p_config);
 static void             print_usage (void);
 static void             print_help (void);
@@ -123,6 +133,31 @@ static psid_t          *psid;
  ****************************************************************************/
 
 static                  BYTE
+find_stil_space (BYTE * pages, BYTE scr, BYTE chars, BYTE driver, BYTE size)
+{
+    BYTE                    first_page;
+    int                     i;
+
+    first_page = 0;
+    for (i = 0; i < MAX_PAGES; i++)
+    {
+	if (pages[i] || ((scr && (scr <= i) && (i < (scr + NUM_SCREEN_PAGES))))
+	    || ((chars && (chars <= i) && (i < (chars + NUM_CHAR_PAGES))))
+	    || ((driver <= i) && (i < (driver + NUM_EXTDRV_PAGES))))
+	{
+	    if ((i - first_page) >= size)
+	    {
+		return first_page;
+	    }
+	    first_page = i + 1;
+	}
+    }
+
+    return 0;
+}
+
+
+static                  BYTE
 find_driver_space (BYTE * pages, BYTE scr, BYTE chars, BYTE size)
 {
     BYTE                    first_page;
@@ -134,7 +169,7 @@ find_driver_space (BYTE * pages, BYTE scr, BYTE chars, BYTE size)
 	if (pages[i] || (scr && (scr <= i) && (i < (scr + NUM_SCREEN_PAGES)))
 	    || (chars && (chars <= i) && (i < (chars + NUM_CHAR_PAGES))))
 	{
-	    if ((i - first_page) >= NUM_EXTDRV_PAGES)
+	    if ((i - first_page) >= size)
 	    {
 		return first_page;
 	    }
@@ -147,12 +182,13 @@ find_driver_space (BYTE * pages, BYTE scr, BYTE chars, BYTE size)
 
 
 static void
-find_free_space (BYTE * p_driver, BYTE * p_screen, BYTE * p_chars)
+find_free_space (BYTE * p_driver, BYTE * p_screen, BYTE * p_chars, BYTE *p_stil, BYTE stil_size)
 /*--------------------------------------------------------------------------*
-   In          : -
+   In          : stil_size		size of the STIL text in pages
    Out         : p_driver		startpage of driver, 0 means no driver
 		 p_screen		startpage of screen, 0 means no screen
 		 p_chars		startpage of chars, 0 means no chars
+		 p_stil			startpage of stil, 0 means no stil
    Return value: -
    Description : Find free space in the C64 memory map for the screen and the
 		 driver code. Of course the driver code takes priority over
@@ -178,6 +214,7 @@ find_free_space (BYTE * p_driver, BYTE * p_screen, BYTE * p_chars)
     *p_screen = (BYTE) (0x00);
     *p_driver = (BYTE) (0x00);
     *p_chars = (BYTE) (0x00);
+    *p_stil = (BYTE) (0x00);
 
     if (startp == 0x00)
     {
@@ -265,6 +302,11 @@ find_free_space (BYTE * p_driver, BYTE * p_screen, BYTE * p_chars)
 			*p_driver = driver;
 			*p_screen = scr;
 			*p_chars = chars;
+			if (stil_size)
+			{
+			    *p_stil = find_stil_space (pages, scr, chars,
+						       driver, stil_size);
+			}
 			return;
 		    }
 		}
@@ -276,6 +318,11 @@ find_free_space (BYTE * p_driver, BYTE * p_screen, BYTE * p_chars)
 		{
 		    *p_driver = driver;
 		    *p_screen = scr;
+		    if (stil_size)
+		    {
+			*p_stil = find_stil_space (pages, scr, 0, driver,
+						   stil_size);
+		    }
 		    return;
 		}
 	    }
@@ -292,7 +339,7 @@ find_free_space (BYTE * p_driver, BYTE * p_screen, BYTE * p_chars)
 
 static void
 psid_init_driver (BYTE ** ptr, int *n, BYTE driver_page, BYTE screen_page,
-		  BYTE char_page)
+		  BYTE char_page, BYTE stil_page)
 {
     BYTE                    psid_driver[] = {
 #include "psiddrv.h"
@@ -360,10 +407,12 @@ psid_init_driver (BYTE ** ptr, int *n, BYTE driver_page, BYTE screen_page,
     psid_reloc[addr++] = (BYTE) (psid->flags & 0x02 ? 0 : 1);
     if (screen_page != 0x00)
     {
+	psid_reloc[addr++] = screen_page;
 	psid_reloc[addr++] = (BYTE) ((((screen_page & 0xc0) >> 6) ^ 3) | 0x04);	/* dd00 */
 	vsa = (BYTE) ((screen_page & 0x3c) << 2);
 	cba = (BYTE) (char_page ? (char_page >> 2) & 0x0e : 0x06);
 	psid_reloc[addr++] = vsa | cba;	/* d018 */
+	psid_reloc[addr++] = stil_page;
     }
 
     *ptr = psid_reloc;
@@ -490,11 +539,96 @@ build_output_filename (char *p_psid_file, config_t * p_config)
 }
 
 
+static char            *
+build_hvsc_filename (const char *p_hvsc_root, const char *p_filename)
+{
+    char                   *p_pos;
+
+    p_pos = strstr (p_filename, p_hvsc_root);
+    if (p_pos != NULL)
+    {
+	return p_pos + strlen (p_hvsc_root);
+    }
+
+    return (char *) p_filename;
+}
+
+
+static void
+get_stil_text (config_t * p_config, const char *p_psid_file,
+               char **pp_text, int *p_text_size)
+{
+    char *p_filename;
+    char *global_comment = NULL;
+    char *stil_entry = NULL;
+    char *bug_entry = NULL;
+    char *p_src;
+    char *p_dest;
+    int space;
+    int i;
+
+    /* initialize output parameters */
+    *pp_text = NULL;
+    *p_text_size = 0;
+
+    p_filename = build_hvsc_filename (p_config->p_hvsc_root, p_psid_file);
+
+    if (stil_get_data(p_filename, &global_comment, &stil_entry, &bug_entry) == TRUE)
+    {
+	if (p_config->global_comment == 0)
+	{
+	    global_comment = NULL;
+	}
+	*pp_text = g_strdup_printf ("%s%s%s%*s", 
+				    global_comment ? global_comment : "",
+				    stil_entry ? stil_entry : "",
+				    bug_entry ? bug_entry : "",
+				    STIL_EOT_SPACES, "");
+
+	/* remove all double whitespace characters from the message */
+	p_src = *pp_text;
+	p_dest = *pp_text;
+	space = 0;
+	while (*p_src) {
+		if (isspace(*p_src))
+		{
+		    space++;
+		    p_src++;
+		}
+		else
+		{
+		    if (space) {
+		       *(p_dest++) = iso2scr(' ');
+		       space = 0;
+		    }
+		    *(p_dest++) = iso2scr(*(p_src++));
+		}
+	}
+
+	/* check if the message contained at least one graphical character */
+	if (p_dest != *pp_text)
+	{
+	    /* pad the scroll text with some space characters */
+	    for (i = 0; i < STIL_EOT_SPACES; i++)
+	    {
+		*(p_dest++) = iso2scr(' ');
+	    }
+	    *p_dest = 0xff;
+
+	    /* calculcate length of STIL scroll text (including EOT marker) */
+	    *p_text_size = (p_dest - *pp_text) + 1;
+        }
+    }
+}
+
+
 static int
 process_file (char *p_psid_file, config_t * p_config)
 {
     int                     retval = 0;
-    char                   *p_output_filename;
+    char                   *p_output_filename = NULL; /* to prevent warning */
+    char                   *p_stil_text;
+    int                     stil_text_size;
     BYTE                    screen[SCREEN_SIZE];
     block_t                 blocks[MAX_BLOCKS];
     int                     n_blocks;
@@ -513,11 +647,13 @@ process_file (char *p_psid_file, config_t * p_config)
     BYTE                    driver_page;
     BYTE                    screen_page;
     BYTE                    char_page;
+    BYTE		    stil_page;
+    BYTE                    stil_page_size;
 
     /* read the PSID file */
     if (p_config->verbose)
     {
-	printf ("Reading PSID file `%s'\n", p_psid_file);
+	fprintf (stderr, "Reading PSID file `%s'\n", p_psid_file);
     }
     psid = psid_load_file (p_psid_file);
     if (!psid)
@@ -527,8 +663,22 @@ process_file (char *p_psid_file, config_t * p_config)
 	return 1;
     }
 
+    if (p_config->p_hvsc_root != NULL)
+    {
+	/* retrieve STIL entry for this PSID file */
+	get_stil_text (p_config, p_psid_file, &p_stil_text,
+	               &stil_text_size);
+	stil_page_size = (stil_text_size > 0) ? ((stil_text_size + 255) >> 8) : 0;
+    }
+    else
+    {
+	/* STIL is disabled or not available */
+	p_stil_text = NULL;
+	stil_page_size = (BYTE) 0x00;
+    }
+
     /* find space for driver and screen (optional) */
-    find_free_space (&driver_page, &screen_page, &char_page);
+    find_free_space (&driver_page, &screen_page, &char_page, &stil_page, stil_page_size);
     if (driver_page == 0x00)
     {
 	fprintf (stderr, "%s: C64 memory has no space for driver code.\n",
@@ -538,7 +688,7 @@ process_file (char *p_psid_file, config_t * p_config)
 
     /* relocate and initialize the driver */
     psid_init_driver (&psid_driver, &driver_size, driver_page, screen_page,
-		      char_page);
+		      char_page, stil_page);
     jmp_addr = driver_page << 8;
 
     /* fill the blocks structure */
@@ -562,6 +712,14 @@ process_file (char *p_psid_file, config_t * p_config)
 	blocks[n_blocks].p_description = "Screen";
 	n_blocks++;
     }
+    if (stil_page != 0x00)
+    {
+	blocks[n_blocks].load = stil_page << 8;
+	blocks[n_blocks].size = stil_text_size;
+	blocks[n_blocks].p_data = p_stil_text;
+	blocks[n_blocks].p_description = "STIL text";
+	n_blocks++;
+    }
     qsort (blocks, n_blocks, sizeof (block_t), (SORTFUNC) block_cmp);
 
     /* print memory map */
@@ -569,22 +727,22 @@ process_file (char *p_psid_file, config_t * p_config)
     {
 	ADDRESS                 charset = char_page << 8;
 
-	printf ("C64 memory map:\n");
+	fprintf (stderr, "C64 memory map:\n");
 	for (i = n_blocks - 1; i >= 0; i--)
 	{
 	    if ((charset != 0) && (blocks[i].load > charset))
 	    {
-		printf ("  $%04x-$%04x  Character set\n", charset,
-			charset + (256 * NUM_CHAR_PAGES));
+		fprintf (stderr, "  $%04x-$%04x  Character set\n", charset,
+			 charset + (256 * NUM_CHAR_PAGES));
 		charset = 0;
 	    }
-	    printf ("  $%04x-$%04x  %s\n", blocks[i].load,
-		    blocks[i].load + blocks[i].size, blocks[i].p_description);
+	    fprintf (stderr, "  $%04x-$%04x  %s\n", blocks[i].load,
+		     blocks[i].load + blocks[i].size, blocks[i].p_description);
 	}
 	if (charset != 0)
 	{
-	    printf ("  $%04x-$%04x  Character set\n", charset,
-		    charset + (256 * NUM_CHAR_PAGES));
+	    fprintf (stderr, "  $%04x-$%04x  Character set\n", charset,
+		     charset + (256 * NUM_CHAR_PAGES));
 	}
     }
 
@@ -621,18 +779,38 @@ process_file (char *p_psid_file, config_t * p_config)
     psid_boot[addr++] = (BYTE) (jmp_addr >> 8);
 
     /* write C64 executable */
-    p_output_filename = build_output_filename (p_psid_file, p_config);
-    f = fopen (p_output_filename, "wb");
+    if ((p_config->p_output_filename != NULL)
+        && (strcmp (p_config->p_output_filename, "-") == 0))
+    {
+	f = stdout;
+    }
+    else
+    {
+	p_output_filename = build_output_filename (p_psid_file, p_config);
+	f = fopen (p_output_filename, "wb");
+    }
     if (f != NULL)
     {
 	if (p_config->verbose)
 	{
-	    printf ("Writing C64 executable `%s'\n", p_output_filename);
+	    fprintf (stderr, "Writing C64 executable ");
+	    if (f != stdout)
+	    {
+		fprintf (stderr, " `%s'\n", p_output_filename);
+	    }
+	    else
+	    {
+		fprintf (stderr, " to standard output\n");
+	    }
 	}
 	fwrite (psid_boot, boot_size, 1, f);
 	for (i = n_blocks - 1; i >= 0; i--)
 	{
 	    fwrite (blocks[i].p_data, blocks[i].size, 1, f);
+	}
+	if (f != stdout)
+	{
+	    fclose (f);
 	}
     }
     else
@@ -641,7 +819,12 @@ process_file (char *p_psid_file, config_t * p_config)
 		 p_output_filename, g_strerror (errno));
 	retval = 1;
     }
-    g_free (p_output_filename);
+    if (f != stdout)
+    {
+	g_free (p_output_filename);
+    }
+
+    g_free (p_stil_text);
 
     return retval;
 }
@@ -661,12 +844,14 @@ print_help (void)
     print_usage ();
     printf ("\n");
 #ifdef HAVE_GETOPT_LONG
+    printf ("  -g, --global-comment include the global comment STIL text\n");
     printf ("  -o, --output=FILE    specify output file\n");
     printf ("  -r, --root           specify HVSC root directory\n");
     printf ("  -v, --verbose        explain what is being done\n");
     printf ("  -h, --help           display this help and exit\n");
     printf ("  -V, --version        output version information and exit\n");
 #else
+    printf ("  -g                   include the global comment STIL text\n");
     printf ("  -o                   specify output file\n");
     printf ("  -r                   specify HVSC root directory\n");
     printf ("  -v                   explain what is being done\n");
@@ -682,7 +867,7 @@ print_help (void)
  ****************************************************************************/
 
 int
-main (int argc, char **argv)
+psid64 (int argc, char **argv)
 {
     config_t                config;
     int                     c;
@@ -690,6 +875,7 @@ main (int argc, char **argv)
 #ifdef HAVE_GETOPT_LONG
     int                     option_index = 0;
     static struct option    long_options[] = {
+	{"global-comment", 0, NULL, 'g'},
 	{"help", 0, NULL, 'h'},
 	{"output", 1, NULL, 'o'},
 	{"root", 1, NULL, 'r'},
@@ -701,7 +887,8 @@ main (int argc, char **argv)
 
     /* set default configuration */
     config.verbose = 0;
-    config.p_hvsc_root = NULL;
+    config.global_comment = 0;
+    config.p_hvsc_root = getenv ("HVSC_BASE");
     config.p_output_filename = NULL;
 
 #ifdef HAVE_GETOPT_LONG
@@ -714,6 +901,9 @@ main (int argc, char **argv)
     {
 	switch (c)
 	{
+	case 'g':
+	    config.global_comment = 1;
+	    break;
 	case 'h':
 	    print_help ();
 	    exit (0);
@@ -763,14 +953,22 @@ main (int argc, char **argv)
     if (errflg)
     {
 	fprintf (stderr, "Try `%s --help' for more information.\n", PACKAGE);
-	exit (EXIT_ERROR);
+	return (EXIT_ERROR);
+    }
+
+    /* initialize stilview object by setting the HVSC root directory */
+    if ((config.p_hvsc_root != NULL)
+        && (stil_init(config.p_hvsc_root) != TRUE))
+    {
+	fprintf (stderr, "%s: STILView will be disabled\n", stil_get_error());
+	config.p_hvsc_root = NULL;
     }
 
     while (optind < argc)
     {
 	if (process_file (argv[optind++], &config))
 	{
-	    exit (EXIT_ERROR);
+	    return (EXIT_ERROR);
 	}
     }
 
