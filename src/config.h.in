@@ -3,6 +3,9 @@
 /* Define to empty if the keyword does not work.  */
 #undef const
 
+/* Define as __inline if that's what the C compiler calls it.  */
+#undef inline
+
 /* Define to `unsigned' if <sys/types.h> doesn't define.  */
 #undef size_t
 
@@ -11,6 +14,15 @@
 
 /* Define if you have the getopt_long function.  */
 #undef HAVE_GETOPT_LONG
+
+/* Define if you have the strcasecmp function.  */
+#undef HAVE_STRCASECMP
+
+/* Define if you have the strncasecmp function.  */
+#undef HAVE_STRNCASECMP
+
+/* Define if you have the strstr function.  */
+#undef HAVE_STRSTR
 
 /* Define if you have the <getopt.h> header file.  */
 #undef HAVE_GETOPT_H
