@@ -23,17 +23,22 @@
 extern "C" {
 #endif
 
-/* Rev 1.3 Added scripting support using Swig 1.3a5 */
-#ifdef SWIG
-%module libini
-#endif
-
 #include <stdio.h>
 
 #define INI_ADD_EXTRAS
 #define INI_ADD_LIST_SUPPORT
 
-typedef void* ini_fd_t;
+#ifdef SWIG
+%module libini
+%ignore ini_readString;
+%include typemaps.i
+%apply int    *INOUT { int    *value };
+%apply long   *INOUT { long   *value };
+%apply double *INOUT { double *value };
+%rename (ini_readString) ini_readFileToBuffer;
+#define INI_EXTERN
+#define INI_STATIC
+#endif /* SWIG */
 
 //#ifdef _WINDOWS
 //#   define INI_LINKAGE __stdcall
@@ -58,94 +63,8 @@ typedef void* ini_fd_t;
 #undef  INI_ADD_LIST_SUPPORT
 #endif
 
-#ifdef SWIG
-%include typemaps.i
-%apply int    *BOTH { int    *value };
-%apply long   *BOTH { long   *value };
-%apply double *BOTH { double *value };
-%name (ini_readString)
-    int ini_readFileToBuffer    (ini_fd_t fd, ini_buffer_t *buffer);
 
-ini_buffer_t *ini_createBuffer        (unsigned long size);
-void          ini_deleteBuffer        (ini_buffer_t *buffer);
-char         *ini_getBuffer           (ini_buffer_t *buffer);
-int           ini_setBuffer           (ini_buffer_t *buffer, char *str);
-
-%{
-#include "libini.h"
-
-typedef struct 
-{
-    char  *buffer;
-    size_t size;
-} ini_buffer_t;
-
-ini_buffer_t *ini_createBuffer (unsigned int size)
-{
-    ini_buffer_t *b;
-    /* Allocate memory to structure */
-    if (size == ( ((unsigned) -1 << 1) >> 1 ))
-        return 0; /* Size is too big */
-    b = malloc (sizeof (ini_buffer_t));
-    if (!b)
-        return 0;
-
-    /* Allocate memory to buffer */
-    b->buffer = malloc (sizeof (char) * (size + 1));
-    if (!b->buffer)
-    {
-        free (b);
-        return 0;
-    }
-    b->size = size;
-
-    /* Returns address to tcl */
-    return b;
-}
-
-void ini_deleteBuffer (ini_buffer_t *buffer)
-{
-    if (!buffer)
-        return;
-    free (buffer->buffer);
-    free (buffer);
-}
-
-/*************************************************************
- * SWIG helper functions to create C compatible string buffers
- *************************************************************/
-int ini_readFileToBuffer (ini_fd_t fd, ini_buffer_t *buffer)
-{
-    if (!buffer)
-        return -1;
-    return ini_readString (fd, buffer->buffer, buffer->size + 1);
-}
-
-char *ini_getBuffer (ini_buffer_t *buffer)
-{
-    if (!buffer)
-        return "";
-    return buffer->buffer;
-}
-
-int ini_setBuffer (ini_buffer_t *buffer, char *str)
-{
-    size_t len;
-    if (!buffer)
-        return -1;
-    len = strlen (str);
-    if (len > buffer->size)
-        len = buffer->size;
-
-    memcpy (buffer->buffer, str, len);
-    buffer->buffer[len] = '\0';
-    return len;
-}
-
-%}
-
-#endif /* SWIG */
-
+typedef void* ini_fd_t;
 
 /* Rev 1.2 Added new fuction */
 INI_EXTERN ini_fd_t INI_LINKAGE ini_open     (const char *name, const char *mode,
@@ -156,8 +75,8 @@ INI_EXTERN int      INI_LINKAGE ini_delete   (ini_fd_t fd);
 
 /* Rev 1.2 Added these functions to make life a bit easier, can still be implemented
  * through ini_writeString though. */
-INI_EXTERN int INI_LINKAGE ini_locateKey     (ini_fd_t fd, char *key);
-INI_EXTERN int INI_LINKAGE ini_locateHeading (ini_fd_t fd, char *heading);
+INI_EXTERN int INI_LINKAGE ini_locateKey     (ini_fd_t fd, const char *key);
+INI_EXTERN int INI_LINKAGE ini_locateHeading (ini_fd_t fd, const char *heading);
 INI_EXTERN int INI_LINKAGE ini_deleteKey     (ini_fd_t fd);
 INI_EXTERN int INI_LINKAGE ini_deleteHeading (ini_fd_t fd);
 
@@ -170,22 +89,22 @@ INI_EXTERN int INI_LINKAGE ini_dataLength (ini_fd_t fd);
 /* Default Data Type Operations
  * Arrays implemented to help with reading, for writing you should format the
  * complete array as a string and perform an ini_writeString. */
-#ifndef SWIG
 INI_EXTERN int INI_LINKAGE ini_readString  (ini_fd_t fd, char *str, size_t size);
-#endif /* SWIG */
-INI_EXTERN int INI_LINKAGE ini_writeString (ini_fd_t fd, char *str);
-INI_EXTERN int INI_LINKAGE ini_readInt     (ini_fd_t fd, int  *value);
+INI_EXTERN int INI_LINKAGE ini_writeString (ini_fd_t fd, const char *str);
+INI_EXTERN int INI_LINKAGE ini_readInt     (ini_fd_t fd, int *value);
 
 
 #ifdef INI_ADD_EXTRAS
     /* Read Operations */
     INI_EXTERN int INI_LINKAGE ini_readLong    (ini_fd_t fd, long   *value);
     INI_EXTERN int INI_LINKAGE ini_readDouble  (ini_fd_t fd, double *value);
+    INI_EXTERN int INI_LINKAGE ini_readBool    (ini_fd_t fd, int    *value);
 
     /* Write Operations */
     INI_EXTERN int INI_LINKAGE ini_writeInt    (ini_fd_t fd, int    value);
     INI_EXTERN int INI_LINKAGE ini_writeLong   (ini_fd_t fd, long   value);
     INI_EXTERN int INI_LINKAGE ini_writeDouble (ini_fd_t fd, double value);
+    INI_EXTERN int INI_LINKAGE ini_writeBool   (ini_fd_t fd, int    value);
 
     /* Extra Functions */
     INI_EXTERN int INI_LINKAGE ini_append      (ini_fd_t fddst, ini_fd_t fdsrc);
@@ -203,10 +122,88 @@ INI_EXTERN int INI_LINKAGE ini_readInt     (ini_fd_t fd, int  *value);
     /* Returns the number of elements in an list being seperated by the provided delimiters */
     INI_EXTERN int INI_LINKAGE ini_listLength      (ini_fd_t fd);
     /* Change delimiters, default "" */
-    INI_EXTERN int INI_LINKAGE ini_listDelims      (ini_fd_t fd, char *delims);
+    INI_EXTERN int INI_LINKAGE ini_listDelims      (ini_fd_t fd, const char *delims);
     /* Set index to access in a list.  When read the index will automatically increment */
     INI_EXTERN int INI_LINKAGE ini_listIndex       (ini_fd_t fd, unsigned long index);
-#endif // INI_ADD_LIST_SUPPORT
+#endif /* INI_ADD_LIST_SUPPORT */
+
+
+#ifdef SWIG
+%{
+#include <libini.h>
+#define INI_STATIC static
+typedef struct
+{
+    char  *buffer;
+    size_t size;
+} ini_buffer_t;
+%}
+
+%inline %{
+/*************************************************************
+ * SWIG helper functions to create C compatible string buffers
+ *************************************************************/
+INI_STATIC ini_buffer_t *ini_createBuffer (unsigned int size)
+{
+    ini_buffer_t *b;
+    /* Allocate memory to structure */
+    if (size == ( ((unsigned) -1 << 1) >> 1 ))
+        return 0; /* Size is too big */
+    b = malloc (sizeof (ini_buffer_t));
+    if (!b)
+        return 0;
+
+    /* Allocate memory to buffer */
+    b->buffer = malloc (sizeof (char) * (size + 1));
+    if (!b->buffer)
+    {
+        free (b);
+        return 0;
+    }
+    b->size      = size;
+    b->buffer[0] = '\0';
+
+    /* Returns address to tcl */
+    return b;
+}
+
+INI_STATIC void ini_deleteBuffer (ini_buffer_t *buffer)
+{
+    if (!buffer)
+        return;
+    free (buffer->buffer);
+    free (buffer);
+}
+
+INI_STATIC int ini_readFileToBuffer (ini_fd_t fd, ini_buffer_t *buffer)
+{
+    if (!buffer)
+        return -1;
+    return ini_readString (fd, buffer->buffer, buffer->size + 1);
+}
+
+INI_STATIC char *ini_getBuffer (ini_buffer_t *buffer)
+{
+    if (!buffer)
+        return "";
+    return buffer->buffer;
+}
+
+INI_STATIC int ini_setBuffer (ini_buffer_t *buffer, const char *str)
+{
+    size_t len;
+    if (!buffer)
+        return -1;
+    len = strlen (str);
+    if (len > buffer->size)
+        len = buffer->size;
+
+    memcpy (buffer->buffer, str, len);
+    buffer->buffer[len] = '\0';
+    return len;
+}
+%}
+#endif /* SWIG */
 
 #ifdef __cplusplus
 }

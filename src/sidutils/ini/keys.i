@@ -282,7 +282,7 @@ void __ini_deleteKey (ini_t *ini)
  *  Rev   |   Date   |  By   | Comment
  * ----------------------------------------------------------------------------------------------------------------
  ********************************************************************************************************************/
-struct key_tag *__ini_locateKey (ini_t *ini, char *key)
+struct key_tag *__ini_locateKey (ini_t *ini, const char *key)
 {
     struct key_tag     *current_k;
     struct section_tag *section;
@@ -297,9 +297,9 @@ struct key_tag *__ini_locateKey (ini_t *ini, char *key)
         for (current_k = section->keys[(unsigned char) crc32 & 0x0FF]; current_k; current_k = current_k->pNext_Acc)
         {
             if (current_k->crc == crc32)
-        {
+            {
                 if (!strcmp (current_k->key, key))
-                break;
+                    break;
             }
         }
     }
@@ -308,7 +308,7 @@ struct key_tag *__ini_locateKey (ini_t *ini, char *key)
         for (current_k = section->first; current_k; current_k = current_k->pNext)
         {
             if (!strcmp (current_k->key, key))
-            break;
+                break;
         }
     }
 #endif // INI_USE_HASH_TABLE
@@ -348,7 +348,7 @@ int INI_LINKAGE ini_deleteKey (ini_fd_t fd)
  * Globals Modified  :
  * Description       : 
  ********************************************************************************************************************/
-int INI_LINKAGE ini_locateKey (ini_fd_t fd, char *key)
+int INI_LINKAGE ini_locateKey (ini_fd_t fd, const char *key)
 {
     ini_t *ini = (ini_t *) fd;
     struct key_tag *_key = NULL;
@@ -376,21 +376,15 @@ int INI_LINKAGE ini_locateKey (ini_fd_t fd, char *key)
 
     // Ok no key was found, but maybe the user is wanting to create a
     // new one so create it temporarily and see what actually happens later
-    {
-        char  *p;
-        size_t length;
-        // Remove all key
+    {   // Remove all key
         _key = &(ini->tmpKey);
-       if (_key->key)
+        if (_key->key)
             free (_key->key);
 
         // Add new key
-        length = strlen (key) + 1;
-        p = (char *) malloc (length);
-        if (!p)
+        _key->key = strdup (key);
+        if (!_key)
             return -1;
-        memcpy (p, key, length);
-        _key->key = p;
         ini->selected->selected = _key;
     }
     return -1;

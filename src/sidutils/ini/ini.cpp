@@ -18,11 +18,43 @@
  ***************************************************************************/
 /***************************************************************************
  * $Log$
- * Revision 1.1  2003/04/13 10:03:48  rolandh
- * switched to C++
+ * Revision 1.2  2003/04/23 20:26:26  rolandh
+ * synchronized sources with sidplay2
  *
- * Revision 1.9  2002/02/18 20:02:33  s_a_white
- * Synced with libini.
+ * Revision 1.11  2003/02/04 23:08:15  s_a_white
+ * For compatibility support a NULL comment pointer to ini_open.  This
+ * results in no comments (same as providing an empty string).
+ *
+ * Revision 1.25  2003/02/04 22:54:02  s_a_white
+ * Treat NULL comment string as no comment (same as 0 length comment string).
+ *
+ * Revision 1.24  2002/09/24 19:04:22  s_a_white
+ * Fixed unchecked pointers in ini_append and __ini_store.
+ *
+ * Revision 1.23  2002/09/10 08:07:30  s_a_white
+ * Cleanup after new file creation check to prevent use of a closed file.
+ *
+ * Revision 1.22  2002/06/15 22:51:36  s_a_white
+ * Re-added INI_ALLOW_COMMENT to allow comments without first having
+ * seen a space.
+ *
+ * Revision 1.21  2002/06/14 13:22:03  s_a_white
+ * Bug fix to prevent sometimes accessing a NULL pointer.
+ *
+ * Revision 1.20  2002/06/11 16:23:29  s_a_white
+ * __ini_process nolonger returns with section/key selected
+ * undefined.
+ *
+ * Revision 1.19  2002/06/11 14:11:19  s_a_white
+ * Prevent key=key2=data being processed as two comments.
+ * Made comments only legal before or after a key.
+ *
+ * Revision 1.18  2002/06/10 16:59:08  s_a_white
+ * Improved handling of keynames with [] and
+ * section headings with = characters.
+ *
+ * Revision 1.17  2002/06/06 16:32:51  s_a_white
+ * Multi character comments now supported.
  *
  * Revision 1.16  2002/02/18 19:56:35  s_a_white
  * Faster CRC alogarithm for hash key generation.
@@ -77,15 +109,38 @@
 
 #define INI_BUFFER_SIZE (1024 * 5)
 
+enum
+{
+    INI_NONE          = 0,
+    INI_NEW_LINE      = 1,
+    INI_SKIP_LINE     = 2,
+    INI_IN_SECTION    = 3,
+    INI_END_OF_FILE   = 4,
+    INI_CHECK_COMMENT = 5,
+    INI_ALLOW_COMMENT = 8
+};
+
+typedef struct
+{
+    long        pos;
+    long        first;
+    long        last;
+    struct      key_tag *key;
+    int         state;
+    const char *comment;
+    int         commentpos;
+} ini_parser_t;
+
 
 //*******************************************************************************************************************
 // Function Prototypes
 //*******************************************************************************************************************
-static ini_t              *__ini_open            (const char *name, ini_mode_t mode);
+static ini_t              *__ini_open            (const char *name, ini_mode_t mode, const char *comment);
 static int                 __ini_close           (ini_t *ini, bool flush);
 static void                __ini_delete          (ini_t *ini);
-static struct key_tag     *__ini_locate          (ini_t *ini, char *heading, char *key);
-static int                 __ini_process         (ini_t *ini, FILE *file);
+static bool                __ini_extractField    (ini_t *ini, FILE *file, ini_parser_t &parser, char ch);
+static int                 __ini_process         (ini_t *ini, FILE *file, const char *comment);
+inline bool                __ini_processComment  (ini_t *ini, FILE *file, ini_parser_t &parser);
 static int                 __ini_store           (ini_t *ini, FILE *file);
 
 
@@ -159,7 +214,7 @@ static const unsigned long __ini_crc32Table[0x100] =
 };
 
 /********************************************************************************************************************
- * Function          : createCrc32
+ * Function          : __ini_createCrc32
  * Parameters        : init   - initial crc starting value, pBuf - data to base crc on
  *                   : length - length in bytes of data
  * Returns           :
@@ -170,7 +225,7 @@ static const unsigned long __ini_crc32Table[0x100] =
  *  Rev   |   Date   |  By   | Comment
  * ----------------------------------------------------------------------------------------------------------------
  ********************************************************************************************************************/
-static unsigned long __ini_createCrc32 (char *pBuf, size_t length)
+unsigned long __ini_createCrc32 (const char *pBuf, size_t length)
 {
    unsigned long crc = 0xffffffff;
    for (size_t i = 0; i < length; i++)
@@ -223,7 +278,7 @@ void __ini_strtrim (char *str)
  *  Rev   |   Date   |  By   | Comment
  * ----------------------------------------------------------------------------------------------------------------
  ********************************************************************************************************************/
-ini_t *__ini_open (const char *name, ini_mode_t mode)
+ini_t *__ini_open (const char *name, ini_mode_t mode, const char *comment)
 {
     ini_t   *ini;
     FILE    *file = NULL;
@@ -243,27 +298,27 @@ ini_t *__ini_open (const char *name, ini_mode_t mode)
     memset (ini, 0, sizeof (ini_t));
 
     // Store ini filename
-    ini->filename = (char *) malloc (sizeof(char) * (strlen(name) + 1));
+    ini->filename = strdup (name);
     if (!ini->filename)
         goto ini_openError;
-    strcpy (ini->filename, name);
 
     // Open input file
     ini->mode = mode;
     file = fopen (ini->filename, "rb");
     if (!file)
-    {   // File doesn't exist and we are not allowed
-        // to create one
+    {   // File doesn't exist so check if allowed 
+        // to create new one 
         if (mode != INI_NEW)
             goto ini_openError;
 
-        // Seems we can make so new one, check and
+        // Seems we can make a new one, check and
         // make sure
         file = fopen (ini->filename, "wb");
         if (!file)
             goto ini_openError;
         ini->newfile = true;
         fclose (file);
+        file = NULL;
     }
 
     // Open backup file
@@ -280,8 +335,9 @@ ini_t *__ini_open (const char *name, ini_mode_t mode)
         goto ini_openError;
     if (file)
     {   // Process existing ini file
-        if (__ini_process (ini, file) < 0)
+        if (__ini_process (ini, file, comment) < 0)
             goto ini_openError;
+        fclose (file);
     }
 
     // Rev 1.1 Added - Changed set on open bug fix
@@ -436,25 +492,125 @@ void __ini_delete (ini_t *ini)
 
 
 /********************************************************************************************************************
+ * Function          : __ini_extractField
+ * Parameters        : ini    - pointer to ini file database,  file - ini file to read heading from
+ *                   : parser - current parser decoding state, ch   - character to process
+ * Returns           : false on error and true on success
+ * Globals Used      :
+ * Globals Modified  :
+ * Description       : Process next character and extract fields as necessary
+ ********************************************************************************************************************
+ *  Rev   |   Date   |  By   | Comment
+ * ----------------------------------------------------------------------------------------------------------------
+ ********************************************************************************************************************/
+bool __ini_extractField (ini_t *ini, FILE *file, ini_parser_t &parser, char ch)
+{
+    switch (ch)
+    {   // Check for key value
+    case '=':
+        if (parser.state != INI_IN_SECTION)
+        {   // Make sure the key has a string content
+            parser.last = parser.pos;
+            if (parser.first > 0)
+            {
+                if (!ini->selected) // Handle keys which are not in a section
+                {                                   
+                    if (!__ini_faddHeading (ini, file, 0, 0))
+                        return false;
+                }
+
+                parser.key = __ini_faddKey (ini, file, parser.first,
+                                            parser.last - parser.first);
+                if (!parser.key)
+                    return false;
+            }
+            parser.state = INI_CHECK_COMMENT | INI_ALLOW_COMMENT;
+        }
+        break;
+
+    // Check for header (must start far left)
+    case '[':
+        if (parser.state == INI_NEW_LINE)
+        {
+            parser.first = parser.pos + 1;
+            parser.state = INI_IN_SECTION;
+        }
+        break;
+
+    // Check for header termination
+    case ']':
+        if (parser.state == INI_IN_SECTION)
+        {
+            parser.last = parser.pos;
+            if (parser.first <= parser.last) // Handle []
+            {
+                if (!__ini_faddHeading (ini, file, parser.first,
+                                        parser.last - parser.first))
+                {
+                    return false;
+                }
+            }
+            parser.state = INI_SKIP_LINE;
+        }
+        break;
+
+    default:
+        if (parser.state == INI_NEW_LINE)
+        {
+            parser.first = parser.pos;
+            parser.state = INI_NONE;
+        }
+        break;
+    }
+    return true;
+}
+
+
+/********************************************************************************************************************
+ * Function          : __ini_processComment
+ * Parameters        : ini    - pointer to ini file database,  file - ini file to read heading from
+ *                   : parser - current parser decoding state
+ * Returns           : false on error and true on success
+ * Globals Used      :
+ * Globals Modified  :
+ * Description       : Comment strings are not passed to ini_extractField.  Since multi char comments are now
+ *                   : supported we need re-process it should it eventually turn out not to be a comment.
+ ********************************************************************************************************************
+ *  Rev   |   Date   |  By   | Comment
+ * ----------------------------------------------------------------------------------------------------------------
+ ********************************************************************************************************************/
+bool __ini_processComment (ini_t *ini, FILE *file, ini_parser_t &parser)
+{
+    const char *p = parser.comment;
+    for (; parser.commentpos > 0; parser.commentpos--)
+    {
+        if (!__ini_extractField (ini, file, parser, *p++))
+            return false;
+        parser.pos++;
+    }
+    return true;
+}
+
+
+/********************************************************************************************************************
  * Function          : __ini_process
  * Parameters        : ini - pointer to ini file database,  file - ini file to read heading from
  * Returns           : -1 on error and 0 on success
- * Globals Used      : buffer
- * Globals Modified  : buffer
+ * Globals Used      :
+ * Globals Modified  :
  * Description       : Read the ini file to determine all valid sections and keys.  Also stores the location of
  *                   : the keys data for faster accessing.
  ********************************************************************************************************************
  *  Rev   |   Date   |  By   | Comment
  * ----------------------------------------------------------------------------------------------------------------
  ********************************************************************************************************************/
-int __ini_process (ini_t *ini, FILE *file)
+int __ini_process (ini_t *ini, FILE *file, const char *comment)
 {
     char  *current, ch;
-    long   pos, first, last;
     size_t count;
-    bool   inSection, findNewline, newline, isEOF;
-    struct key_tag *key = NULL;
     char  *buffer;
+    ini_parser_t parser;
+    int    pos = 0;
 
     if (!ini)
         return -1;
@@ -468,15 +624,15 @@ int __ini_process (ini_t *ini, FILE *file)
 
     // Clear out an existing ini structure
     __ini_delete (ini);
-    pos   =  0;
-    first = -1;
-    last  = -1;
-    findNewline = false;
-    newline     = true;
-    inSection   = false;
-    isEOF       = false;
+    parser.pos        = pos = 0;
+    parser.first      = -1;
+    parser.last       = -1;
+    parser.state      = INI_NEW_LINE | INI_ALLOW_COMMENT;
+    parser.key        = NULL;
+    parser.comment    = comment;
+    parser.commentpos = 0;
 
-    for(;;)
+    do
     {
         fseek (file, pos, SEEK_SET);
         current = buffer;
@@ -487,7 +643,7 @@ int __ini_process (ini_t *ini, FILE *file)
         {
             if (feof (file))
             {
-                count = 1;
+                count  = 1;
                *buffer = '\x1A';
             }
         }
@@ -497,98 +653,83 @@ int __ini_process (ini_t *ini, FILE *file)
             ch = *current++;
             switch (ch)
             {
-            // Check for newline or end of file
+            // Check for end of file
             case '\x1A':
-                isEOF = true;
-                // Deliberate run on
-            case '\n': case '\r': case '\f':
-                inSection   = false;
-                newline     = true;
-                first       = -1;
-                last        = -1;
-                findNewline = false;
-            goto __ini_processDataEnd;
+                parser.state = INI_END_OF_FILE;
+                count        = 0;
+            goto __ini_processLineEnd;
 
-            // Check for a comment
-            case ';':
-            case '#':
-                findNewline = true;
+            // Check for newline
+            case '\n': case '\r': case '\f':
+                parser.state = INI_NEW_LINE | INI_ALLOW_COMMENT;
+                parser.first = -1;
+                parser.last  = -1;
+            __ini_processLineEnd:
+                if (!__ini_processComment (ini, file, parser))
+                    goto __ini_processError;
             __ini_processDataEnd:
                 // Now know keys data length
-                if (key)
-                {   key->length = (size_t) (pos - key->pos);
-                    key         = NULL;
-                }
-            break;
-
-            default:
-                if (!findNewline)
+                if (parser.key)
                 {
-                    switch (ch)
-                    {
-                    // Check for key value
-                    case '=':
-                        if (!inSection)
-                        {   // Make sure the key has a string content
-                            last = pos;
-                            if (first > 0)
-                            {
-                                if (!ini->selected) // Handle keys which are not in a section
-                                {                                   
-                                    if (!__ini_faddHeading (ini, file, 0, 0))
-                                        goto __ini_processError;
-                                }
-
-                                key = __ini_faddKey (ini, file, first, last - first);
-                                if (!key)
-                                    goto __ini_processError;
-                            }
-                        }
-
-                        findNewline = true;
-                    break;
-
-                    // Check for header (must start far left)
-                    case '[':
-                        if (newline)
-                        {
-                            first     = pos + 1;
-                            inSection = true;
-                        }
-                        else
-                            findNewline = true;
-                    break;
-
-                    // Check for header termination
-                    case ']':
-                        if (inSection)
-                        {
-                            last = pos;
-                            if (first <= last) // Handle []
-                            {
-                                if (!__ini_faddHeading (ini, file, first, last - first))
-                                    goto __ini_processError;
-                            }
-                        }
-                        findNewline = true;
-                    break;
-
-                    default:
-                        if (newline)
-                            first = pos;
-                    break;
-                    }
-
-                    newline = false;
+                    parser.key->length = (size_t) (pos - parser.key->pos);
+                    parser.key         = NULL;
                 }
-            break;
-            }
-
-            // Rev 1.1 Added - Exit of EOF
-            if (isEOF)
                 break;
 
-        fputc (ch, ini->ftmp);
+            default:
+                switch (parser.state & ~INI_ALLOW_COMMENT)
+                {
+                case INI_SKIP_LINE:
+                    break;
+                //case INI_NONE:
+                //case INI_IN_SECTION:
+                case INI_NEW_LINE:
+                case INI_CHECK_COMMENT:
+                    // Check to see if comments are allowed
+                    if (isspace (ch))
+                    {
+                        parser.commentpos = 0;
+                        parser.state |= INI_ALLOW_COMMENT;
+                        parser.pos    = pos;
+                        break;
+                    }
+                    // Deliberate run on
+                default:
+                    // Check for a comment
+                    if (parser.state & INI_ALLOW_COMMENT)
+                    {
+                        if (ch == parser.comment[parser.commentpos])
+                        {
+                            parser.commentpos++;
+                            if (parser.comment[parser.commentpos] == '\0')
+                            {
+                                parser.commentpos = 0;
+                                parser.state      = INI_SKIP_LINE;
+                                goto __ini_processDataEnd;
+                            }
+                            break;
+                        }
+
+                        parser.state &= ~INI_ALLOW_COMMENT;
+                    }
+
+                    if (parser.state != INI_CHECK_COMMENT)
+                    {
+                        if (!__ini_processComment (ini, file, parser))
+                            goto __ini_processError;
+                        parser.pos = pos;
+                        if (!__ini_extractField (ini, file, parser, ch))
+                            goto __ini_processError;
+                    }
+                }
+                break;
+            }
+
+            // Rev 1.1 Added - Exit if EOF
+            if (parser.state == INI_END_OF_FILE)
+                break;
+
+            fputc (ch, ini->ftmp);
             pos++;
             if (!pos)
             {
@@ -597,11 +738,11 @@ int __ini_process (ini_t *ini, FILE *file)
                 return -1;
             }
         }
+    } while (parser.state != INI_END_OF_FILE);
 
-        // Exit of EOF
-        if (isEOF)
-            break;
-    }
+    // Don't leave a random key located.  This
+    // also forces user to call ini_locate*
+    ini->selected = NULL;
     free (buffer);
     return 0;
 
@@ -626,7 +767,7 @@ __ini_processError:
 int __ini_store (ini_t *ini, FILE *file)
 {
     struct section_tag *current_h, *selected_h;
-    struct key_tag     *current_k, *selected_k;
+    struct key_tag     *current_k, *selected_k = NULL;
     char  *str = NULL;
     size_t length = 0, equal_pos = 0;
     int    ret    = -1;
@@ -638,7 +779,9 @@ int __ini_store (ini_t *ini, FILE *file)
     
     // Backup selected heading and key
     selected_h = ini->selected;
-    selected_k = selected_h->selected;
+    // Be carefull if nothing was previously selected
+    if (selected_h != NULL)
+        selected_k  = selected_h->selected;
 
     current_h = ini->first;
     while (current_h)
@@ -695,8 +838,9 @@ __ini_storeError:
     if (str)
         free (str);
     // Restore selected heading and key
-    ini->selected           = selected_h;
-    ini->selected->selected = selected_k;
+    ini->selected   = selected_h;
+    if (selected_h != NULL)
+        selected_h->selected = selected_k;
     return ret;
 }
 
@@ -721,7 +865,7 @@ __ini_storeError:
  * ----------------------------------------------------------------------------------------------------------------
  ********************************************************************************************************************/
 ini_fd_t INI_LINKAGE ini_open (const char *name, const char *mode,
-                               const char *)
+                               const char *comment)
 {
     ini_mode_t _mode;
     if (!mode)
@@ -734,7 +878,10 @@ ini_fd_t INI_LINKAGE ini_open (const char *name, const char *mode,
     case 'a': _mode = INI_EXIST; break;
     default: return NULL;
     }
-    return (ini_fd_t) __ini_open (name, _mode);
+    // NULL can also be used to disable comments
+    if (comment == NULL)
+        comment = "";
+    return (ini_fd_t) __ini_open (name, _mode, comment);
 }
 
 
@@ -849,7 +996,7 @@ extern "C" int INI_LINKAGE ini_append (ini_fd_t fddst, ini_fd_t fdsrc)
     struct section_tag *current_h;
     struct key_tag     *current_k;
     struct section_tag *src_h, *dst_h;
-    struct key_tag     *src_k, *dst_k;
+    struct key_tag     *src_k = NULL, *dst_k = NULL;
     char  *data   = NULL;
     int    length = 0, ret = -1;
 
@@ -863,10 +1010,13 @@ extern "C" int INI_LINKAGE ini_append (ini_fd_t fddst, ini_fd_t fdsrc)
       return -1;
 
     // Backup selected heading and key
-    src_h  = src->selected;
-    src_k  = src_h->selected;
-    dst_h  = dst->selected;
-    dst_k  = dst_h->selected;
+    src_h = src->selected;
+    dst_h = dst->selected;
+    // Be carefull if nothing was previously selected
+    if (src_h != NULL)
+        src_k  = src_h->selected;
+    if (dst_k != NULL)
+        dst_k  = dst_h->selected;
 
 #ifdef INI_ADD_LIST_SUPPORT
     // Remove delims for proper reads
@@ -919,10 +1069,12 @@ ini_appendError:
     src->listDelims = delims;
 #endif
     // Restore selected headings and keys
-    src->selected   = src_h;
-    src_h->selected = src_k;
-    dst->selected   = dst_h;
-    dst_h->selected = dst_k;
+    src->selected = src_h;
+    dst->selected = dst_h;
+    if (src_h != NULL)
+        src_h->selected = src_k;
+    if (dst_h != NULL)
+        dst_h->selected = dst_k;
     return ret;
 }
 

@@ -43,6 +43,7 @@ public:
     int           open   (const char *filename);
     void          close  ();
     int_least32_t length (SidTuneMod &tune);
+    int_least32_t length (const char *md5, uint_least16_t song);
     const char *  error  (void) { return errorString; }
 };
 

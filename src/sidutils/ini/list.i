@@ -167,14 +167,12 @@ char *__ini_listRead (ini_t *ini)
 int INI_LINKAGE ini_listLength (ini_fd_t fd)
 {
     ini_t *ini = (ini_t *) fd;
-    struct key_tag *_key;
 
     // Check to make sure a section/key has
     // been asked for by the user
     if (!ini->selected)
         return -1;
-    _key = ini->selected->selected;
-    if (!_key)
+    if (!ini->selected->selected)
         return -1;
 
     // Check to see if we have moved to a new key
@@ -196,7 +194,7 @@ int INI_LINKAGE ini_listLength (ini_fd_t fd)
  *  Rev   |   Date   |  By   | Comment
  * ----------------------------------------------------------------------------------------------------------------
  ********************************************************************************************************************/
-int INI_LINKAGE ini_listDelims (ini_fd_t fd, char *delims)
+int INI_LINKAGE ini_listDelims (ini_fd_t fd, const char *delims)
 {
     ini_t *ini = (ini_t *) fd;
     if (ini->listDelims)
@@ -208,10 +206,9 @@ int INI_LINKAGE ini_listDelims (ini_fd_t fd, char *delims)
     {
         if (*delims)
         {   // Store delims for later use
-            ini->listDelims = (char *) malloc (strlen (delims) + 1);
+            ini->listDelims = strdup (delims);
             if (!ini->listDelims)
                 return -1;
-            strcpy (ini->listDelims, delims);
         }
     }
 

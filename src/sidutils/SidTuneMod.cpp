@@ -19,10 +19,13 @@
 #include "SidTuneMod.h"
 #include "MD5/MD5.h"
 
-void SidTuneMod::createMD5(MD5& myMD5)
+void SidTuneMod::createMD5(char *md5)
 {
+    *md5 = '\0';
+
     if (status)
     {   // Include C64 data.
+        MD5 myMD5;
         md5_byte_t tmp[2];
         myMD5.append (cache.get()+fileOffset,info.c64dataLen);
         // Include INIT and PLAY address.
@@ -57,6 +60,13 @@ void SidTuneMod::createMD5(MD5& myMD5)
         // either create two different fingerprints depending on
         // the clock speed chosen by the player, or there could be
         // two different values stored in the database/cache.
+
+        myMD5.finish();
+        // Construct fingerprint.
+        for (int di = 0; di < 16; ++di)
+        {
+            sprintf (md5, "%02x", (int) myMD5.getDigest()[di]);
+            md5 += 2;
+        }
     }
 }
-

@@ -50,6 +50,6 @@ static struct section_tag *__ini_addHeading    (struct ini_t *ini, char *heading
 static struct section_tag *__ini_faddHeading   (struct ini_t *ini, FILE *file, long pos, size_t length);
 static struct section_tag *__ini_createHeading (struct ini_t *ini, char *heading);
 static void                __ini_deleteHeading (struct ini_t *ini);
-static struct section_tag *__ini_locateHeading (struct ini_t *ini, char *heading);
+static struct section_tag *__ini_locateHeading (struct ini_t *ini, const char *heading);
 
 #endif // _headings_h_

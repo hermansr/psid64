@@ -42,7 +42,7 @@ typedef struct ini_t
     struct section_tag *first;
     struct section_tag *last;
     struct section_tag *selected;
-    char  *write; // Last written section.
+    char  *heading; // Last written section in tmp file.
     struct section_tag tmpSection;
     struct key_tag     tmpKey;
 
@@ -62,7 +62,7 @@ typedef struct ini_t
 
 static void                __ini_strtrim         (char *str);
 #ifdef INI_USE_HASH_TABLE
-static unsigned long       __ini_createCrc32     (char *pBuf, size_t length);
+static unsigned long       __ini_createCrc32     (const char *pBuf, size_t length);
 #endif
 
 #endif // _ini_h_

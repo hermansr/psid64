@@ -111,37 +111,27 @@ void SidDatabase::close ()
 
 int_least32_t SidDatabase::length (SidTuneMod &tune)
 {
-    SidTuneInfo    tuneInfo;
+    char md5[SIDTUNE_MD5_LENGTH+1];
+    uint_least16_t song = tune.getInfo().currentSong;
+    if (!song)
+    {
+        errorString = ERR_NO_SELECTED_SONG;
+        return -1;
+    }
+    tune.createMD5 (md5);
+    return length  (md5, song);
+}
+
+int_least32_t SidDatabase::length (const char *md5, uint_least16_t song)
+{
     int_least32_t  time = 0;
     char           timeStamp[10];
-    MD5            myMD5;
-    char           digest[33];
-    uint_least16_t selectedSong = 0;
 
     if (!database)
     {
         errorString = ERR_NO_DATABASE_LOADED;
         return -1;
     }
-
-    tune.getInfo(tuneInfo);
-    selectedSong = tuneInfo.currentSong;
-    if (!selectedSong)
-    {
-        errorString = ERR_NO_SELECTED_SONG;
-        return -1;
-    }
-
-    // Restart fingerprint
-    myMD5.reset();
-    tune.createMD5(myMD5);
-    myMD5.finish();
-
-    // Construct fingerprint.
-    digest[0] = '\0';
-    for (int di = 0; di < 16; ++di)
-        sprintf (digest, "%s%02x", digest, (int) myMD5.getDigest()[di]);
-
 
     // Now set up array access
     if (ini_listDelims  (database, " ") == -1)
@@ -152,14 +142,12 @@ int_least32_t SidDatabase::length (SidTuneMod &tune)
 
     // Read Time (and check times before hand)
     (void) ini_locateHeading (database, "Database");
-    (void) ini_locateKey     (database, digest);
+    (void) ini_locateKey     (database, md5);
     // If length return is -1 then no entry found in database
     if (ini_dataLength (database) != -1)
     {
-        selectedSong = 0;
-        while (selectedSong < tuneInfo.currentSong)
+        for (uint_least16_t i = 0; i < song; i++)
         {
-            selectedSong++;
             if (ini_readString (database, timeStamp, sizeof (timeStamp)) == -1)
             {   // No time found
                 errorString = ERR_DATABASE_CORRUPT;

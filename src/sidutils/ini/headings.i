@@ -43,7 +43,7 @@ struct section_tag *__ini_addHeading (ini_t *ini, char *heading)
     __ini_strtrim (heading);
 
     /* Create a backup of the file we are about to edit */
-    if (ini->write == heading)
+    if (ini->heading == heading)
         return __ini_locateHeading (ini, heading);
 
     // Add new heading to work file and read it in
@@ -56,7 +56,7 @@ struct section_tag *__ini_addHeading (ini_t *ini, char *heading)
     section = __ini_faddHeading (ini, ini->ftmp, pos, length);
     fseek (ini->ftmp, 0, SEEK_END);
     fputs ("]\n", ini->ftmp);
-    ini->write = section->heading;
+    ini->heading = section->heading;
     return section;
 }
 
@@ -92,7 +92,7 @@ struct section_tag *__ini_faddHeading (ini_t *ini, FILE *file, long pos, size_t 
 
     section = __ini_createHeading (ini, str);
     // Make sure heading was created
-    if (!(section || length))
+    if (!section && length)
     {
         free (str);
         return NULL;
@@ -119,33 +119,36 @@ struct section_tag *__ini_createHeading (ini_t *ini, char *heading)
 
     pNew  = __ini_locateHeading (ini, heading);
     // Check to see if heading already exists
-    if (!pNew)
-    {   // Create a new heading;
+    if (pNew)
+        free (heading);
+    else
+    {   // Create a new heading as dosen't exist
         pNew = (struct section_tag *) malloc (sizeof (struct section_tag));
-        assert (pNew);
+        if (!pNew)
+            return NULL;
         memset (pNew, 0, sizeof (struct section_tag));
         pNew->heading = heading;
 
         if (*heading)
-    {   // Normal case
+        {   // Found a named heading
             pNew->pPrev = ini->last;
             ini->last   = pNew;
             if (pNew->pPrev)
                 pNew->pPrev->pNext = pNew;
             else
-            ini->first = pNew;
+                ini->first = pNew;
         }
         else
-    {   // This case must always be first
-        pNew->pNext = ini->first;
+        {   // Anonymous heading (special case),
+            // always comes first
+            pNew->pNext = ini->first;
             ini->first  = pNew;
             if (pNew->pNext)
                 pNew->pNext->pPrev = pNew;
             else
-            ini->last = pNew;
-    }
-        
-            
+                ini->last = pNew;
+        }
+
 #ifdef INI_USE_HASH_TABLE
         {   // Rev 1.3 - Added
             struct   section_tag *pOld;
@@ -240,7 +243,7 @@ void __ini_deleteHeading (ini_t *ini)
  *  Rev   |   Date   |  By   | Comment
  * ----------------------------------------------------------------------------------------------------------------
  ********************************************************************************************************************/
-struct section_tag *__ini_locateHeading (ini_t *ini, char *heading)
+struct section_tag *__ini_locateHeading (ini_t *ini, const char *heading)
 {
     struct   section_tag *current_h;
 
@@ -253,9 +256,9 @@ struct section_tag *__ini_locateHeading (ini_t *ini, char *heading)
     for (current_h = ini->sections[(unsigned char) crc32 & 0x0FF]; current_h; current_h = current_h->pNext_Acc)
     {
         if (current_h->crc == crc32)
-    {
+        {
             if (!strcmp (current_h->heading, heading))
-            break;
+                break;
         }
     }
 #else
@@ -263,7 +266,7 @@ struct section_tag *__ini_locateHeading (ini_t *ini, char *heading)
     for (current_h = ini->first; current_h; current_h = current_h->pNext)
     {
         if (!strcmp (current_h->heading, heading))
-        break;
+            break;
     }
 #endif // INI_USE_HASH_TABLE
 
@@ -301,7 +304,7 @@ int INI_LINKAGE ini_deleteHeading (ini_fd_t fd)
  * Globals Modified  :
  * Description       : Equivalent Microsoft write string API call where both data & key are set to NULL.
  ********************************************************************************************************************/
-int INI_LINKAGE ini_locateHeading (ini_fd_t fd, char *heading)
+int INI_LINKAGE ini_locateHeading (ini_fd_t fd, const char *heading)
 {
     ini_t *ini = (ini_t *) fd;
     struct section_tag *section;
@@ -321,26 +324,24 @@ int INI_LINKAGE ini_locateHeading (ini_fd_t fd, char *heading)
 #endif // INI_ADD_LIST_SUPPORT
 
     if (section)
+    {
+        section->selected = NULL;
         return 0;
+    }
 
     // Ok no section was found, but maybe the user is wanting to create a
     // new one so create it temporarily and see what actually happens later
-    {
-        char  *p;
-        size_t length;
-        // Remove old heading
+    {   // Remove old heading
         section = &(ini->tmpSection);
         if (section->heading)
             free (section->heading);
 
         // Add new heading
-        length = strlen (heading) + 1;
-        p = (char *) malloc (length);
-        if (!p)
+        section->heading  = strdup (heading);
+        if (!section->heading)
             return -1;
-        memcpy (p, heading, length);
-        section->heading = p;
-        ini->selected    = section;
+        section->selected = NULL;
+        ini->selected     = section;
     }
     return -1;
 }
