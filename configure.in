@@ -24,6 +24,6 @@ AC_TYPE_SIZE_T
 
 dnl Checks for library functions.
 AC_FUNC_MEMCMP
-AC_CHECK_FUNCS(getopt_long strncasecmp strcasecmp strstr)
+AC_CHECK_FUNCS(getopt_long strncasecmp strcasecmp strstr snprintf)
 
 AC_OUTPUT(Makefile psid64.spec src/Makefile src/stilview/Makefile)
