@@ -1,0 +1,121 @@
+2001-11-10  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* /cvsroot/psid64/psid64/NEWS:
+	Added features implemented in release 0.2
+
+	* /cvsroot/psid64/psid64/README: Updated the usage section.
+
+	* /cvsroot/psid64/psid64/TODO:
+	Removed implemented features from TODO list. Added some new possible features.
+
+	* /cvsroot/psid64/psid64/src/main.c:
+	Added comments. Updated usage text.
+
+2001-10-08  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* /cvsroot/psid64/psid64/configure, /cvsroot/psid64/psid64/configure.in:
+	updated version number, added checks for getopt_long
+
+	* /cvsroot/psid64/psid64/src/config.h.in, /cvsroot/psid64/psid64/src/main.c, /cvsroot/psid64/psid64/src/.o65, /cvsroot/psid64/psid64/src/psidboot.a65, /cvsroot/psid64/psid64/src/psidboot.h, /cvsroot/psid64/psid64/src/psiddrv.a65:
+	remove the accidently added file .o65
+
+2001-09-08  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* /cvsroot/psid64/psid64/src/datatypes.h, /cvsroot/psid64/psid64/src/screen.c, /cvsroot/psid64/psid64/src/screen.h:
+	initial import into CVS
+
+	* /cvsroot/psid64/psid64/src/datatypes.h, /cvsroot/psid64/psid64/src/screen.c, /cvsroot/psid64/psid64/src/screen.h:
+	New file.
+
+	* /cvsroot/psid64/psid64/src/psid.c: initial import into CVS
+
+	* /cvsroot/psid64/psid64/src/psid.c: New file.
+
+	* /cvsroot/psid64/psid64/src/psidextdrv.h: initial import into CVS
+
+	* /cvsroot/psid64/psid64/src/psidextdrv.h: New file.
+
+	* /cvsroot/psid64/psid64/src/psiddrv.h: initial import into CVS
+
+	* /cvsroot/psid64/psid64/src/psiddrv.h: New file.
+
+	* /cvsroot/psid64/psid64/src/psidboot.h: initial import into CVS
+
+	* /cvsroot/psid64/psid64/src/psidboot.h: New file.
+
+	* /cvsroot/psid64/psid64/src/Makefile.in, /cvsroot/psid64/psid64/src/.o65, /cvsroot/psid64/psid64/src/reloc65.h:
+	initial import into CVS
+
+	* /cvsroot/psid64/psid64/src/Makefile.in, /cvsroot/psid64/psid64/src/.o65, /cvsroot/psid64/psid64/src/reloc65.h:
+	New file.
+
+	* /cvsroot/psid64/psid64/src/Makefile.am, /cvsroot/psid64/psid64/src/psid.h:
+	initial import into CVS
+
+	* /cvsroot/psid64/psid64/src/Makefile.am, /cvsroot/psid64/psid64/src/psid.h:
+	New file.
+
+	* /cvsroot/psid64/psid64/src/config.h.in, /cvsroot/psid64/psid64/src/psiddrv.a65, /cvsroot/psid64/psid64/src/stamp-h.in:
+	initial import into CVS
+
+	* /cvsroot/psid64/psid64/src/config.h.in, /cvsroot/psid64/psid64/src/psiddrv.a65, /cvsroot/psid64/psid64/src/stamp-h.in:
+	New file.
+
+	* /cvsroot/psid64/psid64/src/psidboot.a65, /cvsroot/psid64/psid64/src/reloc65.c:
+	initial import into CVS
+
+	* /cvsroot/psid64/psid64/src/psidboot.a65, /cvsroot/psid64/psid64/src/reloc65.c:
+	New file.
+
+	* /cvsroot/psid64/psid64/src/main.c: initial import into CVS
+
+	* /cvsroot/psid64/psid64/src/main.c: New file.
+
+	* /cvsroot/psid64/psid64/psid64.spec.in, /cvsroot/psid64/psid64/README, /cvsroot/psid64/psid64/TODO:
+	initial import into CVS
+
+	* /cvsroot/psid64/psid64/psid64.spec.in, /cvsroot/psid64/psid64/README, /cvsroot/psid64/psid64/TODO:
+	New file.
+
+	* /cvsroot/psid64/psid64/Makefile.in, /cvsroot/psid64/psid64/NEWS:
+	initial import into CVS
+
+	* /cvsroot/psid64/psid64/Makefile.in, /cvsroot/psid64/psid64/NEWS:
+	New file.
+
+	* /cvsroot/psid64/psid64/INSTALL, /cvsroot/psid64/psid64/Makefile.am:
+	initial import into CVS
+
+	* /cvsroot/psid64/psid64/INSTALL, /cvsroot/psid64/psid64/Makefile.am:
+	New file.
+
+	* /cvsroot/psid64/psid64/COPYING: initial import into CVS
+
+	* /cvsroot/psid64/psid64/COPYING: New file.
+
+	* /cvsroot/psid64/psid64/configure, /cvsroot/psid64/psid64/configure.in:
+	initial import into CVS
+
+	* /cvsroot/psid64/psid64/configure, /cvsroot/psid64/psid64/configure.in:
+	New file.
+
+	* /cvsroot/psid64/psid64/missing: initial import into CVS
+
+	* /cvsroot/psid64/psid64/missing: New file.
+
+	* /cvsroot/psid64/psid64/install-sh, /cvsroot/psid64/psid64/mkinstalldirs:
+	initial import into CVS
+
+	* /cvsroot/psid64/psid64/install-sh, /cvsroot/psid64/psid64/mkinstalldirs:
+	New file.
+
+	* /cvsroot/psid64/psid64/aclocal.m4, /cvsroot/psid64/psid64/AUTHORS, /cvsroot/psid64/psid64/ChangeLog:
+	initial import into CVS
+
+	* /cvsroot/psid64/psid64/aclocal.m4, /cvsroot/psid64/psid64/AUTHORS, /cvsroot/psid64/psid64/ChangeLog:
+	New file.
+
+	* /cvsroot/psid64/psid64/acinclude.m4: initial import into CVS
+
+	* /cvsroot/psid64/psid64/acinclude.m4: New file.
+
