@@ -45,73 +45,142 @@ class STIL;
 //                           D E F I N I T I O N S
 //////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Structure to describe a memory block in the C64's memory map.
+ */
 typedef struct block_s
 {
-    uint_least16_t load;
-    uint_least16_t size;
-    const uint_least8_t* data;
-    std::string description;
+    uint_least16_t load; /**< start address */
+    uint_least16_t size; /**< size of the memory block in bytes */
+    const uint_least8_t* data; /**< data to be stored */
+    std::string description; /**< a short description */
 }
 block_t;
 
+/**
+ * Class to generate a C64 self extracting executable from a PSID file.
+ */
 class Psid64
 {
 public:
+    /**
+     * Constructor.
+     */
     Psid64();
+
+    /**
+     * Destructor.
+     */
     ~Psid64();
 
+    /**
+     * Set the path to the HVSC. This path is e.g. used to retrieve the STIL
+     * information for a PSID file.
+     */
     bool setHvscRoot(std::string hvscRoot);
 
+    /**
+     * Get the path to the HVSC.
+     */
     inline const std::string getHvscRoot() const
     {
         return m_hvscRoot;
     }
 
+    /**
+     * Set the path to the HVSC song length database.
+     */
     bool setDatabaseFileName(std::string databaseFileName);
 
+    /**
+     * Get the path to the HVSC song length database.
+     */
     inline const std::string getDatabaseFileName() const
     {
         return m_databaseFileName;
     }
 
+    /**
+     * Set the blank screen option. When true, the screen is forced to be
+     * blank, even when there is enough free memory available to display
+     * a screen with information about the PSID. A C64 executable that blanks
+     * the screen will be several pages smaller as it does not require display
+     * data and code.
+     */
     inline void setBlankScreen(bool blankScreen)
     {
         m_blankScreen = blankScreen;
     }
 
+    /**
+     * Get the blank screen option.
+     */
     inline bool getBlankScreen() const
     {
         return m_blankScreen;
     }
 
+    /**
+     * Set the use global comment flag. When set, PSID64 tries to extract
+     * the global comment field of a PSID from the STIL database.
+     */
     inline void setUseGlobalComment(bool useGlobalComment)
     {
         m_useGlobalComment = useGlobalComment;
     }
 
+    /**
+     * Get the use global comment flag.
+     */
     inline bool getUseGlobalComment() const
     {
         return m_useGlobalComment;
     }
 
+    /**
+     * Set the verbose flag. When set, PSID64 will be more verbose about the
+     * generation of the C64 executable.
+     */
     inline void setVerbose(bool verbose)
     {
         m_verbose = verbose;
     }
 
+    /**
+     * Get the verbose flag.
+     */
     inline bool getVerbose() const
     {
         return m_verbose;
     }
 
+    /**
+     * Get the status string. After an error has occurred, the status string
+     * contains a description of the error.
+     */
     inline const char* getStatus() const
     {
 	return m_statusString;
     }
 
+    /**
+     * Load a PSID file.
+     */
     bool load(const char* fileName);
+
+    /**
+     * Convert the currently loaded PSID file.
+     */
     bool convert();
+
+    /**
+     * Save the most recently generated C64 executable.
+     */
     bool save(const char* fileName);
+
+    /**
+     * Write the C64 executable to an output stream.
+     */
     bool write(std::ostream& out = std::cout);
 
 private:
