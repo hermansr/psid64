@@ -172,6 +172,7 @@ private:
 			          uint_least8_t chars,
 				  uint_least8_t size) const;
     void findFreeSpace();
+    uint8_t Psid64::iomap(uint_least16_t addr);
     void initDriver(uint_least8_t** ptr, int* n);
     void addFlag(bool &hasFlags, std::string flagName);
     std::string toHexWord(uint_least16_t value) const;
