@@ -1,5 +1,16 @@
 2003-04-22  Roland Hermans  <rolandh@users.sourceforge.net>
 
+	* include/psid64/psid64.h:
+	removed extra qualification `Psid64::' on members
+
+	* NEWS: updated text for release 0.6
+
+	* NEWS: New in version 0.6
+
+	* configure.ac: updated version number
+
+	* ChangeLog: changes in release 0.6
+
 	* include/sidplay/sidint.h: generated file
 
 2003-04-13  Roland Hermans  <rolandh@users.sourceforge.net>
