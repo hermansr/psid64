@@ -85,7 +85,8 @@ dnl
 dnl END_SIDTUNE_TESTS
 dnl
 
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([Doxyfile
+                 Makefile
                  psid64.spec
                  include/sidplay/sidconfig.h
                  src/Makefile

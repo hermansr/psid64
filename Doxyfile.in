@@ -1,0 +1,11 @@
+# This file describes the settings to be used by the documentation system
+# doxygen (www.doxygen.org) for a project
+#
+
+PROJECT_NAME           = @PACKAGE@
+PROJECT_NUMBER         = @VERSION@
+OUTPUT_DIRECTORY       = doc
+#EXTRACT_ALL            = YES
+#EXTRACT_PRIVATE        = YES
+#EXTRACT_STATIC         = YES
+INPUT                  = include/psid64
