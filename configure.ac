@@ -61,7 +61,7 @@ AC_LANG(C++)
 
 dnl Check whether the compiler has bool.
 MY_CHECK_BOOL
-if test "$my_cv_have_bool" = yes; then
+if test "$test_cv_have_bool" = yes; then
     MY_SUBST_DEF(SID_HAVE_BOOL)
 else
     MY_SUBST_UNDEF(SID_HAVE_BOOL)
