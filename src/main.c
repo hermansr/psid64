@@ -62,13 +62,14 @@
  *                     L O C A L   D E F I N I T I O N S                    *
  ****************************************************************************/
 
-#define STR_GETOPT_OPTIONS		":gho:r:vV"
+#define STR_GETOPT_OPTIONS		":bgho:r:vV"
 #define EXIT_ERROR			1
 
 typedef struct config_s
 {
     int                     verbose;
     int			    global_comment;
+    int                     blank_screen;
     char                   *p_hvsc_root;
     char                   *p_output_filename;
 }
@@ -774,6 +775,15 @@ process_file (char *p_psid_file, config_t * p_config)
 	return 1;
     }
 
+    /* use minimal driver if screen blanking is enabled */
+    if (p_config->blank_screen)
+    {
+	screen_page = (BYTE) 0x00;
+	char_page = (BYTE) 0x00;
+	stil_page = (BYTE) 0x00;
+	stil_page_size = (BYTE) 0x00;
+    }
+
     /* relocate and initialize the driver */
     psid_init_driver (&psid_driver, &driver_size, driver_page, screen_page,
 		      char_page, stil_page);
@@ -934,6 +944,7 @@ print_help (void)
     print_usage ();
     printf ("\n");
 #ifdef HAVE_GETOPT_LONG
+    printf ("  -b, --blank-screen   use a minimal driver that blanks the screen\n");
     printf ("  -g, --global-comment include the global comment STIL text\n");
     printf ("  -o, --output=FILE    specify output file\n");
     printf ("  -r, --root           specify HVSC root directory\n");
@@ -941,6 +952,7 @@ print_help (void)
     printf ("  -h, --help           display this help and exit\n");
     printf ("  -V, --version        output version information and exit\n");
 #else
+    printf ("  -b                   use a minimal driver that blanks the screen\n");
     printf ("  -g                   include the global comment STIL text\n");
     printf ("  -o                   specify output file\n");
     printf ("  -r                   specify HVSC root directory\n");
@@ -965,6 +977,7 @@ psid64 (int argc, char **argv)
 #ifdef HAVE_GETOPT_LONG
     int                     option_index = 0;
     static struct option    long_options[] = {
+	{"blank-screen", 0, NULL, 'b'},
 	{"global-comment", 0, NULL, 'g'},
 	{"help", 0, NULL, 'h'},
 	{"output", 1, NULL, 'o'},
@@ -978,6 +991,7 @@ psid64 (int argc, char **argv)
     /* set default configuration */
     config.verbose = 0;
     config.global_comment = 0;
+    config.blank_screen = 0;
     config.p_hvsc_root = getenv ("HVSC_BASE");
     config.p_output_filename = NULL;
 
@@ -991,6 +1005,9 @@ psid64 (int argc, char **argv)
     {
 	switch (c)
 	{
+	case 'b':
+	    config.blank_screen = 1;
+	    break;
 	case 'g':
 	    config.global_comment = 1;
 	    break;
