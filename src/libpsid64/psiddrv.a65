@@ -48,6 +48,9 @@ stil	.byte 0
 #endif /* SCREEN */
 
 iomap	.byte 0
+#ifdef SCREEN
+d011	.byte $1b
+#endif /* SCREEN */
 
 	; User interrupt vectors
 irqusr	.word irqjob
@@ -95,7 +98,7 @@ store03	lda irqusr,x
 	; Set VICII raster to line 0
 vicras
 #ifdef SCREEN
-	lda #$1b
+	lda d011
 #else /* !SCREEN */
 	lda #$0b			; blank screen
 #endif /* SCREEN */
@@ -181,10 +184,13 @@ run	jsr delay
 	sei
 	jsr keyboard
 #ifdef SCREEN
+	lda d011
+	and #$10
+	beq noscr
 	jsr colorline
 	jsr colortext
 	jsr scroller
-
+noscr
 	lda #$7f			; check for reset (control-cbm-delete)
 	sta $dc00
 	lda $dc01
@@ -312,6 +318,10 @@ keyboard	.(
 	and keys+1,x
 	beq exit			; wait until key has been released
 nopress	lda playmax
+#ifdef SCREEN
+	clc
+	adc #1				; inst/del key
+#endif /* SCREEN */
 	cmp #36
 	bcc maxnum
 	lda #36
@@ -331,14 +341,29 @@ found	stx key
 	txa
 	lsr
 	tax
-	bne newsong
+	bne tglscr
 	jmp stop			; run/stop key pressed
-newsong	stx playnum
+tglscr
+#ifdef SCREEN
+	dex
+	bne newsong
+	lda d011			; inst/del key pressed
+	eor #$10
+	sta d011
+	sta $d011
+	rts
+newsong
+#endif /* SCREEN */
+	stx playnum
 	jmp start			; start new song
 
 key	.byte $ff
 
 keys	.byte $7f,$80	;run/stop
+
+#ifdef SCREEN
+	.byte $fe,$01	;inst/del
+#endif /* SCREEN */
 
 	.byte $7f,$01	;1
 	.byte $7f,$08	;2
