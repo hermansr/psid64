@@ -245,6 +245,19 @@ find_free_space (BYTE * p_driver, BYTE * p_screen, BYTE * p_chars, BYTE *p_stil,
     {
 	/* the available pages have been specified in the PSID file */
 	endp = MIN ((startp + maxp), MAX_PAGES);
+
+	/* check that the relocation information does not use the following
+	   memory areas: 0x0000-0x03FF, 0xA000-0xBFFF and 0xD000-0xFFFF */
+	if ((startp < 0x04)
+	    || ((0xa0 <= startp) && (startp <= 0xbf))
+	    || (startp >= 0xd0)
+	    || ((endp - 1) < 0x04)
+	    || ((0xa0 <= (endp - 1)) && ((endp - 1) <= 0xbf))
+	    || ((endp - 1) >= 0xd0))
+	{
+	    return;
+	}
+
 	for (i = 0; i < MAX_PAGES; i++)
 	{
 	    pages[i] = ((startp <= i) && (i < endp)) ? 0 : 1;
