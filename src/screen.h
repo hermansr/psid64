@@ -47,6 +47,7 @@
  *                  F U N C T I O N   D E C L A R A T O R S                 *
  ****************************************************************************/
 
+extern BYTE iso2scr (BYTE c);
 extern void screen_clear (BYTE *p_screen);
 extern void screen_printf (BYTE *p_screen, int x, int y, char *p_format, ...);
 extern void screen_wrap (BYTE *p_screen, int x, int y, char *p_str);
