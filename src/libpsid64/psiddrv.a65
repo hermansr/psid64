@@ -200,7 +200,7 @@ nxtshft	dey
 	bpl shift
 	and speed,x
 	bne ciainit
-	
+
 	; Enable VICII raster interrupt
 vicinit	lda #$81
 	sta $d01a
