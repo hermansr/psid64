@@ -41,6 +41,8 @@ rm -rf %{buildroot}
 %doc AUTHORS COPYING INSTALL NEWS README TODO
 
 %{prefix}/bin/psid64
+%{prefix}/include/psid64/psid64.h
+%{prefix}/lib/libpsid64.a
 
 %changelog
 * Thu Nov  7 2002 Roland Hermans
