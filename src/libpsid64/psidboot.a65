@@ -132,10 +132,12 @@ start	.(
 	ldx #$ff
 	txs
 	cld
-	pha				; Store default song
+	pha				; Store default song number
 	lda $02a6
 	and #1
 	pha				; Store pal/ntsc flag
+	lda $a2
+	pha				; Store seed for random number generator
 
 	lda #$37
 	sta 1

@@ -52,8 +52,9 @@ d011	.byte $1b
 #endif /* SCREEN */
 
 	; Variables
-video	.byte 0
 playnum	.byte 0
+video	.byte 0
+random	.byte 0
 #ifdef SCREEN
 #ifdef SMOOTH_SCROLL
 d016	.byte $08
@@ -110,14 +111,16 @@ nmijob	rti
 	; Cold start
 	; Parameters passed in from boot loader
 cold	pla
-	sta video
+	sta random	; seed for random number generator
 	pla
-start	sta playnum
-	sei		; Turn interrupts off
+	sta video	; pal/ntsc flag
+	pla
+start	sta playnum	; song number
+	sei
 	cld
 	ldx #$ff
 	txs
-	lda $01		; enable io without changing basic and kernal rom bank
+	lda $01		; enable I/O without changing basic and kernal rom bank
 	and #3
 	bne haveio
 	lda #$01
@@ -234,8 +237,10 @@ setbank	sta $01
 
 	; get song number
 	pla
-	ldx #0
-	ldy #0
+	ldx random
+rndwait	ldy #0
+	dex
+	bne rndwait
 	jsr init
 setiomap
 	lda initiomap
@@ -313,7 +318,8 @@ clrsid	sta $d400,x
 
 delay	.(
 #ifdef SCREEN
-l1	lda $d012
+l1	inc random			; random number generator
+	lda $d012
 	bpl l1				; waits until raster > $80
 l2
 #ifdef SMOOTH_SCROLL
