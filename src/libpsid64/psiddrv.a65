@@ -44,9 +44,6 @@ irqvec	.byte 0
 initiomap .byte 0
 playiomap .byte 0
 #ifdef SCREEN
-screen	.byte 0
-dd00	.byte 0
-d018	.byte 0
 stil	.byte 0
 d011	.byte $1b
 #endif /* SCREEN */
@@ -133,9 +130,9 @@ haveio	ora #$34
 	stx $dd03
 	dex
 	stx $dc02
-	lda dd00
+	lda #dd00
 	sta $dd00
-	lda d018
+	lda #d018
 	sta $d018
 	lda #$3f
 	sta $dd02
@@ -520,16 +517,10 @@ colscr1	lda $d800+SCROLLER_OFFSET,x
 	lda #5
 	sta counter
 #endif /* SMOOTH_SCROLL */
-	lda screen			; patch the scroller code. all of the
-	ora #>SCROLLER_OFFSET		; scroller's chars are within one page
-	sta scr1+1			; so we can re-use this value.
-	sta scr2+1
-	sta scr3+1
+
 	ldx #0
-scr1	= *+1
-scroll	lda SCROLLER_OFFSET+1,x
-scr2	= *+1
-	sta SCROLLER_OFFSET,x
+scroll	lda screen+SCROLLER_OFFSET+1,x
+	sta screen+SCROLLER_OFFSET,x
 	inx
 	cpx #39
 	bcc scroll
@@ -543,8 +534,7 @@ eot	= *+1
 	stx msgpos
 	sty msgpos+1
 	beq restart
-scr3	= *+1
-okchar	stx SCROLLER_OFFSET+39
+okchar	stx screen+SCROLLER_OFFSET+39
 	inc msgpos
 	bne exit
 	inc msgpos+1

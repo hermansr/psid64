@@ -784,7 +784,15 @@ Psid64::initDriver(uint_least8_t** ptr, int* n)
     memcpy(psid_reloc, driver, psid_size);
     reloc_addr = m_driverPage << 8;
 
-    if (!reloc65 ((char **) &psid_reloc, &psid_size, reloc_addr))
+    // undefined references in the drive code need to be added to globals
+    globals_t globals;
+    globals["screen"] = m_screenPage << 8;
+    globals["dd00"] = ((((m_screenPage & 0xc0) >> 6) ^ 3) | 0x04);
+    vsa = (uint_least8_t) ((m_screenPage & 0x3c) << 2);
+    cba = (uint_least8_t) (m_charPage ? (m_charPage >> 2) & 0x0e : 0x06);
+    globals["d018"] = vsa | cba;
+
+    if (!reloc65 ((char **) &psid_reloc, &psid_size, reloc_addr, &globals))
     {
 	cerr << PACKAGE << ": Relocation error." << endl;
 	return;
@@ -823,11 +831,6 @@ Psid64::initDriver(uint_least8_t** ptr, int* n)
 
     if (m_screenPage != 0x00)
     {
-	psid_reloc[addr++] = m_screenPage;
-	psid_reloc[addr++] = (uint_least8_t) ((((m_screenPage & 0xc0) >> 6) ^ 3) | 0x04);	// dd00
-	vsa = (uint_least8_t) ((m_screenPage & 0x3c) << 2);
-	cba = (uint_least8_t) (m_charPage ? (m_charPage >> 2) & 0x0e : 0x06);
-	psid_reloc[addr++] = vsa | cba;	// d018
 	psid_reloc[addr++] = m_stilPage;
     }
 

@@ -1,4 +1,3 @@
-
 /*
     xa65 - 6502 cross assembler and utility suite
     reloc65 - relocates 'o65' files 
@@ -27,6 +26,10 @@
 
 #include <cstdio>
 #include <cstring>
+#include <cstdlib>
+
+#include "reloc65.h"
+
 
 #define	BUF	(9*2+8)		/* 16 bit header */
 
@@ -36,31 +39,46 @@ typedef struct {
 	unsigned char	*buf;
 	int		tbase, tlen, dbase, dlen, bbase, blen, zbase, zlen;
 	int		tdiff, ddiff, bdiff, zdiff;
+	int		nundef;
+	char 		**ud;
 	unsigned char	*segt;
 	unsigned char	*segd;
 	unsigned char 	*utab;
 	unsigned char 	*rttab;
 	unsigned char 	*rdtab;
 	unsigned char 	*extab;
+	globals_t       *globals;
 } file65;
+
+typedef struct {
+	char 	*name;
+	int	len;		/* length of labelname */
+	int	fl;		/* 0=ok, 1=multiply defined */
+	int	val;		/* address value */
+	int	seg;		/* segment */
+	file65	*file;		/* in which file is it? */
+} glob;
 
 
 int read_options(unsigned char *f);
-int read_undef(unsigned char *f);
+int read_undef(unsigned char *f, file65 *fp);
 unsigned char *reloc_seg(unsigned char *f, int len, unsigned char *rtab, file65 *fp);
 unsigned char *reloc_globals(unsigned char *, file65 *fp);
 
 file65 file;
 unsigned char cmp[] = { 1, 0, 'o', '6', '5' };
 
-int reloc65(char** buf, int* fsize, int addr)
+int reloc65(char** buf, int* fsize, int addr, globals_t* globals)
 {
 	int mode, hlen;
 
 	int tflag=0, dflag=0, bflag=0, zflag=0;
 	int tbase=0, dbase=0, bbase=0, zbase=0;
 	int extract = 0;
+	int nundef;
 
+	file.globals = globals;
+    
 	file.buf = (unsigned char *) *buf;
 	file.fsize = *fsize;
 	tflag= 1;
@@ -95,9 +113,10 @@ int reloc65(char** buf, int* fsize, int addr)
 
 	file.segt  = file.buf + hlen;
 	file.segd  = file.segt + file.tlen;
+        
 	file.utab  = file.segd + file.dlen;
 
-	file.rttab = file.utab + read_undef(file.utab);
+	file.rttab = file.utab + read_undef(file.utab, &file);
 
 	file.rdtab = reloc_seg(file.segt, file.tlen, file.rttab, &file);
 	file.extab = reloc_seg(file.segd, file.dlen, file.rdtab, &file);
@@ -150,15 +169,38 @@ int read_options(unsigned char *buf) {
 	return ++l;
 }
 
-int read_undef(unsigned char *buf) {
-	int n, l = 2;
+int read_undef(unsigned char *buf, file65 *fp) {
+	int i, n, l = 2;
 
 	n = buf[0] + 256*buf[1];
-	while(n){
-	  n--;
-	  while(!buf[l++]);
+
+	fp->nundef = n;
+	fp->ud = (char **) calloc(n, sizeof(char *));
+
+/*printf("number of undefined labels = %d\n", fp->nundef);*/
+	i=0;
+	while(i<n){
+	  fp->ud[i] = (char*) buf+l;
+/*printf("undefined label %d = '%s'\n", i, fp->ud[i]);*/
+	  while(buf[l++]);
+	  i++;
 	}
 	return l;
+}
+
+static int find_global(unsigned char *bp, file65 *fp, int seg) {
+	int i,l;
+	char *name;
+	int nl = bp[0]+256*bp[1];
+
+	name = fp->ud[nl];
+	globals_t::iterator iter = fp->globals->find(name);
+	if (iter != fp->globals->end())
+	{
+		return iter->second;
+	}
+	fprintf(stderr,"Warning: undefined label '%s'\n", name);
+	return 0;
 }
 
 #define	reldiff(s)	(((s)==2)?fp->tdiff:(((s)==3)?fp->ddiff:(((s)==4)?fp->bdiff:(((s)==5)?fp->zdiff:0))))
@@ -181,21 +223,29 @@ unsigned char *reloc_seg(unsigned char *buf, int len, unsigned char *rtab, file6
 	    rtab++;
 	    switch(type) {
 	    case 0x80:
+		// two byte address
 		old = buf[adr] + 256*buf[adr+1];
-		n_new = old + reldiff(seg);
+		if (seg) n_new = old + reldiff(seg);
+		else n_new = old + find_global(rtab, fp, seg);
 		buf[adr] = n_new & 255;
 		buf[adr+1] = (n_new>>8)&255;
 		break;
 	    case 0x40:
+		// high byte of an address
 		old = buf[adr]*256 + *rtab;
-		n_new = old + reldiff(seg);
+		if (seg) n_new = old + reldiff(seg);
+		else n_new = old + find_global(rtab, fp, seg);
 		buf[adr] = (n_new>>8)&255;
-		*rtab = n_new & 255;
+// FIXME: I don't understand the line below. Why should we write data do the
+// relocation table?
+//		*rtab = n_new & 255;
 		rtab++;
 		break;
 	    case 0x20:
+		// low byte of an address
 		old = buf[adr];
-		n_new = old + reldiff(seg);
+		if (seg) n_new = old + reldiff(seg);
+		else n_new = old + find_global(rtab, fp, seg);
 		buf[adr] = n_new & 255;
 		break;
 	    }
@@ -222,7 +272,9 @@ unsigned char *reloc_globals(unsigned char *buf, file65 *fp) {
 	  while(*(buf++));
 	  seg = *buf;
 	  old = buf[1] + 256*buf[2];
-	  n_new = old + reldiff(seg);
+
+	  if (seg) n_new = old + reldiff(seg);
+	  else n_new = old + find_global(buf+1, fp, seg);
 /*printf("old=%04x, seg=%d, rel=%04x, n_new=%04x\n", old, seg, reldiff(seg), n_new);*/
 	  buf[1] = n_new & 255;
 	  buf[2] = (n_new>>8) & 255;
