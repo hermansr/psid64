@@ -851,6 +851,11 @@ process_file (char *p_psid_file, config_t * p_config)
     psid_boot[addr++] = (BYTE) ((0x10000 - size) & 0xff);	/* start of blocks after moving */
     psid_boot[addr++] = (BYTE) ((0x10000 - size) >> 8);
     psid_boot[addr++] = (BYTE) (n_blocks - 1);	/* number of blocks - 1 */
+    psid_boot[addr++] = (BYTE) (char_page);	/* page for character set, or 0 */
+    psid_boot[addr++] = (BYTE) (jmp_addr & 0xff);	/* start address of driver */
+    psid_boot[addr++] = (BYTE) (jmp_addr >> 8);
+    psid_boot[addr++] = (BYTE) ((jmp_addr+3) & 0xff);	/* address of new stop vector */
+    psid_boot[addr++] = (BYTE) ((jmp_addr+3) >> 8);	/* for tunes that call $a7ae during init */
 
     /* copy block data to psidboot.a65 paramters */
     for (i = 0; i < n_blocks; i++)
@@ -862,11 +867,6 @@ process_file (char *p_psid_file, config_t * p_config)
     }
     addr = addr + 4 * MAX_BLOCKS;
 
-    psid_boot[addr++] = (BYTE) (char_page);	/* page for character set, or 0 */
-    psid_boot[addr++] = (BYTE) (jmp_addr & 0xff);	/* start address of driver */
-    psid_boot[addr++] = (BYTE) (jmp_addr >> 8);
-    psid_boot[addr++] = (BYTE) ((jmp_addr+3) & 0xff);	/* address of new stop vector */
-    psid_boot[addr++] = (BYTE) ((jmp_addr+3) >> 8);	/* for tunes that call $a7ae during init */
 
     /* write C64 executable */
     if ((p_config->p_output_filename != NULL)

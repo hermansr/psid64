@@ -15,7 +15,7 @@
 ;   along with this program; if not, write to the Free Software
 ;   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-r1_org	= $0002
+r1_org	= $00f7
 
 #define MAX_BLOCKS			4
 
@@ -24,7 +24,7 @@ r1_org	= $0002
 	* = $0801
 
 	.word basic
-	.word 2001
+	.word 2002
 	.byte $9e,"2061",0
 basic	.word 0
 
@@ -35,15 +35,15 @@ r1_src	= *
 	* = r1_org
 
 	; Parameters
-src	.word 0
-dest	.word 0
-counter	.byte 0
-zp	.word 0
-numblk	.byte 0
-blocks	.dsb 4*MAX_BLOCKS, 0
-chars	.byte 0
-player	.word 0
+src	.word 0				; $00f7
+dest	.word 0				; $00f9
+counter	.byte 0				; $00fb
+zp	.word 0				; $00fc
+numblk	.byte 0				; $00fe
+chars	.byte 0				; $00ff
+player	.word 0				; $0100
 stopvec .word 0
+blocks	.dsb 4*MAX_BLOCKS, 0
 
 memmove	.(
 	lda stopvec
@@ -214,17 +214,17 @@ lowmem	sta $0100,y
 	bne lowmem
 
 #if r1_len<=$80
-	ldx #r1_len-1
-copyr1	lda r1_src,x
-	sta r1_org,x
-	dex
+	ldy #r1_len-1
+copyr1	lda r1_src,y
+	sta r1_org,y
+	dey
 	bpl copyr1
 #else
-	ldx #0
-copyr1	lda r1_src,x
-	sta r1_org,x
-	inx
-	cpx #r1_len
+	ldy #0
+copyr1	lda r1_src,y
+	sta r1_org,y
+	iny
+	cpy #r1_len
 	bne copyr1
 #endif
 	jmp memmove

@@ -63,11 +63,6 @@ cold	sei
 	txs
 	lda #$37
 	sta 1
-	dex
-	lda #0
-clear	sta 1,x
-	dex
-	bne clear
 	jsr stop
 #ifdef SCREEN
 	ldx #0
@@ -180,14 +175,10 @@ pstinit	lda playvec+1
 	sta iomap
 	lda #$36
 idle	sta $01
-
-run	cli
-	jsr delay
+	cli
+run	jsr delay
+	php
 	sei
-	lda $01				; save bankreg
-	pha
-	lda #$36
-	sta 1
 	jsr keyboard
 #ifdef SCREEN
 	jsr colorline
@@ -204,13 +195,15 @@ run	cli
 	lda $dc01
 	lsr
 	bcs noreset			; delete key not pressed
-	stx $8004			; break a possible CBM80 vector
 	jsr stop
+	lda #$37			; set bankreg
+	sta $01
+	sta $8004			; break a possible CBM80 vector
 	jmp ($fffc)			; reset
 noreset
 #endif /* SCREEN */
-	pla				; restore bankreg
-	jmp idle
+	plp
+	jmp run
 
 	; init/play PSID
 init	jmp (initvec)
@@ -295,20 +288,10 @@ stop	.(
 
 delay	.(
 #ifdef SCREEN
-l1	jsr getd012			; waits until raster > $80
+l1	lda $d012			; waits until raster > $80
 	bpl l1
-l2	jsr getd012			; waits until raster < $80 or > $100
+l2	lda $d012			; waits until raster < $80 or > $100
 	bmi l2
-	rts
-
-getd012	sei
-	ldx $01
-	lda #$36
-	sta $01
-	lda $d012
-	stx $01
-	cli
-	tax
 	rts
 #else /* !SCREEN */
 	ldx #14				; wait approx. 1 frame. accuracy is not
