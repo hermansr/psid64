@@ -1,177 +1,216 @@
+2002-11-08  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* psid64.spec.in: upgraded to RPM 4.1
+
+	* NEWS, TODO: updated for release 0.5
+
+	* README: updated command line arguments section
+
+2002-11-07  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* depcomp, INSTALL, install-sh, missing, mkinstalldirs:
+	upgraded to automake 1.6.3
+
+2002-11-07  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/stilview/Makefile.in: upgraded to automake 1.6.3
+
+2002-11-07  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* Makefile.in, aclocal.m4, configure, src/Makefile.in, src/config.h.in:
+	upgraded to automake 1.6.3
+
+	* src/Makefile.am: fixed AM_CFLAGS for automake 1.6.3
+
+	* src/main.c:
+	Implemented screen blanking to improve audio quality when using the RF modulated output of your C64.
+
+	* src/main.c, src/psidboot.a65, src/psidboot.h, src/psiddrv.a65, src/psiddrv.h, src/psidextdrv.h:
+	First steps towards providing the default power on environment: no longer trash zero page with copy routine and don't clear 0x200-0x3ff. The driver code assumes I/O at 0xd000-0xdfff is available after init to allow playback of real C64 digi tunes.
+
+2002-11-03  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/psidboot.a65, src/psidboot.h, src/psiddrv.a65, src/psiddrv.h, src/psidextdrv.h, src/main.c:
+	Implemented feature request 534453: handle init functions that jump to $A7AE
+	by modifying the stop vector at $0328.
+
+2002-10-27  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/main.c, src/psid.c, src/psid.h: Implemented reading of RSID files
+
+2002-10-26  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* configure: updated version number
+
+	* src/psidboot.h: extended information line area
+
+	* src/main.c:
+	check that the relocation information does not use the following
+	memory areas: 0x0000-0x03FF, 0xA000-0xBFFF and 0xD000-0xFFFF
+
+2002-10-26  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/stilview/README.txt, src/stilview/stil.cpp, src/stilview/stil.h, src/stilview/stilcomm.cpp, src/stilview/stilcomm.h, src/stilview/stildefs.h:
+	Upgraded to STILView 2.17
+
+2002-10-03  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/psidboot.a65: added displaying of PSID header flags
+
+	* src/main.c: added error message for incorrect relocation information
+
+	* src/psid.h: added macros for PSID header flags
+
+	* configure.in: updated version number
+
 2002-03-24  Roland Hermans  <rolandh@users.sourceforge.net>
 
-	* /cvsroot/psid64/psid64/src/stilwrapper.cc, /cvsroot/psid64/psid64/src/stilwrapper.h:
-	added wrappers for STILView
+	* ChangeLog: changes in release 0.4
 
-	* /cvsroot/psid64/psid64/configure, /cvsroot/psid64/psid64/Makefile.in:
-	regenerated
+	* src/stilwrapper.cc, src/stilwrapper.h: added wrappers for STILView
 
-	* /cvsroot/psid64/psid64/NEWS, /cvsroot/psid64/psid64/TODO:
-	updated for release 0.4
+	* Makefile.in, configure: regenerated
 
-	* /cvsroot/psid64/psid64/src/config.h.in, /cvsroot/psid64/psid64/src/Makefile.in:
-	regenerated
+	* NEWS, TODO: updated for release 0.4
 
-	* /cvsroot/psid64/psid64/src/psidboot.h, /cvsroot/psid64/psid64/src/psiddrv.h, /cvsroot/psid64/psid64/src/psidextdrv.h:
+	* src/Makefile.in, src/config.h.in: regenerated
+
+	* src/psidboot.h, src/psiddrv.h, src/psidextdrv.h:
 	*** empty log message ***
 
-2002-03-24  Roland Hermans  <hermansr@trinity.matrix>
+2002-03-24  Roland Hermans  <rolandh@users.sourceforge.net>
 
-	* /home/hermansr/cvs/psid64/src/stilview/Makefile.am, /home/hermansr/cvs/psid64/src/stilview/Makefile.in, /home/hermansr/cvs/psid64/src/stilview/README.txt, /home/hermansr/cvs/psid64/src/stilview/stilcomm.cpp, /home/hermansr/cvs/psid64/src/stilview/stilcomm.h, /home/hermansr/cvs/psid64/src/stilview/stil.cpp, /home/hermansr/cvs/psid64/src/stilview/stildefs.h, /home/hermansr/cvs/psid64/src/stilview/stil.h, /home/hermansr/cvs/psid64/src/stilview/STILView-config.patch:
+	* src/stilview/Makefile.am, src/stilview/Makefile.in, src/stilview/README.txt, src/stilview/STILView-config.patch, src/stilview/stil.cpp, src/stilview/stil.h, src/stilview/stilcomm.cpp, src/stilview/stilcomm.h, src/stilview/stildefs.h:
 	New file.
 
-	* /home/hermansr/cvs/psid64/src/stilview/Makefile.am, /home/hermansr/cvs/psid64/src/stilview/Makefile.in, /home/hermansr/cvs/psid64/src/stilview/README.txt, /home/hermansr/cvs/psid64/src/stilview/stilcomm.cpp, /home/hermansr/cvs/psid64/src/stilview/stilcomm.h, /home/hermansr/cvs/psid64/src/stilview/stil.cpp, /home/hermansr/cvs/psid64/src/stilview/stildefs.h, /home/hermansr/cvs/psid64/src/stilview/stil.h, /home/hermansr/cvs/psid64/src/stilview/STILView-config.patch:
+	* src/stilview/Makefile.am, src/stilview/Makefile.in, src/stilview/README.txt, src/stilview/STILView-config.patch, src/stilview/stil.cpp, src/stilview/stil.h, src/stilview/stilcomm.cpp, src/stilview/stilcomm.h, src/stilview/stildefs.h:
 	STILView v2.16
 
 2002-03-24  Roland Hermans  <rolandh@users.sourceforge.net>
 
-	* /cvsroot/psid64/psid64/src/screen.c, /cvsroot/psid64/psid64/src/screen.h:
+	* src/screen.c, src/screen.h:
 	improved iso2pet and made it a global function
 
-	* /cvsroot/psid64/psid64/configure.in: updated version number
+	* configure.in: updated version number
 
-	* /cvsroot/psid64/psid64/src/main.c: added STIL support
+	* src/main.c: added STIL support
 
-	* /cvsroot/psid64/psid64/src/psidboot.a65, /cvsroot/psid64/psid64/src/psiddrv.a65:
-	added STIL scroller code
+	* src/psidboot.a65, src/psiddrv.a65: added STIL scroller code
 
-	* /cvsroot/psid64/psid64/src/Makefile.am:
+	* src/Makefile.am:
 	added stilview subdirectory, stilwrapper.cc and stilwrapper.h
 
 2001-11-11  Roland Hermans  <rolandh@users.sourceforge.net>
 
-	* /cvsroot/psid64/psid64/ChangeLog: *** empty log message ***
+	* ChangeLog: *** empty log message ***
 
-	* /cvsroot/psid64/psid64/aclocal.m4, /cvsroot/psid64/psid64/configure, /cvsroot/psid64/psid64/Makefile.in, /cvsroot/psid64/psid64/src/Makefile.in:
+	* Makefile.in, aclocal.m4, configure, src/Makefile.in:
 	changes due to rerunning autoconf/automake
 
-	* /cvsroot/psid64/psid64/NEWS: updated news
+	* NEWS: updated news
 
-	* /cvsroot/psid64/psid64/src/main.c, /cvsroot/psid64/psid64/src/psid.c:
+	* src/main.c, src/psid.c:
 	use b in fopen() calls to ensure treating files as binary
 
-	* /cvsroot/psid64/psid64/configure.in: updated version number
+	* configure.in: updated version number
 
 2001-11-10  Roland Hermans  <rolandh@users.sourceforge.net>
 
-	* /cvsroot/psid64/psid64/ChangeLog: *** empty log message ***
+	* ChangeLog: *** empty log message ***
 
-	* /cvsroot/psid64/psid64/NEWS:
-	Added features implemented in release 0.2
+	* NEWS: Added features implemented in release 0.2
 
-	* /cvsroot/psid64/psid64/README: Updated the usage section.
+	* README: Updated the usage section.
 
-	* /cvsroot/psid64/psid64/TODO:
+	* TODO:
 	Removed implemented features from TODO list. Added some new possible features.
 
-	* /cvsroot/psid64/psid64/src/main.c:
-	Added comments. Updated usage text.
+	* src/main.c: Added comments. Updated usage text.
 
 2001-10-08  Roland Hermans  <rolandh@users.sourceforge.net>
 
-	* /cvsroot/psid64/psid64/configure, /cvsroot/psid64/psid64/configure.in:
+	* configure, configure.in:
 	updated version number, added checks for getopt_long
 
-	* /cvsroot/psid64/psid64/src/config.h.in, /cvsroot/psid64/psid64/src/main.c, /cvsroot/psid64/psid64/src/.o65, /cvsroot/psid64/psid64/src/psidboot.a65, /cvsroot/psid64/psid64/src/psidboot.h, /cvsroot/psid64/psid64/src/psiddrv.a65:
+	* src/.o65, src/config.h.in, src/main.c, src/psidboot.a65, src/psidboot.h, src/psiddrv.a65:
 	remove the accidently added file .o65
 
 2001-09-08  Roland Hermans  <rolandh@users.sourceforge.net>
 
-	* /cvsroot/psid64/psid64/src/datatypes.h, /cvsroot/psid64/psid64/src/screen.c, /cvsroot/psid64/psid64/src/screen.h:
+	* src/datatypes.h, src/screen.c, src/screen.h: New file.
+
+	* src/datatypes.h, src/screen.c, src/screen.h: initial import into CVS
+
+	* src/psid.c: New file.
+
+	* src/psid.c: initial import into CVS
+
+	* src/psidextdrv.h: New file.
+
+	* src/psidextdrv.h: initial import into CVS
+
+	* src/psiddrv.h: New file.
+
+	* src/psiddrv.h: initial import into CVS
+
+	* src/psidboot.h: New file.
+
+	* src/psidboot.h: initial import into CVS
+
+	* src/.o65, src/Makefile.in, src/reloc65.h: New file.
+
+	* src/.o65, src/Makefile.in, src/reloc65.h: initial import into CVS
+
+	* src/Makefile.am, src/psid.h: New file.
+
+	* src/Makefile.am, src/psid.h: initial import into CVS
+
+	* src/config.h.in, src/psiddrv.a65, src/stamp-h.in: New file.
+
+	* src/config.h.in, src/psiddrv.a65, src/stamp-h.in:
 	initial import into CVS
 
-	* /cvsroot/psid64/psid64/src/datatypes.h, /cvsroot/psid64/psid64/src/screen.c, /cvsroot/psid64/psid64/src/screen.h:
-	New file.
+	* src/psidboot.a65, src/reloc65.c: New file.
 
-	* /cvsroot/psid64/psid64/src/psid.c: initial import into CVS
+	* src/psidboot.a65, src/reloc65.c: initial import into CVS
 
-	* /cvsroot/psid64/psid64/src/psid.c: New file.
+	* src/main.c: New file.
 
-	* /cvsroot/psid64/psid64/src/psidextdrv.h: initial import into CVS
+	* src/main.c: initial import into CVS
 
-	* /cvsroot/psid64/psid64/src/psidextdrv.h: New file.
+	* README, TODO, psid64.spec.in: New file.
 
-	* /cvsroot/psid64/psid64/src/psiddrv.h: initial import into CVS
+	* README, TODO, psid64.spec.in: initial import into CVS
 
-	* /cvsroot/psid64/psid64/src/psiddrv.h: New file.
+	* Makefile.in, NEWS: New file.
 
-	* /cvsroot/psid64/psid64/src/psidboot.h: initial import into CVS
+	* Makefile.in, NEWS: initial import into CVS
 
-	* /cvsroot/psid64/psid64/src/psidboot.h: New file.
+	* INSTALL, Makefile.am: New file.
 
-	* /cvsroot/psid64/psid64/src/Makefile.in, /cvsroot/psid64/psid64/src/.o65, /cvsroot/psid64/psid64/src/reloc65.h:
-	initial import into CVS
+	* INSTALL, Makefile.am: initial import into CVS
 
-	* /cvsroot/psid64/psid64/src/Makefile.in, /cvsroot/psid64/psid64/src/.o65, /cvsroot/psid64/psid64/src/reloc65.h:
-	New file.
+	* COPYING: New file.
 
-	* /cvsroot/psid64/psid64/src/Makefile.am, /cvsroot/psid64/psid64/src/psid.h:
-	initial import into CVS
+	* COPYING: initial import into CVS
 
-	* /cvsroot/psid64/psid64/src/Makefile.am, /cvsroot/psid64/psid64/src/psid.h:
-	New file.
+	* configure, configure.in: New file.
 
-	* /cvsroot/psid64/psid64/src/config.h.in, /cvsroot/psid64/psid64/src/psiddrv.a65, /cvsroot/psid64/psid64/src/stamp-h.in:
-	initial import into CVS
+	* configure, configure.in: initial import into CVS
 
-	* /cvsroot/psid64/psid64/src/config.h.in, /cvsroot/psid64/psid64/src/psiddrv.a65, /cvsroot/psid64/psid64/src/stamp-h.in:
-	New file.
+	* missing: New file.
 
-	* /cvsroot/psid64/psid64/src/psidboot.a65, /cvsroot/psid64/psid64/src/reloc65.c:
-	initial import into CVS
+	* missing: initial import into CVS
 
-	* /cvsroot/psid64/psid64/src/psidboot.a65, /cvsroot/psid64/psid64/src/reloc65.c:
-	New file.
+	* install-sh, mkinstalldirs: New file.
 
-	* /cvsroot/psid64/psid64/src/main.c: initial import into CVS
+	* install-sh, mkinstalldirs: initial import into CVS
 
-	* /cvsroot/psid64/psid64/src/main.c: New file.
+	* AUTHORS, ChangeLog, aclocal.m4: New file.
 
-	* /cvsroot/psid64/psid64/psid64.spec.in, /cvsroot/psid64/psid64/README, /cvsroot/psid64/psid64/TODO:
-	initial import into CVS
+	* AUTHORS, ChangeLog, aclocal.m4: initial import into CVS
 
-	* /cvsroot/psid64/psid64/psid64.spec.in, /cvsroot/psid64/psid64/README, /cvsroot/psid64/psid64/TODO:
-	New file.
+	* acinclude.m4: New file.
 
-	* /cvsroot/psid64/psid64/Makefile.in, /cvsroot/psid64/psid64/NEWS:
-	initial import into CVS
-
-	* /cvsroot/psid64/psid64/Makefile.in, /cvsroot/psid64/psid64/NEWS:
-	New file.
-
-	* /cvsroot/psid64/psid64/INSTALL, /cvsroot/psid64/psid64/Makefile.am:
-	initial import into CVS
-
-	* /cvsroot/psid64/psid64/INSTALL, /cvsroot/psid64/psid64/Makefile.am:
-	New file.
-
-	* /cvsroot/psid64/psid64/COPYING: initial import into CVS
-
-	* /cvsroot/psid64/psid64/COPYING: New file.
-
-	* /cvsroot/psid64/psid64/configure, /cvsroot/psid64/psid64/configure.in:
-	initial import into CVS
-
-	* /cvsroot/psid64/psid64/configure, /cvsroot/psid64/psid64/configure.in:
-	New file.
-
-	* /cvsroot/psid64/psid64/missing: initial import into CVS
-
-	* /cvsroot/psid64/psid64/missing: New file.
-
-	* /cvsroot/psid64/psid64/install-sh, /cvsroot/psid64/psid64/mkinstalldirs:
-	initial import into CVS
-
-	* /cvsroot/psid64/psid64/install-sh, /cvsroot/psid64/psid64/mkinstalldirs:
-	New file.
-
-	* /cvsroot/psid64/psid64/aclocal.m4, /cvsroot/psid64/psid64/AUTHORS, /cvsroot/psid64/psid64/ChangeLog:
-	initial import into CVS
-
-	* /cvsroot/psid64/psid64/aclocal.m4, /cvsroot/psid64/psid64/AUTHORS, /cvsroot/psid64/psid64/ChangeLog:
-	New file.
-
-	* /cvsroot/psid64/psid64/acinclude.m4: initial import into CVS
-
-	* /cvsroot/psid64/psid64/acinclude.m4: New file.
+	* acinclude.m4: initial import into CVS
 
