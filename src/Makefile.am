@@ -1,3 +1,7 @@
+# Process this file with automake to produce Makefile.in
+
+SUBDIRS = stilview
+
 bin_PROGRAMS = psid64
 
 psid64_SOURCES = \
@@ -13,14 +17,16 @@ psid64_SOURCES = \
 	reloc65.c \
 	reloc65.h \
 	screen.c \
-	screen.h
+	screen.h \
+	stilwrapper.cc \
+	stilwrapper.h
 
 BUILT_SOURCES = \
 	psidboot.h \
 	psiddrv.h \
 	psidextdrv.h
 
-psid64_LDADD = @GLIB_LIBS@
+psid64_LDADD = @GLIB_LIBS@ stilview/libstilview.a
 
 INCLUDES = @GLIB_CFLAGS@
 
