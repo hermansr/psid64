@@ -1,6 +1,13 @@
                                   PSID64 NEWS
                                   ===========
 
+psid64-0.3 (Sun Nov 11 11:27:02 CET 2001):
+
+* Fixed a classic bug in release 0.2. On Windows machines without Cygwin
+  installed, all files are treated as text files by default. This results in
+  corrupt program files where a carriage return character is inserted before
+  each new line character.
+
 psid64-0.2 (Sat Nov 10 13:15:45 CET 2001):
 
 * Ported to Windows/Cygwin platform.
