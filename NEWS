@@ -1,6 +1,11 @@
                                   PSID64 NEWS
                                   ===========
 
+psid64-0.4 (Sun Mar 24 14:46:54 CET 2002):
+
+* Display STIL information if available.
+* Fixed a number of potential problems related to the bank selection register.
+
 psid64-0.3 (Sun Nov 11 11:27:02 CET 2001):
 
 * Fixed a classic bug in release 0.2. On Windows machines without Cygwin

@@ -1,9 +1,7 @@
 * display all PSID header information.
 
-* display STIL information.
-
 * built-in support for pucrunch.
 
 * investigate the use of PSID heuristics (e.g. Rockmonitor support).
 
-* improve C64 demo: make it more colorful, add a scroller, etc.
+* improve C64 demo: make it more colorful, add a better scroller, etc.
