@@ -31,6 +31,7 @@
 	.align 256
 
 start	jmp cold
+	jmp pstinit
 
 	; Parameters
 playnum	.byte 0
@@ -173,7 +174,7 @@ doinit	lda #$2f
 	sta $01
 	pla
 	jsr init
-	lda playvec+1
+pstinit	lda playvec+1
 	beq run
 	jsr getmap
 	sta iomap

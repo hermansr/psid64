@@ -402,8 +402,8 @@ psid_init_driver (BYTE ** ptr, int *n, BYTE driver_page, BYTE screen_page,
 	return;
     }
 
-    /* Skip JMP */
-    addr = 3;
+    /* Skip JMP table */
+    addr = 6;
 
     /* Store parameters for PSID player. */
     psid_reloc[addr++] = (BYTE) (psid->start_song);
@@ -865,6 +865,8 @@ process_file (char *p_psid_file, config_t * p_config)
     psid_boot[addr++] = (BYTE) (char_page);	/* page for character set, or 0 */
     psid_boot[addr++] = (BYTE) (jmp_addr & 0xff);	/* start address of driver */
     psid_boot[addr++] = (BYTE) (jmp_addr >> 8);
+    psid_boot[addr++] = (BYTE) ((jmp_addr+3) & 0xff);	/* address of new stop vector */
+    psid_boot[addr++] = (BYTE) ((jmp_addr+3) >> 8);	/* for tunes that call $a7ae during init */
 
     /* write C64 executable */
     if ((p_config->p_output_filename != NULL)

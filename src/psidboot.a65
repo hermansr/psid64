@@ -43,8 +43,13 @@ numblk	.byte 0
 blocks	.dsb 4*MAX_BLOCKS, 0
 chars	.byte 0
 player	.word 0
+stopvec .word 0
 
 memmove	.(
+	lda stopvec
+	sta $0328
+	lda stopvec+1
+	sta $0329
 	; Move all blocks to highest memory area
 	ldy #0
 l1	dec src+1
