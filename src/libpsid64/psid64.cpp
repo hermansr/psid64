@@ -712,6 +712,29 @@ Psid64::findFreeSpace()
 }
 
 
+//-------------------------------------------------------------------------
+// Temporary hack till real bank switching code added
+
+//  Input: A 16-bit effective address
+// Output: A default bank-select value for $01.
+uint8_t Psid64::iomap(uint_least16_t addr)
+{
+    // Force Real C64 Compatibility
+    if (m_tuneInfo.compatibility == SIDTUNE_COMPATIBILITY_R64)
+	return 0;     // Special case, converted to 0x37 later
+
+    if (addr == 0)
+	return 0;     // Special case, converted to 0x37 later
+    if (addr < 0xa000)
+	return 0x37;  // Basic-ROM, Kernal-ROM, I/O
+    if (addr  < 0xd000)
+	return 0x36;  // Kernal-ROM, I/O
+    if (addr >= 0xe000)
+	return 0x35;  // I/O only
+    return 0x34;  // RAM only
+}
+
+
 void
 Psid64::initDriver(uint_least8_t** ptr, int* n)
 {
@@ -786,6 +809,9 @@ Psid64::initDriver(uint_least8_t** ptr, int* n)
     psid_reloc[addr++] = (uint_least8_t) ((speed >> 8) & 0xff);
     psid_reloc[addr++] = (uint_least8_t) ((speed >> 16) & 0xff);
     psid_reloc[addr++] = (uint_least8_t) (speed >> 24);
+
+    psid_reloc[addr++] = iomap (m_tuneInfo.initAddr);
+    psid_reloc[addr++] = iomap (m_tuneInfo.playAddr);
 
     if (m_screenPage != 0x00)
     {

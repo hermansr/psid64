@@ -31,7 +31,7 @@
 	.align 256
 
 start	jmp cold
-	jmp pstinit
+	jmp setiomap
 
 	; Parameters
 playnum	.byte 0
@@ -40,21 +40,19 @@ loadvec .word 0
 initvec	.word 0
 playvec	.word 0
 speed	.word 0, 0
+initiomap .byte 0
+playiomap .byte 0
 #ifdef SCREEN
 screen	.byte 0
 dd00	.byte 0
 d018	.byte 0
 stil	.byte 0
-#endif /* SCREEN */
-
-iomap	.byte 0
-#ifdef SCREEN
 d011	.byte $1b
 #endif /* SCREEN */
 
 	; User interrupt vectors
-irqusr	.word irqjob
-brkusr	.word irqret
+irqusr	.word irqret
+brkusr	.word brkjob
 nmiusr	.word nmijob
 
 	; Cold start
@@ -64,7 +62,7 @@ cold	sei
 	ldx #$ff
 	txs
 	lda #$37
-	sta 1
+	sta $01
 	jsr stop
 #ifdef SCREEN
 	ldx #0
@@ -160,26 +158,51 @@ vicinit	lda #$81
 
 	; Enable CIA 1 timer A interrupt
 ciainit	lda #$81
-	ldx #$01
 	sta $dc0d
-	stx $dc0e
+
+	; always enable timer A for random numbers
+doinit	lda #$01
+	sta $dc0e
+
+	; If play address, override default irq vector so
+	; we reach our routine to handle play routine
+	lda playiomap
+	beq noplay
+	lda #<irqjob
+	sta $0314
 
 	; Set I/O map and call song init routine
-doinit	lda #$2f
+noplay	lda #$2f
 	sta $00
-	lda initvec+1
-	jsr getmap
-	sta $01
-	pla
-	jsr init
-pstinit	lda playvec+1
-	beq run
-	jsr getmap
-	sta iomap
-	lda #$36
-idle	sta $01
+	lda initiomap
+	bne setbank
+	; Only release interrupt mask for real
+	; C64 tunes (initiomap = 0) thus
+	; providing a more realistic environment
+	lda #$37
+	; cli dosen't come into effect until
+	; after the sta!
 	cli
-run	jsr delay
+setbank	sta $01
+
+	; get song number
+	pla
+	ldx #0
+	ldy #0
+	jsr init
+setiomap
+	lda initiomap
+	beq idle
+	lda playiomap
+	beq run
+	lda #$37
+	sta $01
+	bne run
+
+brkjob	ldx #$ff
+	txs
+run	cli
+idle	jsr delay
 	php
 	sei
 	jsr keyboard
@@ -209,28 +232,14 @@ noscr
 noreset
 #endif /* SCREEN */
 	plp
-	jmp run
+	jmp idle
 
 	; init/play PSID
 init	jmp (initvec)
 play	jmp (playvec)
 
-	; Get required I/O map to reach address
-getmap	cmp #$e0
-	bcc kern_on
-	lda #$35
-	rts
-kern_on	cmp #$d0
-	bcc io_on
-	lda #$34
-	rts
-io_on	lda #$36
-	rts
-
 	; IRQ handler
-irqjob	lda playvec+1
-	beq noplay
-	lda $d020			; save values
+irqjob	lda $d020			; save values
 	pha
 	lda $dc00
 	pha
@@ -244,7 +253,7 @@ irqjob	lda playvec+1
 #endif /* SCREEN */
 noshift	lda $01
 	pha
-	lda iomap
+	lda playiomap
 	sta $01
 	lda #0
 	jsr play
@@ -261,10 +270,10 @@ done	pla
 	sta $dc00
 	pla
 	sta $d020
-noplay	lda $d019
+irqret	lda $d019
 	sta $d019
 	lda $dc0d
-irqret	pla
+	pla
 	tay
 	pla
 	tax
