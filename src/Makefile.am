@@ -1,49 +1,20 @@
 # Process this file with automake to produce Makefile.in
 
-SUBDIRS = stilview
+SUBDIRS = libpsid64 sidtune sidutils
 
 bin_PROGRAMS = psid64
 
 psid64_SOURCES = \
-	datatypes.h \
-	main.c \
-	psid.c \
-	psid.h \
-	psidboot.a65 \
-	psidboot.h \
-	psiddrv.a65 \
-	psiddrv.h \
-	psidextdrv.h \
-	reloc65.c \
-	reloc65.h \
-	screen.c \
-	screen.h \
-	stilwrapper.cc \
-	stilwrapper.h
+	ConsoleApp.cpp \
+	ConsoleApp.h \
+	main.cpp
 
-BUILT_SOURCES = \
-	psidboot.h \
-	psiddrv.h \
-	psidextdrv.h
-
-psid64_LDADD = @GLIB_LIBS@ stilview/libstilview.a
-
-INCLUDES = @GLIB_CFLAGS@
-
-SUFFIXES = .a65
-
-%.h : %.a65
-	xa -R -G $< -o $(srcdir)/$*.o65
-	od -v -An -w8 -tx1 $(srcdir)/$*.o65 | sed 's/\w\w/0x&,/g' > $(srcdir)/$@
-
-psidboot.h: psidboot.a65
-	xa $< -o - | od -v -An -w8 -tx1 | sed 's/\w\w/0x&,/g' > $(srcdir)/$@
-
-psiddrv.h: psiddrv.a65
-	xa -R -G $< -o - | od -v -An -w8 -tx1 | sed 's/\w\w/0x&,/g' > $(srcdir)/$@
-
-psidextdrv.h: psiddrv.a65
-	xa -R -G $< -o - -DSCREEN | od -v -An -w8 -tx1 | sed 's/\w\w/0x&,/g' > $(srcdir)/$@
+psid64_LDADD = \
+	libpsid64/libpsid64.a \
+	sidtune/libsidtune.a \
+	sidutils/libsidutils.a \
+	sidutils/MD5/libMD5.a \
+	sidutils/ini/libini.a
 
 # show all warnings
 AM_CFLAGS = -Wall
