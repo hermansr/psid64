@@ -1,6 +1,8 @@
+* provide a default power on environment to the SIDs.
+
 * display all PSID header information.
 
-* built-in support for pucrunch.
+* built-in support for pucrunch / exomizer.
 
 * investigate the use of PSID heuristics (e.g. Rockmonitor support).
 

@@ -1,6 +1,15 @@
                                   PSID64 NEWS
                                   ===========
 
+psid64-0.5 (Thu Nov  7 23:12:41 CET 2002):
+
+* Added preliminary support of RSID format.
+* Implemented screen blanking to improve audio quality when using the RF
+  modulated output of your C64.
+* Implemented feature request 534453: handle init functions that jump to $A7AE.
+* Extended information line area: show the intended SID model and video mode.
+* Updated source code to automake 1.6.3 and gcc 3.2.
+
 psid64-0.4 (Sun Mar 24 14:46:54 CET 2002):
 
 * Display STIL information if available.
