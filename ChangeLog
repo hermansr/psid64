@@ -1,4 +1,46 @@
+2002-03-24  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* /cvsroot/psid64/psid64/src/stilwrapper.cc, /cvsroot/psid64/psid64/src/stilwrapper.h:
+	added wrappers for STILView
+
+	* /cvsroot/psid64/psid64/configure, /cvsroot/psid64/psid64/Makefile.in:
+	regenerated
+
+	* /cvsroot/psid64/psid64/NEWS, /cvsroot/psid64/psid64/TODO:
+	updated for release 0.4
+
+	* /cvsroot/psid64/psid64/src/config.h.in, /cvsroot/psid64/psid64/src/Makefile.in:
+	regenerated
+
+	* /cvsroot/psid64/psid64/src/psidboot.h, /cvsroot/psid64/psid64/src/psiddrv.h, /cvsroot/psid64/psid64/src/psidextdrv.h:
+	*** empty log message ***
+
+2002-03-24  Roland Hermans  <hermansr@trinity.matrix>
+
+	* /home/hermansr/cvs/psid64/src/stilview/Makefile.am, /home/hermansr/cvs/psid64/src/stilview/Makefile.in, /home/hermansr/cvs/psid64/src/stilview/README.txt, /home/hermansr/cvs/psid64/src/stilview/stilcomm.cpp, /home/hermansr/cvs/psid64/src/stilview/stilcomm.h, /home/hermansr/cvs/psid64/src/stilview/stil.cpp, /home/hermansr/cvs/psid64/src/stilview/stildefs.h, /home/hermansr/cvs/psid64/src/stilview/stil.h, /home/hermansr/cvs/psid64/src/stilview/STILView-config.patch:
+	New file.
+
+	* /home/hermansr/cvs/psid64/src/stilview/Makefile.am, /home/hermansr/cvs/psid64/src/stilview/Makefile.in, /home/hermansr/cvs/psid64/src/stilview/README.txt, /home/hermansr/cvs/psid64/src/stilview/stilcomm.cpp, /home/hermansr/cvs/psid64/src/stilview/stilcomm.h, /home/hermansr/cvs/psid64/src/stilview/stil.cpp, /home/hermansr/cvs/psid64/src/stilview/stildefs.h, /home/hermansr/cvs/psid64/src/stilview/stil.h, /home/hermansr/cvs/psid64/src/stilview/STILView-config.patch:
+	STILView v2.16
+
+2002-03-24  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* /cvsroot/psid64/psid64/src/screen.c, /cvsroot/psid64/psid64/src/screen.h:
+	improved iso2pet and made it a global function
+
+	* /cvsroot/psid64/psid64/configure.in: updated version number
+
+	* /cvsroot/psid64/psid64/src/main.c: added STIL support
+
+	* /cvsroot/psid64/psid64/src/psidboot.a65, /cvsroot/psid64/psid64/src/psiddrv.a65:
+	added STIL scroller code
+
+	* /cvsroot/psid64/psid64/src/Makefile.am:
+	added stilview subdirectory, stilwrapper.cc and stilwrapper.h
+
 2001-11-11  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* /cvsroot/psid64/psid64/ChangeLog: *** empty log message ***
 
 	* /cvsroot/psid64/psid64/aclocal.m4, /cvsroot/psid64/psid64/configure, /cvsroot/psid64/psid64/Makefile.in, /cvsroot/psid64/psid64/src/Makefile.in:
 	changes due to rerunning autoconf/automake
