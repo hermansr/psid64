@@ -110,6 +110,7 @@ static void             find_free_space (BYTE * p_driver, BYTE * p_screen,
 static void             psid_init_driver (BYTE ** ptr, int *n,
 					  BYTE driver_page, BYTE screen_page,
 					  BYTE char_page, BYTE stil_page);
+static void		add_flag (char *p_str, int *n, const char *p_flag);
 static void             draw_screen (BYTE * p_screen);
 static int              block_cmp (block_t * a, block_t * b);
 static char            *build_output_filename (char *p_psid_file,
@@ -240,7 +241,7 @@ find_free_space (BYTE * p_driver, BYTE * p_screen, BYTE * p_chars, BYTE *p_stil,
 	    }
 	}
     }
-    else if (startp != 0xff)
+    else if ((startp != 0xff) && (maxp != 0))
     {
 	/* the available pages have been specified in the PSID file */
 	endp = MIN ((startp + maxp), MAX_PAGES);
@@ -421,9 +422,22 @@ psid_init_driver (BYTE ** ptr, int *n, BYTE driver_page, BYTE screen_page,
 
 
 static void
+add_flag (char *p_str, int *n, const char *p_flag)
+{
+    if (*n > 0)
+    {
+	strcat (p_str, ", ");
+    }
+    strcat (p_str, p_flag);
+    (*n)++;
+}
+
+
+static void
 draw_screen (BYTE * p_screen)
 {
     char                   *p_str;
+    char		    row[SCREEN_COLS + 1];
     int                     i;
 
     screen_clear (p_screen);
@@ -473,10 +487,50 @@ draw_screen (BYTE * p_screen)
     screen_printf (p_screen, 0, 10, "Tunes    : %d%s", psid->songs, p_str);
     g_free (p_str);
 
+    i = 0;
+    sprintf (row, "Flags    : ");
+    if (PSID_IS_PLAYSID_SPECIFIC (psid->flags) != 0)
+    {
+	add_flag (row, &i, "PlaySID");
+    }
+    switch (PSID_VIDEO_STANDARD (psid->flags))
+    {
+    case PSID_VIDEO_MODE_PAL:
+	add_flag (row, &i, "PAL");
+	break;
+    case PSID_VIDEO_MODE_NTSC:
+	add_flag (row, &i, "NTSC");
+	break;
+    case PSID_VIDEO_MODE_PAL_NTSC:
+	add_flag (row, &i, "PAL/NTSC");
+        break;
+    default:
+        break;
+    }
+    switch (PSID_SID_MODEL (psid->flags))
+    {
+    case PSID_SID_MODEL_MOS6581:
+	add_flag (row, &i, "6581");
+	break;
+    case PSID_SID_MODEL_MOS8580:
+	add_flag (row, &i, "8580");
+	break;
+    case PSID_SID_MODEL_MOS6581_MOS8580:
+	add_flag (row, &i, "6581/8580");
+	break;
+    default:
+        break;
+    }
+    if (i == 0)
+    {
+	add_flag (row, &i, "-");
+    }
+    screen_printf (p_screen, 0, 11, "%s", row);
+
     /* some additional text */
-    screen_wrap (p_screen, 0, 12, "\
+    screen_wrap (p_screen, 0, 13, "\
 This is an experimental PSID player for the C64. It is an \
-implementation of the PSID V2 NG proposal written by Dag Lem and Simon \
+implementation of the PSID V2 NG standard written by Dag Lem and Simon \
 White. The driver code and screen are relocated based on information \
 stored inside the PSID.");
 
@@ -675,6 +729,27 @@ process_file (char *p_psid_file, config_t * p_config)
 	/* STIL is disabled or not available */
 	p_stil_text = NULL;
 	stil_page_size = (BYTE) 0x00;
+    }
+
+    /* checks according to PSID V2 NG programmers implementation guide */
+    if ((psid->start_page != 0x00) && (psid->start_page != 0xff) &&
+        (psid->max_pages > 0))
+    {
+	int                 load_start = psid->load_addr;
+	int                 load_end = psid->load_addr + psid->data_size;
+	int                 free_start = psid->start_page << 8;
+	int                 free_end = (psid->start_page + psid->max_pages) << 8;
+
+	/* Relocation information partially covering or encompassing the entire
+	   the tune's load image is not allowed. Note that there is no need to
+	   clip either load_end or free_end here (both load_start and free_start
+	   are always below 0x10000). */
+	if ((load_end > free_start) && (load_start < free_end))
+	{
+	    fprintf (stderr, "%s: Bad PSID header: relocation information overlaps the load image.\n",
+		     p_psid_file);
+	    return 1;
+	}
     }
 
     /* find space for driver and screen (optional) */
