@@ -24,7 +24,7 @@ r1_org	= $00f7
 	* = $0801
 
 	.word basic
-	.word 2002
+	.word 2003
 	.byte $9e,"2061",0
 basic	.word 0
 
