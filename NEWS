@@ -5,6 +5,7 @@ psid64-0.6 (Tue Apr 22 21:02:56 CEST 2003):
 
 * Ported all code to C++.
 * Created the libpsid64 library.
+* Fixed some small incompatibility problems.
 
 psid64-0.5 (Thu Nov  7 23:12:41 CET 2002):
 
