@@ -174,7 +174,7 @@ l3	cpx #9
 l4	lda #7
 l5	dey
 	sta $d800+160,y
-	sta $d800+200,y
+	sta $d800+240,y
 	dex
 	bpl l3
 	tya
