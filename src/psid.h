@@ -64,6 +64,21 @@ psid_t;
 #define PSID_V1_DATA_OFFSET		0x76
 #define PSID_V2_DATA_OFFSET		0x7c
 
+#define PSID_IS_SIDPLAYER_MUS(flags)	((flags) & 0x01)
+#define PSID_IS_PLAYSID_SPECIFIC(flags)	((flags) & 0x02)
+#define PSID_VIDEO_STANDARD(flags)	(((flags) >> 2) & 0x03)
+#define PSID_SID_MODEL(flags)		(((flags) >> 4) & 0x03)
+
+#define PSID_VIDEO_MODE_UNKNOWN		0x00
+#define PSID_VIDEO_MODE_PAL		0x01
+#define PSID_VIDEO_MODE_NTSC		0x02
+#define PSID_VIDEO_MODE_PAL_NTSC	0x03
+
+#define PSID_SID_MODEL_UNKNOWN		0x00
+#define PSID_SID_MODEL_MOS6581		0x01
+#define PSID_SID_MODEL_MOS8580		0x02
+#define PSID_SID_MODEL_MOS6581_MOS8580	0x03
+
 typedef enum psid_err_enum
 {
     PSID_ERR_NO_MEMORY,
