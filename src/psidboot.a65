@@ -1,5 +1,3 @@
-;   $Id$
-;
 ;   psid64 - create a C64 executable from a PSID file
 ;   Copyright (C) 2001  Roland Hermans <rolandh@users.sourceforge.net>
 ;
@@ -43,9 +41,11 @@ counter	.byte 0
 zp	.word 0
 numblk	.byte 0
 blocks	.dsb 4*MAX_BLOCKS, 0
+chars	.byte 0
 player	.word 0
 
 memmove	.(
+	; Move all blocks to highest memory area
 	ldy #0
 l1	dec src+1
 	dec dest+1
@@ -56,15 +56,16 @@ l2	lda (src),y
 	dec counter
 	bne l1
 
+	; Move the blocks to the correct locations
 	ldx numblk
 loop	lda blocks,x
 	sta dest
 	lda blocks+MAX_BLOCKS,x
 	sta dest+1
+	ldy #0
 	lda blocks+3*MAX_BLOCKS,x
 	beq skip1
 	sta counter
-	ldy #0
 copy1	lda (zp),y
 	sta (dest),y
 	iny
@@ -89,7 +90,28 @@ copy2	lda (zp),y
 	inc zp+1
 skip2	dex
 	bpl loop
-	lda #$37
+
+	; Copy character ROM data for screens $4000-$8000 or $C000-$D000
+	lda chars
+	beq nochars
+	sta dest+1
+	lda #$d8
+	sta zp+1
+	ldy #0
+	sty zp
+	sty dest
+	ldx #7
+	dec 1				; $33
+copy3	lda (zp),y
+	sta (dest),y
+	iny
+	bne copy3
+	inc zp+1
+	inc dest+1
+	dex
+	bpl copy3
+
+nochars	lda #$37
 	sta 1
 	jmp (player)
 	.)
