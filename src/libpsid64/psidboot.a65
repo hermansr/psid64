@@ -171,7 +171,7 @@ l1	lda linecol,x
 	ldy #240			; set color of information lines
 l2	ldx #39
 	lda #1
-l3	cpx #9
+l3	cpx #7
 	beq l4
 	bcs l5
 	lda #13

@@ -863,24 +863,24 @@ Psid64::drawScreen()
 
     // information lines
     m_screen->move(0, 4);
-    m_screen->write("Name     : ");
-    m_screen->write(string(m_tuneInfo.infoString[0]).substr(0,29));
+    m_screen->write("Name   : ");
+    m_screen->write(string(m_tuneInfo.infoString[0]).substr(0,31));
 
-    m_screen->write("\nAuthor   : ");
-    m_screen->write(string(m_tuneInfo.infoString[1]).substr(0,29));
+    m_screen->write("\nAuthor : ");
+    m_screen->write(string(m_tuneInfo.infoString[1]).substr(0,31));
 
-    m_screen->write("\nCopyright: ");
-    m_screen->write(string(m_tuneInfo.infoString[2]).substr(0,29));
+    m_screen->write("\nRelease: ");
+    m_screen->write(string(m_tuneInfo.infoString[2]).substr(0,31));
 
-    m_screen->write("\nLoad     : $");
+    m_screen->write("\nLoad   : $");
     m_screen->write(toHexWord(m_tuneInfo.loadAddr));
     m_screen->write("-$");
     m_screen->write(toHexWord(m_tuneInfo.loadAddr + m_tuneInfo.c64dataLen));
 
-    m_screen->write("\nInit     : $");
+    m_screen->write("\nInit   : $");
     m_screen->write(toHexWord(m_tuneInfo.initAddr));
 
-    m_screen->write("\nPlay     : ");
+    m_screen->write("\nPlay   : ");
     if (m_tuneInfo.playAddr)
     {
 	m_screen->write("$");
@@ -891,7 +891,7 @@ Psid64::drawScreen()
 	m_screen->write("N/A");
     }
 
-    m_screen->write("\nTunes    : ");
+    m_screen->write("\nTunes  : ");
     m_screen->write(toNumStr(m_tuneInfo.songs));
     if (m_tuneInfo.songs > 1)
     {
@@ -901,7 +901,7 @@ Psid64::drawScreen()
     }
 
     bool hasFlags = false;
-    m_screen->write("\nFlags    : ");
+    m_screen->write("\nFlags  : ");
     if (m_tuneInfo.compatibility == SIDTUNE_COMPATIBILITY_PSID)
     {
 	addFlag(hasFlags, "PlaySID");
