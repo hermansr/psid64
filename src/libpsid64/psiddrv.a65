@@ -130,12 +130,50 @@ haveio	ora #$34
 	stx $dd03
 	dex
 	stx $dc02
-	lda #dd00
+	lda #<dd00			; relocation always in words
 	sta $dd00
-	lda #d018
+	lda #<d018			; relocation always in words
 	sta $d018
 	lda #$3f
 	sta $dd02
+
+	; Display current song number with leading spaces
+	lda #>screen_songnum
+	beq nosongnum
+	ldx playnum
+	inx
+	txa
+	ldy #0
+	cmp #100
+	bcc lt100
+	ldx #$30			; '0'
+ldiv100	sbc #100
+	inx
+	cmp #100
+	bcs ldiv100
+	stx screen_songnum		; here always y == 0
+	iny
+lt100	cmp #10
+	bcc lt10
+	ldx #$30			; '0'
+ldiv10	sbc #10
+	inx
+	cmp #10
+	bcs ldiv10
+	pha
+	txa
+	sta screen_songnum,y
+	iny
+	pla
+lt10	ora #$30
+	sta screen_songnum,y
+	lda #$29			; ')'
+spfill	sta screen_songnum+1,y
+	lda #$a0			; ' ' (used to erase old song number)
+	iny
+	cpy #3
+	bcc spfill
+nosongnum
 #endif /* SCREEN */
 
 	; Set interrupt vectors

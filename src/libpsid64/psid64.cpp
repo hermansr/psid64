@@ -798,7 +798,16 @@ Psid64::initDriver(uint_least8_t** ptr, int* n)
 
     // undefined references in the drive code need to be added to globals
     globals_t globals;
-    globals["screen"] = m_screenPage << 8;
+    int screen = m_screenPage << 8;
+    globals["screen"] = screen;
+    int screen_songnum = 0;
+    if (m_tuneInfo.songs > 1)
+    {
+	screen_songnum = screen + (10*40) + 24;
+	if (m_tuneInfo.songs >= 100) screen_songnum++;
+	if (m_tuneInfo.songs >= 10) screen_songnum++;
+    }
+    globals["screen_songnum"] = screen_songnum;
     globals["dd00"] = ((((m_screenPage & 0xc0) >> 6) ^ 3) | 0x04);
     vsa = (uint_least8_t) ((m_screenPage & 0x3c) << 2);
     cba = (uint_least8_t) (m_charPage ? (m_charPage >> 2) & 0x0e : 0x06);
@@ -944,9 +953,7 @@ Psid64::drawScreen()
     m_screen->write(toNumStr(m_tuneInfo.songs));
     if (m_tuneInfo.songs > 1)
     {
-	m_screen->write(" (start with ");
-	m_screen->write(toNumStr(m_tuneInfo.startSong));
-	m_screen->write(")");
+	m_screen->write(" (now playing");
     }
 
     bool hasFlags = false;
