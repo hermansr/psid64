@@ -1,6 +1,14 @@
                                   PSID64 NEWS
                                   ===========
 
+psid64-0.7 ():
+
+* Improved RSID compatibility.
+* Use INST/DEL to toggle screen on and off.
+* Show all 31 characters of the PSID header.
+* Fixed NMI bank register bug.
+* Pass default song number via boot loader.
+
 psid64-0.6 (Tue Apr 22 21:02:56 CEST 2003):
 
 * Ported all code to C++.
