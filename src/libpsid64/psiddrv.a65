@@ -203,9 +203,6 @@ brkjob	ldx #$ff
 	txs
 run	cli
 idle	jsr delay
-	php
-	sei
-	jsr keyboard
 #ifdef SCREEN
 	lda d011
 	and #$10
@@ -214,6 +211,11 @@ idle	jsr delay
 	jsr colortext
 	jsr scroller
 noscr
+#endif /* SCREEN */
+	php
+	sei
+	jsr keyboard
+#ifdef SCREEN
 	lda #$7f			; check for reset (control-cbm-delete)
 	sta $dc00
 	lda $dc01
