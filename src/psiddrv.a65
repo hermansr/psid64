@@ -1,0 +1,416 @@
+;   $Id$
+;
+;   psid64 - create a C64 executable from a PSID file
+;   Copyright (C) 2001  Roland Hermans <rolandh@users.sourceforge.net>
+;
+;   This program is free software; you can redistribute it and/or modify
+;   it under the terms of the GNU General Public License as published by
+;   the Free Software Foundation; either version 2 of the License, or
+;   (at your option) any later version.
+;
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;   GNU General Public License for more details.
+;
+;   You should have received a copy of the GNU General Public License
+;   along with this program; if not, write to the Free Software
+;   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+;
+;
+;   The relocating PSID driver is based on a reference implementation written
+;   by Dag Lem, using Andre Fachat's relocating cross assembler, xa. The
+;   original driver code was introduced in VICE 1.7.
+
+	.fopt 0, "psiddrv.o65", 0
+	.fopt 3, "Dag Lem <resid@nimrod.no>", 0
+
+	.align 256
+
+start	jmp cold
+
+	; Parameters
+playnum	.byte 0
+playmax	.byte 0
+loadvec .word 0
+initvec	.word 0
+playvec	.word 0
+speed	.word 0, 0
+palflag .byte 0
+#ifdef SCREEN
+dd00	.byte 0
+d018	.byte 0
+#endif /* SCREEN */
+
+iomap	.byte 0
+
+	; User interrupt vectors
+irqusr	.word irqjob
+brkusr	.word nmijob
+nmiusr	.word nmijob
+
+	; Cold start
+	; Turn interrupts off
+cold	sei
+	cld
+	ldx #$ff
+	txs
+	lda #$37
+	sta 1
+	dex
+	lda #0
+clear	sta 1,x
+	dex
+	bne clear
+	jsr stop
+#ifdef SCREEN
+	ldx #0
+	stx $dc03
+	stx $dd03
+	dex
+	stx $dc02
+	lda dd00
+	sta $dd00
+	lda d018
+	sta $d018
+	lda #$3f
+	sta $dd02
+#endif /* SCREEN */
+
+	; Set interrupt vectors
+	; Don't step on the vectors if they're part of the PSID image
+	lda loadvec+1
+	cmp #$03
+	bcc vicras
+	bne initirq
+	lda loadvec
+	cmp #$1a
+	bcc vicras
+initirq	ldx #$05
+store03	lda irqusr,x
+	sta $0314,x
+	dex
+	bpl store03
+
+	; Set VICII raster to line 0
+vicras
+#ifdef SCREEN
+	lda #$1b
+#else /* !SCREEN */
+	lda #$0b			; blank screen
+#endif /* SCREEN */
+	ldx #$00
+	sta $d011
+	stx $d012
+
+	; Set CIA 1 Timer A to 60Hz
+	lda palflag
+	beq ntsc
+pal	lda #$25
+	ldx #$40
+	bne timer
+ntsc	lda #$95
+	ldx #$42
+timer	sta $dc04
+	stx $dc05
+
+	; Maximum volume
+	lda #$0f
+	sta $d418
+
+	; Get song number
+	ldy playnum
+	dey
+	cpy playmax
+	bcc songset
+	ldy #$00
+songset	tya
+	pha
+
+	; No PLAY => tune must set up interrupts itself (CIA 1 running)
+	lda playvec+1
+	beq ciainit
+
+	; Get shift number for speed bit
+	cpy #32
+	bcc shftset
+	ldy #31
+
+	; Find speed for current song number
+shftset	lda #$00
+	tax
+	sec
+shift	rol
+	bcc nxtshft
+	rol
+	inx
+nxtshft	dey
+	bpl shift
+	and speed,x
+	bne ciainit
+	
+	; Enable VICII raster interrupt
+vicinit	lda #$81
+	sta $d01a
+	bne doinit
+
+	; Enable CIA 1 timer A interrupt
+ciainit	lda #$81
+	ldx #$01
+	sta $dc0d
+	stx $dc0e
+
+	; Set I/O map and call song init routine
+doinit	lda #$2f
+	sta $00
+	lda initvec+1
+	jsr getmap
+	sta $01
+	pla
+	jsr init
+	lda playvec+1
+	beq run
+	jsr getmap
+	sta iomap
+	lda #$36
+	sta $01
+
+run	cli
+idle	jsr delay
+	jsr keyboard
+#ifdef SCREEN
+	jsr colorline
+	jsr colortext
+
+	lda #$7f			; check for reset (control-cbm-delete)
+	sta $dc00
+	lda $dc01
+	and #$24
+	bne idle			; control and cbm key not pressed
+	lda #$fe
+	sta $dc00
+	lda $dc01
+	lsr
+	bcs idle			; delete key not pressed
+
+	jsr stop			; reset
+	sei
+	lda #$37
+	sta 1
+	sta $8004			; break a possible CBM80 vector
+	jmp ($fffc)
+#else /* !SCREEN */
+	jmp idle
+#endif /* SCREEN */
+
+	; init/play PSID
+init	jmp (initvec)
+play	jmp (playvec)
+
+	; Get required I/O map to reach address
+getmap	cmp #$e0
+	bcc kern_on
+	lda #$35
+	rts
+kern_on	cmp #$d0
+	bcc io_on
+	lda #$34
+	rts
+io_on	lda #$36
+	rts
+
+	; IRQ handler
+irqjob	lda playvec+1
+	beq noplay
+	lda $d020			; save value from
+	pha
+	lda $dc00
+	pha
+#ifdef SCREEN
+	lda #$fd			; test for shift lock or shift left
+	sta $dc00
+	lda $dc01
+	bmi noshift
+	lda #6				; show rastertime used by play
+	sta $d020
+#endif /* SCREEN */
+noshift	lda iomap
+	sta $01
+	jsr play
+	lda #$36
+	sta $01
+	lda #$7f			; test for arrow left key
+	sta $dc00
+	lda $dc01
+	and #2
+	bne done
+	inc $d020			; flash $d020 during fast forward
+	jmp noshift
+done	pla
+	sta $dc00
+	pla
+	sta $d020
+noplay	lda $d019
+	sta $d019
+	lda $dc0d
+	pla
+	tay
+	pla
+	tax
+	pla
+	rti
+
+nmijob  bit $dd0d
+	rti
+
+stop	.(
+	ldx #0				; stop NMI and IRQ interrupts
+	stx $d01a
+	lda $d019
+	sta $d019
+	lda #$7f
+	sta $dc0d
+	sta $dd0d
+	lda $dc0d
+	lda $dd0d
+	lda #8
+	sta $dc0e
+	sta $dd0e
+	sta $dc0f
+	sta $dd0f
+	sta $d404			; set test bit to shut down SID voices
+	sta $d40b
+	sta $d412
+	rts
+	.)
+
+delay	.(
+l1	bit $d012			; waits until raster > $80
+	bpl l1
+l2	bit $d012			; waits until raster < $80 or > $100
+	bmi l2
+	rts
+	.)
+
+keyboard	.(
+	ldx key
+	bmi nopress
+	lda keys,x			; check if the key is still pressed
+	sta $dc00
+	lda $dc01
+	and keys+1,x
+	beq exit			; wait until key has been released
+nopress	lda playmax
+	cmp #36
+	bcc maxnum
+	lda #36
+maxnum	asl
+	tax
+loop	lda keys,x
+	sta $dc00
+	lda $dc01
+	and keys+1,x
+	beq found
+	dex
+	dex
+	bpl loop
+	stx key
+exit	rts
+found	stx key
+	txa
+	lsr
+	tax
+	bne newsong
+	jmp stop			; run/stop key pressed
+newsong	stx playnum
+	jmp start			; start new song
+
+key	.byte $ff
+
+keys	.byte $7f,$80	;run/stop
+
+	.byte $7f,$01	;1
+	.byte $7f,$08	;2
+	.byte $fd,$01	;3
+	.byte $fd,$08	;4
+	.byte $fb,$01	;5
+	.byte $fb,$08	;6
+	.byte $f7,$01	;7
+	.byte $f7,$08	;8
+	.byte $ef,$01	;9
+	.byte $ef,$08	;0
+	.byte $fd,$04	;a
+	.byte $f7,$10	;b
+	.byte $fb,$10	;c
+	.byte $fb,$04	;d
+	.byte $fd,$40	;e
+	.byte $fb,$20	;f
+	.byte $f7,$04	;g
+	.byte $f7,$20	;h
+	.byte $ef,$02	;i
+	.byte $ef,$04	;j
+	.byte $ef,$20	;k
+	.byte $df,$04	;l
+	.byte $ef,$10	;m
+	.byte $ef,$80	;n
+	.byte $ef,$40	;o
+	.byte $df,$02	;p
+	.byte $7f,$40	;q
+	.byte $fb,$02	;r
+	.byte $fd,$20	;s
+	.byte $fb,$40	;t
+	.byte $f7,$40	;u
+	.byte $f7,$80	;v
+	.byte $fd,$02	;w
+	.byte $fb,$80	;x
+	.byte $f7,$02	;y
+	.byte $fd,$10	;z
+	.)
+
+
+#ifdef SCREEN
+
+colorline .(				; moving color line effect
+	ldy $d800+4
+	ldx #0
+l1	lda $d800+5,x
+	sta $d800+4,x
+	inx
+	cpx #31
+	bcc l1
+	lda $d800+75
+	sta $d800+35
+	lda $d800+115
+	sta $d800+75
+	ldx #30
+l2	lda $d800+84,x
+	sta $d800+85,x
+	dex
+	bpl l2
+	lda $d800+44
+	sta $d800+84
+	sty $d800+44
+	rts
+	.)
+
+
+colortext .(				; flashing color text effect
+	inc counter
+	lda counter
+	lsr
+	and #15
+	tay
+	lda txtcol,y
+	ldx #37
+l1	sta $d800+961,x
+	iny
+	dex
+	bpl l1
+	rts
+
+counter	.byte 0
+
+txtcol	.byte 9,2,4,10,7,13,1,13,7,10,4,2,9,0,0,0
+	.)
+
+#endif /* SCREEN */

@@ -1,0 +1,11 @@
+* support screens located in the memory ranges $4000-$8000 and $c000-$d000.
+
+* display STIL information.
+
+* create psid64.spec and build RPM packages.
+
+* built-in support for pucrunch.
+
+* add long options support using getopt_long.
+
+* improve C64 demo: make it more colorful, add a scroller, etc.
