@@ -26,21 +26,27 @@ demonstration program with information about the PSID file.
 %setup -q
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{prefix}
-make
+%configure
+make %{_smp_mflags}
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT%{prefix}
-make prefix=$RPM_BUILD_ROOT%{prefix} install-strip
-#gzip -9 $RPM_BUILD_ROOT%{prefix}/man/man1/*
-#gzip -9 $RPM_BUILD_ROOT%{prefix}/info/*
+rm -rf %{buildroot}
+%makeinstall
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %files
 
 %doc AUTHORS COPYING INSTALL NEWS README TODO
 
 %{prefix}/bin/psid64
+
+%changelog
+* Thu Nov  7 2002 Roland Hermans
+
+- Upgraded to RPM 4.1.
+
+* Sat Sep  8 2001 Roland Hermans
+
+- Initial RPM release.
