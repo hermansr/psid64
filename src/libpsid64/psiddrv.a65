@@ -50,6 +50,9 @@ dd00	.byte 0
 d018	.byte 0
 stil	.byte 0
 d011	.byte $1b
+#ifdef SMOOTH_SCROLL
+d016	.byte $08
+#endif /* SMOOTH_SCROLL */
 #endif /* SCREEN */
 
 	; User interrupt vectors
@@ -303,10 +306,24 @@ clrsid	sta $d400,x
 
 delay	.(
 #ifdef SCREEN
-l1	lda $d012			; waits until raster > $80
-	bpl l1
-l2	lda $d012			; waits until raster < $80 or > $100
-	bmi l2
+l1	lda $d012
+	bpl l1				; waits until raster > $80
+l2
+#ifdef SMOOTH_SCROLL
+	ldx d016			; smooth scroll
+	sec
+	sbc #$cb
+	cmp #$18
+	bcc l3
+	ldx #8
+l3	stx $d016
+#endif /* SMOOTH_SCROLL */
+	lda $d012
+	bmi l2				; waits until raster < $80 or > $100
+#ifdef SMOOTH_SCROLL
+	lda #8
+	sta $d016
+#endif /* SMOOTH_SCROLL */
 	rts
 #else /* !SCREEN */
 	ldx #14				; wait approx. 1 frame. accuracy is not
@@ -464,10 +481,31 @@ scroller .(
 
 	ldy stil
 	beq exit
+#ifdef SMOOTH_SCROLL
+	ldx #38
+colscr1	lda $d800+SCROLLER_OFFSET,x
+	sta $d801+SCROLLER_OFFSET,x
+	dex
+	bpl colscr1
+	dec d016
+	dec d016
+#else /* SMOOTH_SCROLL */
 	dec counter
+#endif /* SMOOTH_SCROLL */
 	bpl exit
+#ifdef SMOOTH_SCROLL
+	lda #6
+	sta d016
+	inc counter
+	lda counter
+	and #7
+	tax
+	lda scrcol,x
+	sta $d800+SCROLLER_OFFSET
+#else /* SMOOTH_SCROLL */
 	lda #5
 	sta counter
+#endif /* SMOOTH_SCROLL */
 	lda screen			; patch the scroller code. all of the
 	ora #>SCROLLER_OFFSET		; scroller's chars are within one page
 	sta scr1+1			; so we can re-use this value.
@@ -499,6 +537,10 @@ okchar	stx SCROLLER_OFFSET+39
 exit	rts
 
 counter	.byte 0
+
+#ifdef SMOOTH_SCROLL
+scrcol	.byte 5,5,5,3,13,1,13,3
+#endif /* SMOOTH_SCROLL */
 	.)
 
 #endif /* SCREEN */
