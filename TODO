@@ -1,3 +1,7 @@
+* allow custom post reset function, e.g. to load a menu from disk
+
+* compatibility mode for PAL SIDs on a NTSC computer and vice versa.
+
 * provide a default power on environment to the SIDs.
 
 * display all PSID header information.
