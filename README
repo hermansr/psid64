@@ -40,6 +40,8 @@ PSID64 is invoked from the command line as follows:
 where PSID_FILE is the names of one or more the PSID files. The resulting
 C64 executable(s) are written to the current directory. Options available:
 
+  -b, --blank-screen   use a minimal driver that blanks the screen
+  -g, --global-comment include the global comment STIL text
   -o, --output=FILE    specify output file
   -r, --root           specify HVSC root directory
   -v, --verbose        explain what is being done
