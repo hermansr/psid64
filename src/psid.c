@@ -57,7 +57,8 @@ static const char      *psid_errors[] = {
     "SIDPLAYER MUS files not supported",
     "error reading PSID load address",
     "error reading PSID data",
-    "more than 64K PSID data"
+    "more than 64K PSID data",
+    "RSID header uses reserved fields"
 };
 
 
@@ -120,13 +121,14 @@ psid_load_file (const char *filename)
 	return NULL;
     }
 
-    if (fread (ptr, 1, 6, f) != 6 || memcmp (ptr, "PSID", 4) != 0)
+    if ((fread (ptr, 1, 6, f) != 6)
+	|| ((memcmp (ptr, "PSID", 4) != 0) && (memcmp (ptr, "RSID", 4) != 0)))
     {
 	psid_errno = PSID_ERR_NO_HEADER;
 	goto fail;
     }
 
-
+    memcpy (psid->magic, ptr, 4);
     ptr += 4;
     psid->version = psid_extract_word (&ptr);
 
@@ -181,6 +183,17 @@ psid_load_file (const char *filename)
     if (psid->flags & 0x01)
     {
 	psid_errno = PSID_ERR_SIDPLAYER_MUS;
+	goto fail;
+    }
+
+    /* Additional requirement for RSID file: the fields below are reserved */
+    if ((memcmp (psid->magic, "RSID", 4) == 0) && 
+        ((psid->load_addr != 0)
+	 || (psid->play_addr != 0)
+	 || (psid->speed != 0)
+	 || (PSID_IS_PLAYSID_SPECIFIC(psid->flags))))
+    {
+	psid_errno = PSID_ERR_ILLEGAL_RSID_HEADER;
 	goto fail;
     }
 

@@ -720,12 +720,12 @@ process_file (char *p_psid_file, config_t * p_config)
     /* read the PSID file */
     if (p_config->verbose)
     {
-	fprintf (stderr, "Reading PSID file `%s'\n", p_psid_file);
+	fprintf (stderr, "Reading file `%s'\n", p_psid_file);
     }
     psid = psid_load_file (p_psid_file);
     if (!psid)
     {
-	fprintf (stderr, "%s: `%s' is not a valid PSID file.\n", PACKAGE,
+	fprintf (stderr, "%s: `%s' is not a valid PSID or RSID file.\n", PACKAGE,
 		 p_psid_file);
 	return 1;
     }

@@ -41,6 +41,7 @@
 typedef struct psid_s
 {
     /* PSID data */
+    BYTE                    magic[4];
     WORD                    version;
     WORD                    data_offset;
     WORD                    load_addr;
@@ -89,7 +90,8 @@ typedef enum psid_err_enum
     PSID_ERR_SIDPLAYER_MUS,
     PSID_ERR_LOAD_ADDRESS,
     PSID_ERR_READ_DATA,
-    PSID_ERR_TOO_MUCH_DATA
+    PSID_ERR_TOO_MUCH_DATA,
+    PSID_ERR_ILLEGAL_RSID_HEADER
 }
 psid_err_t;
 
