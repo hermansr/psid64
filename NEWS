@@ -1,6 +1,14 @@
                                   PSID64 NEWS
                                   ===========
 
+psid64-0.2 (Sat Nov 10 13:15:45 CET 2001):
+
+* Ported to Windows/Cygwin platform.
+* Supports screens located in the memory ranges $4000-$8000 and $c000-$d000.
+* Supports long option formats on systems with getopt_long().
+* Possible to specify multiple PSID files to be converted on the command line.
+
+
 psid64-0.1 (Sat Sep  8 13:10:56 CEST 2001):
 
 * Initial release.
