@@ -63,7 +63,11 @@ cold	sei
 	cld
 	ldx #$ff
 	txs
-	lda #$37
+	lda $01		; enable io without changing basic and kernal rom bank
+	and #3
+	bne haveio
+	lda #$01
+haveio	ora #$34
 	sta $01
 	jsr stop
 #ifdef SCREEN
@@ -110,10 +114,6 @@ ntsc	lda #$95
 	ldx #$42
 timer	sta $dc04
 	stx $dc05
-
-	; Maximum volume
-	lda #$0f
-	sta $d418
 
 	; Get song number
 	ldy playnum
@@ -291,6 +291,13 @@ stop	.(
 	sta $d404			; set test bit to shut down SID voices
 	sta $d40b
 	sta $d412
+	txa				; clear SID registers
+	ldx #$17
+clrsid	sta $d400,x
+	dex
+	bpl clrsid
+	lda #$0f			; maximum volume
+	sta $d418
 	rts
 	.)
 
