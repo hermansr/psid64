@@ -1,4 +1,18 @@
+2001-11-11  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* /cvsroot/psid64/psid64/aclocal.m4, /cvsroot/psid64/psid64/configure, /cvsroot/psid64/psid64/Makefile.in, /cvsroot/psid64/psid64/src/Makefile.in:
+	changes due to rerunning autoconf/automake
+
+	* /cvsroot/psid64/psid64/NEWS: updated news
+
+	* /cvsroot/psid64/psid64/src/main.c, /cvsroot/psid64/psid64/src/psid.c:
+	use b in fopen() calls to ensure treating files as binary
+
+	* /cvsroot/psid64/psid64/configure.in: updated version number
+
 2001-11-10  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* /cvsroot/psid64/psid64/ChangeLog: *** empty log message ***
 
 	* /cvsroot/psid64/psid64/NEWS:
 	Added features implemented in release 0.2
