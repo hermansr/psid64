@@ -24,20 +24,20 @@ r1_org	= $00f7
 	* = $0801
 
 	.word basic
-	.word 2003
-	.byte $97,"780,"
-songvec	.byte "   "
-	.byte ":",$9e,"2070",0
+	.word 2004
+	.byte $9e,"2061",0
 basic	.word 0
 
 
+song	= *+1
+	lda #0
 	jmp start
 
 r1_src	= *
 	* = r1_org
 
 	; Parameters
-src	.word songvec			; $00f7
+src	.word song			; $00f7
 dest	.word 0				; $00f9
 counter	.byte 0				; $00fb
 zp	.word 0				; $00fc
