@@ -121,10 +121,10 @@ Psid64::Psid64() :
     m_useGlobalComment(false),
     m_verbose(false),
     m_tune(0),
-    m_programData(0),
-    m_programSize(0),
+    m_stil(new STIL),
     m_screen(new Screen),
-    m_stil(new STIL)
+    m_programData(0),
+    m_programSize(0)
 {
 }
 
