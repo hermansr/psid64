@@ -1,6 +1,11 @@
                                   PSID64 NEWS
                                   ===========
 
+psid64-0.6 (Tue Apr 22 21:02:56 CEST 2003):
+
+* Ported all code to C++.
+* Created the libpsid64 library.
+
 psid64-0.5 (Thu Nov  7 23:12:41 CET 2002):
 
 * Added preliminary support of RSID format.
