@@ -468,7 +468,17 @@ Psid64::formatStilText()
     // convert the stil text and remove all double whitespace characters
     unsigned int n = str.length();
     m_stilText.reserve(n);
-    bool space = false;
+
+    // start the scroll text with some space characters (to separate end
+    // from beginning and to make sure the color effect has reached the end
+    // of the line before the first character is visible)
+    for (unsigned int i = 0; i < (STIL_EOT_SPACES-1); i++)
+    {
+	m_stilText += Screen::iso2scr(' ');
+    }
+
+    bool space = true;
+    bool realText = false;
     for (unsigned int i = 0; i < n; i++)
     {
 	if (isspace(str[i]))
@@ -482,18 +492,20 @@ Psid64::formatStilText()
 	       space = false;
 	    }
 	    m_stilText += Screen::iso2scr(str[i]);
+	    realText = true;
 	}
     }
 
     // check if the message contained at least one graphical character
-    if (!m_stilText.empty())
+    if (realText)
     {
-	// pad the scroll text with some space characters
-	for (unsigned int i = 0; i < STIL_EOT_SPACES; i++)
-	{
-	    m_stilText += Screen::iso2scr(' ');
-	}
+	// end-of-text marker
 	m_stilText += 0xff;
+    }
+    else
+    {
+	// no STIL text at all
+	m_stilText.clear();
     }
 
     return true;
