@@ -17,7 +17,7 @@
 
 r1_org	= $0002
 
-#define MAX_BLOCKS			3
+#define MAX_BLOCKS			4
 
 	.word $0801
 
@@ -186,6 +186,18 @@ stilcol	sta $d800+480,y
 	iny
 	bne stilcol
 
+	ldx #19
+	ldy #0
+stilco2	lda #1
+	cpx #3
+	bcs skip
+	lda scrollcol,x
+skip	sta $d800+840,x
+	sta $d800+860,y
+	iny
+	dex
+	bpl stilco2
+
 	lda #$34
 	sta 1
 	ldy #0
@@ -221,4 +233,6 @@ vicdata	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $02,$03,$04,$05,$06,$07
 
 linecol	.byte 9,11,8,12,10,15,7,1,13,7,3,12,14,4,6
+
+scrollcol .byte 11,12,15
 	.)

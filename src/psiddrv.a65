@@ -19,6 +19,11 @@
 ;   The relocating PSID driver is based on a reference implementation written
 ;   by Dag Lem, using Andre Fachat's relocating cross assembler, xa. The
 ;   original driver code was introduced in VICE 1.7.
+;
+;   Please note that this driver code is optimized to squeeze the minimal
+;   driver (without screen support) in just two memory pages. For this reason
+;   it contains some strange branches to gain a few bytes. Look out for side
+;   effects when updating this code!
 
 	.fopt 0, "psiddrv.o65", 0
 	.fopt 3, "Dag Lem <resid@nimrod.no>", 0
@@ -36,15 +41,17 @@ playvec	.word 0
 speed	.word 0, 0
 palflag .byte 0
 #ifdef SCREEN
+screen	.byte 0
 dd00	.byte 0
 d018	.byte 0
+stil	.byte 0
 #endif /* SCREEN */
 
 iomap	.byte 0
 
 	; User interrupt vectors
 irqusr	.word irqjob
-brkusr	.word nmijob
+brkusr	.word irqret
 nmiusr	.word nmijob
 
 	; Cold start
@@ -171,35 +178,38 @@ doinit	lda #$2f
 	jsr getmap
 	sta iomap
 	lda #$36
-	sta $01
+idle	sta $01
 
 run	cli
-idle	jsr delay
+	jsr delay
+	sei
+	lda $01				; save bankreg
+	pha
+	lda #$36
+	sta 1
 	jsr keyboard
 #ifdef SCREEN
 	jsr colorline
 	jsr colortext
+	jsr scroller
 
 	lda #$7f			; check for reset (control-cbm-delete)
 	sta $dc00
 	lda $dc01
 	and #$24
-	bne idle			; control and cbm key not pressed
-	lda #$fe
-	sta $dc00
+	bne noreset			; control and cbm key not pressed
+	ldx #$fe
+	stx $dc00
 	lda $dc01
 	lsr
-	bcs idle			; delete key not pressed
-
-	jsr stop			; reset
-	sei
-	lda #$37
-	sta 1
-	sta $8004			; break a possible CBM80 vector
-	jmp ($fffc)
-#else /* !SCREEN */
-	jmp idle
+	bcs noreset			; delete key not pressed
+	stx $8004			; break a possible CBM80 vector
+	jsr stop
+	jmp ($fffc)			; reset
+noreset
 #endif /* SCREEN */
+	pla				; restore bankreg
+	jmp idle
 
 	; init/play PSID
 init	jmp (initvec)
@@ -220,7 +230,7 @@ io_on	lda #$36
 	; IRQ handler
 irqjob	lda playvec+1
 	beq noplay
-	lda $d020			; save value from
+	lda $d020			; save values
 	pha
 	lda $dc00
 	pha
@@ -232,10 +242,13 @@ irqjob	lda playvec+1
 	lda #6				; show rastertime used by play
 	sta $d020
 #endif /* SCREEN */
-noshift	lda iomap
+noshift	lda $01
+	pha
+	lda iomap
 	sta $01
+	lda #0
 	jsr play
-	lda #$36
+	pla
 	sta $01
 	lda #$7f			; test for arrow left key
 	sta $dc00
@@ -251,15 +264,12 @@ done	pla
 noplay	lda $d019
 	sta $d019
 	lda $dc0d
-	pla
+irqret	pla
 	tay
 	pla
 	tax
 	pla
-	rti
-
-nmijob  bit $dd0d
-	rti
+nmijob	rti
 
 stop	.(
 	ldx #0				; stop NMI and IRQ interrupts
@@ -283,11 +293,30 @@ stop	.(
 	.)
 
 delay	.(
-l1	bit $d012			; waits until raster > $80
+#ifdef SCREEN
+l1	jsr getd012			; waits until raster > $80
 	bpl l1
-l2	bit $d012			; waits until raster < $80 or > $100
+l2	jsr getd012			; waits until raster < $80 or > $100
 	bmi l2
 	rts
+
+getd012	sei
+	ldx $01
+	lda #$36
+	sta $01
+	lda $d012
+	stx $01
+	cli
+	tax
+	rts
+#else /* !SCREEN */
+	ldx #14				; wait approx. 1 frame. accuracy is not
+l1	dey				; important as we only have to deal with
+	bne l1				; keyboard handling
+	dex
+	bne l1
+	rts
+#endif /* SCREEN */
 	.)
 
 keyboard	.(
@@ -409,6 +438,49 @@ l1	sta $d800+961,x
 counter	.byte 0
 
 txtcol	.byte 9,2,4,10,7,13,1,13,7,10,4,2,9,0,0,0
+	.)
+
+scroller .(
+
+#define SCROLLER_OFFSET			840
+
+	ldy stil
+	beq exit
+	dec counter
+	bpl exit
+	lda #5
+	sta counter
+	lda screen			; patch the scroller code. all of the
+	ora #>SCROLLER_OFFSET		; scroller's chars are within one page
+	sta scr1+1			; so we can re-use this value.
+	sta scr2+1
+	sta scr3+1
+	ldx #0
+scr1	= *+1
+scroll	lda SCROLLER_OFFSET+1,x
+scr2	= *+1
+	sta SCROLLER_OFFSET,x
+	inx
+	cpx #39
+	bcc scroll
+
+msgpos	= *+1
+restart	ldx eot
+eot	= *+1
+	cpx #$ff
+	bne okchar
+	inx				; restart scroll text
+	stx msgpos
+	sty msgpos+1
+	beq restart
+scr3	= *+1
+okchar	stx SCROLLER_OFFSET+39
+	inc msgpos
+	bne exit
+	inc msgpos+1
+exit	rts
+
+counter	.byte 0
 	.)
 
 #endif /* SCREEN */
