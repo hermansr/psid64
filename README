@@ -35,10 +35,16 @@ USAGE
 
 PSID64 is invoked from the command line as follows:
 
-    psid64 <psid_file> <c64_file>
+    psid64 [OPTION]... PSID_FILE...
 
-where <psid_file> is the name of the PSID file and <c64_file> the name of the
-resulting C64 executable.
+where PSID_FILE is the names of one or more the PSID files. The resulting
+C64 executable(s) are written to the current directory. Options available:
+
+  -o, --output=FILE    specify output file
+  -r, --root           specify HVSC root directory
+  -v, --verbose        explain what is being done
+  -h, --help           display this help and exit
+  -V, --version        output version information and exit
 
 
 KEYS PLAYER INSTRUCTIONS
