@@ -1,4 +1,37 @@
+2003-04-22  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* include/sidplay/sidint.h: generated file
+
+2003-04-13  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* autogen.sh: run autoheader to generate src/config.h.in
+
+	* depcomp, install-sh, missing, mkinstalldirs:
+	removed files from automake
+
+	* include/sidplay/Buffer.h, include/sidplay/SidTune.h, include/sidplay/SmartPtr.h, include/sidplay/sidconfig.h.in, include/sidplay/sidendian.h, include/sidplay/sidint.h, include/sidplay/sidtypes.h, include/sidplay/utils/SidDatabase.h, include/sidplay/utils/SidTuneMod.h, include/sidplay/utils/libini.h, macros/ac_compile_check_sizeof.m4, macros/ac_create_stdint_h.m4, macros/sidtune.m4, include/psid64/psid64.h, acinclude.m4, configure, configure.in, Makefile.am, Makefile.in, aclocal.m4, configure.ac, src/libpsid64/Makefile.am, src/libpsid64/psid64.cpp, src/libpsid64/psidboot.a65, src/libpsid64/psidboot.h, src/libpsid64/psiddrv.a65, src/libpsid64/psiddrv.h, src/libpsid64/psidextdrv.h, src/libpsid64/reloc65.cpp, src/libpsid64/reloc65.h, src/libpsid64/screen.cpp, src/libpsid64/screen.h, src/libpsid64/stilview/README.txt, src/libpsid64/stilview/STILView-config.patch, src/libpsid64/stilview/stil.cpp, src/libpsid64/stilview/stil.h, src/libpsid64/stilview/stilcomm.cpp, src/libpsid64/stilview/stilcomm.h, src/libpsid64/stilview/stildefs.h, src/sidtune/IconInfo.cpp, src/sidtune/InfoFile.cpp, src/sidtune/MUS.cpp, src/sidtune/Makefile.am, src/sidtune/PP20.cpp, src/sidtune/PP20.h, src/sidtune/PP20_Defs.h, src/sidtune/PSID.cpp, src/sidtune/SidTune.cpp, src/sidtune/SidTuneCfg.h, src/sidtune/SidTuneTools.cpp, src/sidtune/SidTuneTools.h, src/sidutils/MD5/MD5.cpp, src/sidutils/MD5/MD5.h, src/sidutils/MD5/MD5_Defs.h, src/sidutils/MD5/Makefile.am, src/sidutils/Makefile.am, src/sidutils/SidDatabase.cpp, src/sidutils/SidTuneMod.cpp, src/sidutils/ini/Makefile.am, src/sidutils/ini/headings.h, src/sidutils/ini/headings.i, src/sidutils/ini/ini.cpp, src/sidutils/ini/ini.h, src/sidutils/ini/keys.h, src/sidutils/ini/keys.i, src/sidutils/ini/list.h, src/sidutils/ini/list.i, src/sidutils/ini/types.i, src/Makefile.in, src/config.h.in, src/datatypes.h, src/main.c, src/main.cpp, src/psid.c, src/psid.h, src/psidboot.a65, src/psidboot.h, src/psiddrv.a65, src/psiddrv.h, src/psidextdrv.h, src/reloc65.c, src/reloc65.h, src/screen.c, src/screen.h, src/stamp-h.in, src/stilwrapper.cc, src/stilwrapper.h, src/ConsoleApp.cpp, src/ConsoleApp.h:
+	switched to C++
+
+	* src/Makefile.am: added C++ source files
+
+	* psid64.spec.in: added library and header file
+
+	* autogen.sh: added script to set up the build system
+
+2002-12-15  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/main.c, src/psidboot.a65, src/psidboot.h, src/psiddrv.a65, src/psiddrv.h, src/psidextdrv.h:
+	keep value of $02a6 and use it as pal/ntsc flag
+
+2002-11-21  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* configure, configure.in: check for snprintf
+
+	* src/config.h.in: Autoheader added HAVE_SNPRINTF
+
 2002-11-08  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* ChangeLog: changes in release 0.5
 
 	* psid64.spec.in: upgraded to RPM 4.1
 
@@ -8,16 +41,7 @@
 
 2002-11-07  Roland Hermans  <rolandh@users.sourceforge.net>
 
-	* depcomp, INSTALL, install-sh, missing, mkinstalldirs:
-	upgraded to automake 1.6.3
-
-2002-11-07  Roland Hermans  <rolandh@users.sourceforge.net>
-
-	* src/stilview/Makefile.in: upgraded to automake 1.6.3
-
-2002-11-07  Roland Hermans  <rolandh@users.sourceforge.net>
-
-	* Makefile.in, aclocal.m4, configure, src/Makefile.in, src/config.h.in:
+	* depcomp, INSTALL, install-sh, missing, mkinstalldirs, Makefile.in, aclocal.m4, configure, src/Makefile.in, src/config.h.in:
 	upgraded to automake 1.6.3
 
 	* src/Makefile.am: fixed AM_CFLAGS for automake 1.6.3
@@ -48,11 +72,6 @@
 	check that the relocation information does not use the following
 	memory areas: 0x0000-0x03FF, 0xA000-0xBFFF and 0xD000-0xFFFF
 
-2002-10-26  Roland Hermans  <rolandh@users.sourceforge.net>
-
-	* src/stilview/README.txt, src/stilview/stil.cpp, src/stilview/stil.h, src/stilview/stilcomm.cpp, src/stilview/stilcomm.h, src/stilview/stildefs.h:
-	Upgraded to STILView 2.17
-
 2002-10-03  Roland Hermans  <rolandh@users.sourceforge.net>
 
 	* src/psidboot.a65: added displaying of PSID header flags
@@ -77,16 +96,6 @@
 
 	* src/psidboot.h, src/psiddrv.h, src/psidextdrv.h:
 	*** empty log message ***
-
-2002-03-24  Roland Hermans  <rolandh@users.sourceforge.net>
-
-	* src/stilview/Makefile.am, src/stilview/Makefile.in, src/stilview/README.txt, src/stilview/STILView-config.patch, src/stilview/stil.cpp, src/stilview/stil.h, src/stilview/stilcomm.cpp, src/stilview/stilcomm.h, src/stilview/stildefs.h:
-	New file.
-
-	* src/stilview/Makefile.am, src/stilview/Makefile.in, src/stilview/README.txt, src/stilview/STILView-config.patch, src/stilview/stil.cpp, src/stilview/stil.h, src/stilview/stilcomm.cpp, src/stilview/stilcomm.h, src/stilview/stildefs.h:
-	STILView v2.16
-
-2002-03-24  Roland Hermans  <rolandh@users.sourceforge.net>
 
 	* src/screen.c, src/screen.h:
 	improved iso2pet and made it a global function
