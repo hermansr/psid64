@@ -163,23 +163,23 @@ private:
     unsigned int m_programSize;
 
     // member functions
-    bool Psid64::formatStilText();
-    uint_least8_t Psid64::findStilSpace(bool* pages, uint_least8_t scr,
-					uint_least8_t chars,
-					uint_least8_t driver,
-					uint_least8_t size) const;
-    uint_least8_t Psid64::findDriverSpace(bool* pages, uint_least8_t scr,
-				          uint_least8_t chars,
-					  uint_least8_t size) const;
-    void Psid64::findFreeSpace();
-    void Psid64::initDriver(uint_least8_t** ptr, int* n);
-    void Psid64::addFlag(bool &hasFlags, std::string flagName);
-    std::string Psid64::toHexWord(uint_least16_t value) const;
-    std::string Psid64::toNumStr(int value) const;
-    void Psid64::drawScreen();
-//    int Psid64::block_cmp(block_t* a, block_t* b);
-//    char* Psid64::build_output_filename(char* p_psid_file);
-//    std::string Psid64::build_output_filename(const std::string &p_psid_file);
+    bool formatStilText();
+    uint_least8_t findStilSpace(bool* pages, uint_least8_t scr,
+				uint_least8_t chars,
+				uint_least8_t driver,
+				uint_least8_t size) const;
+    uint_least8_t findDriverSpace(bool* pages, uint_least8_t scr,
+			          uint_least8_t chars,
+				  uint_least8_t size) const;
+    void findFreeSpace();
+    void initDriver(uint_least8_t** ptr, int* n);
+    void addFlag(bool &hasFlags, std::string flagName);
+    std::string toHexWord(uint_least16_t value) const;
+    std::string toNumStr(int value) const;
+    void drawScreen();
+//    int block_cmp(block_t* a, block_t* b);
+//    char* build_output_filename(char* p_psid_file);
+//    std::string build_output_filename(const std::string &p_psid_file);
 };
 
 
