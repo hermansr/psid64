@@ -462,10 +462,12 @@ build_output_filename (char *p_psid_file, config_t * p_config)
 
     if (p_config->p_output_filename != NULL)
     {
+	/* use filename specified by --output option */
 	p_output_filename = g_strdup (p_config->p_output_filename);
     }
     else
     {
+	/* strip .psid extension */
 	p_str = g_basename (p_psid_file);
 	l = (p_str != NULL) ? strlen (p_str) : 0;
 	n = strlen (PSID_POSTFIX);
@@ -477,7 +479,10 @@ build_output_filename (char *p_psid_file, config_t * p_config)
 	{
 	    p_str = g_strdup (p_str);
 	}
+
+	/* add .prg extension */
 	p_output_filename = g_strdup_printf ("%s%s", p_str, PRG_POSTFIX);
+
 	g_free (p_str);
     }
 
@@ -490,7 +495,7 @@ process_file (char *p_psid_file, config_t * p_config)
 {
     int                     retval = 0;
     char                   *p_output_filename;
-     /*FIXME*/ BYTE screen[SCREEN_SIZE];
+    BYTE                    screen[SCREEN_SIZE];
     block_t                 blocks[MAX_BLOCKS];
     int                     n_blocks;
     int                     i;
@@ -645,7 +650,7 @@ process_file (char *p_psid_file, config_t * p_config)
 static void
 print_usage (void)
 {
-    printf ("Usage: %s [-hvV] [-r hvsc_root] <psid_file> <c64_file>\n",
+    printf ("Usage: %s [OPTION]... PSID_FILE...\n",
 	    PACKAGE);
 }
 
