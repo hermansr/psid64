@@ -129,9 +129,9 @@ timer	sta $dc04
 songset	tya
 	pha
 
-	; No PLAY => tune must set up interrupts itself (CIA 1 running)
-	lda playvec+1
-	beq ciainit
+	; RSIDs use default environment of CIA1 only
+        lda initiomap
+        beq ciainit
 
 	; Get shift number for speed bit
 	cpy #32
@@ -170,6 +170,8 @@ doinit	lda #$01
 	beq noplay
 	lda #<irqjob
 	sta $0314
+	lda #>irqjob
+	sta $0315
 
 	; Set I/O map and call song init routine
 noplay	lda #$2f
@@ -270,9 +272,9 @@ done	pla
 	sta $dc00
 	pla
 	sta $d020
-irqret	lda $d019
+	lda $d019
 	sta $d019
-	lda $dc0d
+irqret	lda $dc0d
 	pla
 	tay
 	pla
