@@ -1,4 +1,3 @@
-#define SMOOTH_SCROLL
 ;   psid64 - create a C64 executable from a PSID file
 ;   Copyright (C) 2001-2003  Roland Hermans <rolandh@users.sourceforge.net>
 ;
@@ -143,7 +142,8 @@ vicinit	lda vicdata,x
 	bpl vicinit
 
 	; Initialize color memory
-	tay
+	ldy #0
+	tya
 colinit	sta $d800,y
 	sta $d900,y
 	sta $da00,y
@@ -195,13 +195,9 @@ stilco2	lda #1
 skip	sta $d800+840,x
 	sta $d800+860,y
 	iny
-#else /* SMOOTH_SCROLL */
-	ldx #39
-	lda #1
-stilco2	sta $d800+840,x
-#endif /* SMOOTH_SCROLL */
 	dex
 	bpl stilco2
+#endif /* SMOOTH_SCROLL */
 
 	lda $02a6			; store pal/ntsc flag (bit 0)
 	sta $dbff			; in color ram
