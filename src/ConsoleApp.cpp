@@ -251,12 +251,12 @@ bool ConsoleApp::main(int argc, char **argv)
 	    exit (0);
 	    break;
 	case ':':
-	    cerr << PACKAGE << ": option requires an argument -- " << optopt
-	         << endl;
+	    cerr << PACKAGE << ": option requires an argument -- "
+	         << (char) optopt << endl;
 	    errflg++;
 	    break;
 	case '?':
-	    cerr << PACKAGE << ": invalid option -- " << optopt << endl;
+	    cerr << PACKAGE << ": invalid option -- " << (char) optopt << endl;
 	    errflg++;
 	    break;
 	default:
