@@ -46,4 +46,4 @@ psidextdrv.h: psiddrv.a65
 	xa -R -G $< -o - -DSCREEN | od -v -An -w8 -tx1 | sed 's/\w\w/0x&,/g' > $(srcdir)/$@
 
 # show all warnings
-AM_CFLAGS += -Wall
+AM_CFLAGS = -Wall
