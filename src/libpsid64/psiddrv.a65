@@ -144,21 +144,22 @@ haveio	ora #$34
 	inx
 	txa
 	ldy #0
+	ldx #$30			; '0'
 	cmp #100
 	bcc lt100
-	ldx #$30			; '0'
 ldiv100	sbc #100
 	inx
 	cmp #100
 	bcs ldiv100
 	stx screen_songnum		; here always y == 0
 	iny
+	ldx #$30
+	bne adiv10
 lt100	cmp #10
 	bcc lt10
-	ldx #$30			; '0'
 ldiv10	sbc #10
 	inx
-	cmp #10
+adiv10	cmp #10
 	bcs ldiv10
 	pha
 	txa
@@ -169,7 +170,7 @@ lt10	ora #$30
 	sta screen_songnum,y
 	lda #$29			; ')'
 spfill	sta screen_songnum+1,y
-	lda #$a0			; ' ' (used to erase old song number)
+	lda #$20			; ' ' (used to erase old song number)
 	iny
 	cpy #3
 	bcc spfill
@@ -394,7 +395,7 @@ keyboard	.(
 nopress	lda playmax
 #ifdef SCREEN
 	clc
-	adc #1				; inst/del key
+	adc #3				; inst/del, + and - key
 #endif /* SCREEN */
 	cmp #36
 	bcc maxnum
@@ -416,16 +417,33 @@ found	stx key
 tglscr
 #ifdef SCREEN
 	dex
-	bne newsong
+	bne incsong
 	lda d011			; inst/del key pressed
 	eor #$10
 	sta d011
 	sta $d011
 	rts
+incsong	
+	dex
+	bne decsong
+	ldx playnum			; + key pressed
+	inx
+	cpx playmax
+	bcc xstart
+	ldx #0
+	beq xstart
+decsong
+	dex
+	bne newsong
+	ldx playnum			; - key pressed
+	bne maxsong
+	ldx playmax
+maxsong dex
+	jmp xstart
 newsong
 #endif /* SCREEN */
 	dex
-	txa
+xstart	txa
 	jmp start			; start new song
 
 key	.byte $ff
@@ -434,6 +452,8 @@ keyrow	.byte $7f	;run/stop
 
 #ifdef SCREEN
 	.byte $fe	;inst/del
+	.byte $df	;+
+	.byte $df	;-
 #endif /* SCREEN */
 
 	.byte $7f	;1
@@ -477,6 +497,8 @@ keycol	.byte $80	;run/stop
 
 #ifdef SCREEN
 	.byte $01	;inst/del
+	.byte $01	;+
+	.byte $08	;-
 #endif /* SCREEN */
 
 	.byte $01	;1
