@@ -60,6 +60,48 @@ irqusr	.word irqret
 brkusr	.word brkjob
 nmiusr	.word nmijob
 
+	; IRQ handler
+irqjob	lda $d020			; save values
+	pha
+	lda $dc00
+	pha
+#ifdef SCREEN
+	lda #$fd			; test for shift lock or shift left
+	sta $dc00
+	lda $dc01
+	bmi noshift
+	lda #6				; show rastertime used by play
+	sta $d020
+#endif /* SCREEN */
+noshift	lda $01
+	pha
+	lda playiomap
+	sta $01
+	lda #0
+	jsr play
+	pla
+	sta $01
+	lda #$7f			; test for arrow left key
+	sta $dc00
+	lda $dc01
+	and #2
+	bne done
+	inc $d020			; flash $d020 during fast forward
+	jmp noshift
+done	pla
+	sta $dc00
+	pla
+	sta $d020
+	lda $d019
+	sta $d019
+irqret	lda $dc0d
+	pla
+	tay
+	pla
+	tax
+	pla
+nmijob	rti
+
 	; Cold start
 	; Turn interrupts off
 cold	sei
@@ -168,8 +210,6 @@ doinit	lda #$01
 	beq noplay
 	lda #<irqjob
 	sta $0314
-	lda #>irqjob
-	sta $0315
 
 	; Set I/O map and call song init routine
 noplay	lda #$2f
@@ -235,48 +275,6 @@ noreset
 #endif /* SCREEN */
 	plp
 	jmp idle
-
-	; IRQ handler
-irqjob	lda $d020			; save values
-	pha
-	lda $dc00
-	pha
-#ifdef SCREEN
-	lda #$fd			; test for shift lock or shift left
-	sta $dc00
-	lda $dc01
-	bmi noshift
-	lda #6				; show rastertime used by play
-	sta $d020
-#endif /* SCREEN */
-noshift	lda $01
-	pha
-	lda playiomap
-	sta $01
-	lda #0
-	jsr play
-	pla
-	sta $01
-	lda #$7f			; test for arrow left key
-	sta $dc00
-	lda $dc01
-	and #2
-	bne done
-	inc $d020			; flash $d020 during fast forward
-	jmp noshift
-done	pla
-	sta $dc00
-	pla
-	sta $d020
-	lda $d019
-	sta $d019
-irqret	lda $dc0d
-	pla
-	tay
-	pla
-	tax
-	pla
-nmijob	rti
 
 stop	.(
 	ldx #0				; stop NMI and IRQ interrupts
