@@ -1,6 +1,6 @@
-# Makefile.in generated automatically by automake 1.4 from Makefile.am
+# Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
 
-# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -68,10 +68,26 @@ VERSION = @VERSION@
 
 bin_PROGRAMS = psid64
 
-psid64_SOURCES =  	datatypes.h 	main.c 	psid.c 	psid.h 	psidboot.a65 	psidboot.h 	psiddrv.a65 	psiddrv.h 	psidextdrv.h 	reloc65.c 	reloc65.h 	screen.c 	screen.h
+psid64_SOURCES = \
+	datatypes.h \
+	main.c \
+	psid.c \
+	psid.h \
+	psidboot.a65 \
+	psidboot.h \
+	psiddrv.a65 \
+	psiddrv.h \
+	psidextdrv.h \
+	reloc65.c \
+	reloc65.h \
+	screen.c \
+	screen.h
 
 
-BUILT_SOURCES =  	psidboot.h 	psiddrv.h 	psidextdrv.h
+BUILT_SOURCES = \
+	psidboot.h \
+	psiddrv.h \
+	psidextdrv.h
 
 
 psid64_LDADD = @GLIB_LIBS@
