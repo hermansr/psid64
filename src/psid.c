@@ -113,7 +113,7 @@ psid_load_file (const char *filename)
 	return NULL;
     }
 
-    if (!(f = fopen (filename, "r")))
+    if (!(f = fopen (filename, "rb")))
     {
 	free (psid);
 	psid_errno = PSID_ERR_NO_FILE;

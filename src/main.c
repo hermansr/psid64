@@ -622,7 +622,7 @@ process_file (char *p_psid_file, config_t * p_config)
 
     /* write C64 executable */
     p_output_filename = build_output_filename (p_psid_file, p_config);
-    f = fopen (p_output_filename, "w");
+    f = fopen (p_output_filename, "wb");
     if (f != NULL)
     {
 	if (p_config->verbose)
