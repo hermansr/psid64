@@ -25,7 +25,9 @@ r1_org	= $00f7
 
 	.word basic
 	.word 2003
-	.byte $9e,"2061",0
+	.byte $97,"780,"
+songvec	.byte "   "
+	.byte ":",$9e,"2070",0
 basic	.word 0
 
 
@@ -35,7 +37,7 @@ r1_src	= *
 	* = r1_org
 
 	; Parameters
-src	.word 0				; $00f7
+src	.word songvec			; $00f7
 dest	.word 0				; $00f9
 counter	.byte 0				; $00fb
 zp	.word 0				; $00fc
@@ -130,6 +132,11 @@ start	.(
 	ldx #$ff
 	txs
 	cld
+	pha				; Store default song
+	lda $02a6
+	and #1
+	pha				; Store pal/ntsc flag
+
 	lda #$37
 	sta 1
 	jsr $ff84
@@ -198,9 +205,6 @@ skip	sta $d800+840,x
 	dex
 	bpl stilco2
 #endif /* SMOOTH_SCROLL */
-
-	lda $02a6			; store pal/ntsc flag (bit 0)
-	sta $dbff			; in color ram
 
 	lda #$34
 	sta 1

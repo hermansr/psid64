@@ -30,7 +30,7 @@
 
 	.align 256
 
-start	jmp cold
+	jmp cold
 	jmp setiomap
 
 	; Parameters
@@ -38,7 +38,6 @@ init	rts
 	.word 0
 play	rts
 	.word 0
-playnum	.byte 0
 playmax	.byte 0
 speed	.word 0, 0
 irqvec	.byte 0
@@ -50,6 +49,12 @@ dd00	.byte 0
 d018	.byte 0
 stil	.byte 0
 d011	.byte $1b
+#endif /* SCREEN */
+
+	; Variables
+video	.byte 0
+playnum	.byte 0
+#ifdef SCREEN
 #ifdef SMOOTH_SCROLL
 d016	.byte $08
 #endif /* SMOOTH_SCROLL */
@@ -103,8 +108,12 @@ irqret	lda $dc0d
 nmijob	rti
 
 	; Cold start
-	; Turn interrupts off
-cold	sei
+	; Parameters passed in from boot loader
+cold	pla
+	sta video
+	pla
+start	sta playnum
+	sei		; Turn interrupts off
 	cld
 	ldx #$ff
 	txs
@@ -149,9 +158,8 @@ vicras
 	stx $d012
 
 	; Set CIA 1 Timer A to 60Hz
-	lda $dbff			; pal/ntsc flag stored in color ram
-	lsr
-	bcc ntsc
+	lda video
+	beq ntsc
 pal	lda #$25
 	ldx #$40
 	bne timer
@@ -162,7 +170,6 @@ timer	sta $dc04
 
 	; Get song number
 	ldy playnum
-	dey
 	cpy playmax
 	bcc songset
 	ldy #$00
@@ -380,7 +387,8 @@ tglscr
 	rts
 newsong
 #endif /* SCREEN */
-	stx playnum
+	dex
+	txa
 	jmp start			; start new song
 
 key	.byte $ff

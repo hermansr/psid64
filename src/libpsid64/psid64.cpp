@@ -310,7 +310,15 @@ Psid64::convert()
     memcpy(dest, psid_boot, boot_size);
 
     // the value 0x0801 is related to start of the code in psidboot.a65
-    uint_least16_t addr = 17;
+    uint_least16_t addr = 26;
+    // fill in the default song number (passed in at boot time)
+    uint_least16_t songvec;
+    char song[4];
+    songvec  = dest[addr];
+    songvec += (uint_least16_t) dest[addr + 1] << 8;
+    songvec -= (0x801 - 2);
+    sprintf (song, "%3u", (m_tuneInfo.startSong - 1) & 0xff);
+    memcpy (&dest[songvec], song, sizeof(char) * 3);
     uint_least16_t eof = 0x0801 + boot_size - 2 + size;
     dest[addr++] = (uint_least8_t) (eof & 0xff); // end of C64 file
     dest[addr++] = (uint_least8_t) (eof >> 8);
@@ -792,7 +800,6 @@ Psid64::initDriver(uint_least8_t** ptr, int* n)
     psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.playAddr ? 0x4c : 0x60);
     psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.playAddr & 0xff);
     psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.playAddr >> 8);
-    psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.startSong);
     psid_reloc[addr++] = (uint_least8_t) (m_tuneInfo.songs);
 
     // get the speed bits (the driver only has space for the first 32 songs)
