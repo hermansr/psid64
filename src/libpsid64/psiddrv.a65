@@ -348,10 +348,10 @@ l1	dey				; important as we only have to deal with
 keyboard	.(
 	ldx key
 	bmi nopress
-	lda keys,x			; check if the key is still pressed
+	lda keyrow,x			; check if the key is still pressed
 	sta $dc00
 	lda $dc01
-	and keys+1,x
+	and keycol,x
 	beq exit			; wait until key has been released
 nopress	lda playmax
 #ifdef SCREEN
@@ -361,22 +361,18 @@ nopress	lda playmax
 	cmp #36
 	bcc maxnum
 	lda #36
-maxnum	asl
-	tax
-loop	lda keys,x
+maxnum	tax
+loop	lda keyrow,x
 	sta $dc00
 	lda $dc01
-	and keys+1,x
+	and keycol,x
 	beq found
-	dex
 	dex
 	bpl loop
 	stx key
 exit	rts
 found	stx key
 	txa
-	lsr
-	tax
 	bne tglscr
 	jmp stop			; run/stop key pressed
 tglscr
@@ -396,48 +392,91 @@ newsong
 
 key	.byte $ff
 
-keys	.byte $7f,$80	;run/stop
+keyrow	.byte $7f	;run/stop
 
 #ifdef SCREEN
-	.byte $fe,$01	;inst/del
+	.byte $fe	;inst/del
 #endif /* SCREEN */
 
-	.byte $7f,$01	;1
-	.byte $7f,$08	;2
-	.byte $fd,$01	;3
-	.byte $fd,$08	;4
-	.byte $fb,$01	;5
-	.byte $fb,$08	;6
-	.byte $f7,$01	;7
-	.byte $f7,$08	;8
-	.byte $ef,$01	;9
-	.byte $ef,$08	;0
-	.byte $fd,$04	;a
-	.byte $f7,$10	;b
-	.byte $fb,$10	;c
-	.byte $fb,$04	;d
-	.byte $fd,$40	;e
-	.byte $fb,$20	;f
-	.byte $f7,$04	;g
-	.byte $f7,$20	;h
-	.byte $ef,$02	;i
-	.byte $ef,$04	;j
-	.byte $ef,$20	;k
-	.byte $df,$04	;l
-	.byte $ef,$10	;m
-	.byte $ef,$80	;n
-	.byte $ef,$40	;o
-	.byte $df,$02	;p
-	.byte $7f,$40	;q
-	.byte $fb,$02	;r
-	.byte $fd,$20	;s
-	.byte $fb,$40	;t
-	.byte $f7,$40	;u
-	.byte $f7,$80	;v
-	.byte $fd,$02	;w
-	.byte $fb,$80	;x
-	.byte $f7,$02	;y
-	.byte $fd,$10	;z
+	.byte $7f	;1
+	.byte $7f	;2
+	.byte $fd	;3
+	.byte $fd	;4
+	.byte $fb	;5
+	.byte $fb	;6
+	.byte $f7	;7
+	.byte $f7	;8
+	.byte $ef	;9
+	.byte $ef	;0
+	.byte $fd	;a
+	.byte $f7	;b
+	.byte $fb	;c
+	.byte $fb	;d
+	.byte $fd	;e
+	.byte $fb	;f
+	.byte $f7	;g
+	.byte $f7	;h
+	.byte $ef	;i
+	.byte $ef	;j
+	.byte $ef	;k
+	.byte $df	;l
+	.byte $ef	;m
+	.byte $ef	;n
+	.byte $ef	;o
+	.byte $df	;p
+	.byte $7f	;q
+	.byte $fb	;r
+	.byte $fd	;s
+	.byte $fb	;t
+	.byte $f7	;u
+	.byte $f7	;v
+	.byte $fd	;w
+	.byte $fb	;x
+	.byte $f7	;y
+	.byte $fd	;z
+
+keycol	.byte $80	;run/stop
+
+#ifdef SCREEN
+	.byte $01	;inst/del
+#endif /* SCREEN */
+
+	.byte $01	;1
+	.byte $08	;2
+	.byte $01	;3
+	.byte $08	;4
+	.byte $01	;5
+	.byte $08	;6
+	.byte $01	;7
+	.byte $08	;8
+	.byte $01	;9
+	.byte $08	;0
+	.byte $04	;a
+	.byte $10	;b
+	.byte $10	;c
+	.byte $04	;d
+	.byte $40	;e
+	.byte $20	;f
+	.byte $04	;g
+	.byte $20	;h
+	.byte $02	;i
+	.byte $04	;j
+	.byte $20	;k
+	.byte $04	;l
+	.byte $10	;m
+	.byte $80	;n
+	.byte $40	;o
+	.byte $02	;p
+	.byte $40	;q
+	.byte $02	;r
+	.byte $20	;s
+	.byte $40	;t
+	.byte $40	;u
+	.byte $80	;v
+	.byte $02	;w
+	.byte $80	;x
+	.byte $02	;y
+	.byte $10	;z
 	.)
 
 
