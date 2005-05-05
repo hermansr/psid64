@@ -37,7 +37,11 @@
 #   include <new>
 #endif
 #include <string.h>
-#include <strstream>
+#if defined(HAVE_SSTREAM)
+#   include <sstream>
+#else
+#   include <strstream>
+#endif
 
 // Amiga Workbench specific structures.
 
@@ -134,54 +138,60 @@ struct DiskObject
 // clear if they point to Border structures.
 #define GFLG_GADGIMAGE    0x0004
 
-const char _sidtune_txt_format[] = "Raw plus PlaySID icon tooltype file (INFO)";
+static const char _sidtune_txt_format[] = "Raw plus PlaySID icon tooltype file (INFO)";
 
-const char _sidtune_keyword_id[] = "SID:PLAYSID";
-const char _sidtune_keyword_address[] = "ADDRESS=";
-const char _sidtune_keyword_songs[] = "SONGS=";
-const char _sidtune_keyword_speed[] = "SPEED=";
-const char _sidtune_keyword_name[] = "NAME=";
-const char _sidtune_keyword_author[] = "AUTHOR=";
-const char _sidtune_keyword_copyright[] = "COPYRIGHT=";
-const char _sidtune_keyword_musPlayer[] = "SIDSONG=YES";
+static const char _sidtune_keyword_id[] = "SID:PLAYSID";
+static const char _sidtune_keyword_address[] = "ADDRESS=";
+static const char _sidtune_keyword_songs[] = "SONGS=";
+static const char _sidtune_keyword_speed[] = "SPEED=";
+static const char _sidtune_keyword_name[] = "NAME=";
+static const char _sidtune_keyword_author[] = "AUTHOR=";
+static const char _sidtune_keyword_copyright[] = "COPYRIGHT="; // Depreicated
+static const char _sidtune_keyword_released[] = "RELEASED=";
+static const char _sidtune_keyword_musPlayer[] = "SIDSONG=YES";
+static const char _sidtune_keyword_reloc[] = "RELOC=";
+static const char _sidtune_keyword_clock[] = "CLOCK=";
+static const char _sidtune_keyword_sidModel[] = "SIDMODEL=";
+static const char _sidtune_keyword_compatibility[] = "COMPATIBILITY=";
 
-const char _sidtune_txt_noMemError[] = "ERROR: Not enough free memory";
-const char _sidtune_txt_corruptError[] = "ERROR: Info file is incomplete or corrupt";
-const char _sidtune_txt_noStringsError[] = "ERROR: Info file does not contain required strings";
-const char _sidtune_txt_dataCorruptError[] = "ERROR: C64 data file is corrupt";
+static const char _sidtune_txt_noMemError[] = "ERROR: Not enough free memory";
+static const char _sidtune_txt_corruptError[] = "ERROR: Info file is incomplete or corrupt";
+static const char _sidtune_txt_noStringsError[] = "ERROR: Info file does not contain required strings";
+static const char _sidtune_txt_invalidError[] = "SIDTUNE ERROR: File contains invalid data";
 #if defined(SIDTUNE_REJECT_UNKNOWN_FIELDS)
 const char _sidtune_txt_chunkError[] = "ERROR: Invalid tooltype information in icon file";
 #endif
 
-const uint_least16_t safeBufferSize = 64;  // for string comparison, stream parsing
+static const uint_least16_t safeBufferSize = 64;  // for string comparison, stream parsing
 
 
-bool SidTune::INFO_fileSupport(const void* dataBuffer, uint_least32_t dataLength,
-                               const void* infoBuffer, uint_least32_t infoLength)
+SidTune::LoadStatus SidTune::INFO_fileSupport(Buffer_sidtt<const uint_least8_t>& dataBuf,
+                                              Buffer_sidtt<const uint_least8_t>& infoBuf)
 {
+    uint_least32_t infoLength = infoBuf.len();
     // Require a first minimum safety size.
     uint_least32_t minSize = 1+sizeof(struct DiskObject);
     if (infoLength < minSize)
-        return( false );
+        return( LOAD_NOT_MINE );
 
-    const DiskObject *dobject = (const DiskObject *)infoBuffer;
+    const DiskObject *dobject = (const DiskObject *)infoBuf.get();
 
     // Require Magic_Id in the first two bytes of the file.
     if ( endian_16(dobject->Magic[0],dobject->Magic[1]) != WB_DISKMAGIC )
-        return false;
+        return LOAD_NOT_MINE;
 
     // Only version 1.x supported.
     if ( endian_16(dobject->Version[0],dobject->Version[1]) != WB_DISKVERSION )
-        return false;
+        return LOAD_NOT_MINE;
 
     // A PlaySID icon must be of type project.
     if ( dobject->Type != WB_PROJECT )
-        return false;
+        return LOAD_NOT_MINE;
 
     uint i;  // general purpose index variable
 
     // We want to skip a possible Gadget Image item.
-    const char *icon = (const char*)infoBuffer + sizeof(DiskObject);
+    const char *icon = (const char*)infoBuf.get() + sizeof(DiskObject);
 
     if ( (endian_16(dobject->Gadget.Flags[0],dobject->Gadget.Flags[1]) & GFLG_GADGIMAGE) == 0)
     {
@@ -195,7 +205,7 @@ bool SidTune::INFO_fileSupport(const void* dataBuffer, uint_least32_t dataLength
             // Require another minimum safety size.
             minSize += sizeof(struct Border);
             if (infoLength < minSize)
-                return( false );
+                return( LOAD_NOT_MINE );
 
             const Border *brd = (const Border *)icon;
             icon += sizeof(Border);
@@ -210,7 +220,7 @@ bool SidTune::INFO_fileSupport(const void* dataBuffer, uint_least32_t dataLength
             // Require another minimum safety size.
             minSize += sizeof(Border);
             if (infoLength < minSize)
-                return( false );
+                return( LOAD_NOT_MINE );
 
             const Border *brd = (const Border *)icon;
             icon += sizeof(Border);
@@ -229,7 +239,7 @@ bool SidTune::INFO_fileSupport(const void* dataBuffer, uint_least32_t dataLength
             // Require another minimum safety size.
             minSize += sizeof(Image);
             if (infoLength < minSize)
-                return( false );
+                return( LOAD_NOT_MINE );
 
             const Image *img = (const Image *)icon;
             icon += sizeof(Image);
@@ -260,7 +270,7 @@ bool SidTune::INFO_fileSupport(const void* dataBuffer, uint_least32_t dataLength
             // Require another minimum safety size.
             minSize += sizeof(Image);
             if (infoLength < minSize)
-                return( false );
+                return( LOAD_NOT_MINE );
 
             const Image *img = (const Image *)icon;
             icon += sizeof(Image);
@@ -284,11 +294,11 @@ bool SidTune::INFO_fileSupport(const void* dataBuffer, uint_least32_t dataLength
     }
 
     // Here use a smart pointer to prevent access violation errors.
-    SmartPtr_sidtt<const char> spTool((const char*)icon,infoLength-(uint_least32_t)(icon-(const char*)infoBuffer));
+    SmartPtr_sidtt<const char> spTool((const char*)icon,infoLength-(uint_least32_t)(icon-(const char*)infoBuf.get()));
     if ( !spTool )
     {
         info.formatString = _sidtune_txt_corruptError;
-        return false;
+        return LOAD_ERROR;
     }
 
     // A separate safe buffer is used for each tooltype string.
@@ -300,7 +310,7 @@ bool SidTune::INFO_fileSupport(const void* dataBuffer, uint_least32_t dataLength
     if ( !spCmpBuf )
     {
         info.formatString = _sidtune_txt_noMemError;
-        return false;
+        return LOAD_ERROR;
     }
 
 #ifndef SID_HAVE_BAD_COMPILER
@@ -316,20 +326,17 @@ bool SidTune::INFO_fileSupport(const void* dataBuffer, uint_least32_t dataLength
 
     // Defaults.
     fileOffset = 0;                   // no header in separate data file
-    info.sidChipBase1 = 0xd400;
-    info.sidChipBase2 = 0;
-    info.musPlayer = false;
-    info.numberOfInfoStrings = 0;
     uint_least32_t oldStyleSpeed = 0;
 
     // Flags for required entries.
     bool hasAddress = false,
     hasName = false,
     hasAuthor = false,
-    hasCopyright = false,
+    hasReleased = false,
     hasSongs = false,
     hasSpeed = false,
-    hasUnknownChunk = false;
+    hasUnknownChunk = false,
+    hasInitAddr = false;
 
     // Calculate number of tooltype strings.
     i = (endian_32(spTool[0],spTool[1],spTool[2],spTool[3])/4) - 1;
@@ -353,30 +360,47 @@ bool SidTune::INFO_fileSupport(const void* dataBuffer, uint_least32_t dataLength
         }
         if ( !(spTool&&spCmpBuf) )
         {
-            return false;
+            return LOAD_ERROR;
         }
 
         // Now check all possible keywords.
         if ( SidTuneTools::myStrNcaseCmp(cmpBuf,_sidtune_keyword_address) == 0 )
         {
-            std::istrstream addrIn(cmpBuf + strlen(_sidtune_keyword_address),
-                              toolLen - strlen(_sidtune_keyword_address));
+#ifdef HAVE_SSTREAM
+            std::string sAddrIn( cmpBuf + strlen(_sidtune_keyword_address),
+                                 toolLen - strlen(_sidtune_keyword_address) );
+            std::istringstream addrIn( sAddrIn );
+#else
+            std::istrstream addrIn( cmpBuf + strlen(_sidtune_keyword_address),
+                                    toolLen - strlen(_sidtune_keyword_address) );
+#endif
             info.loadAddr = (uint_least16_t)SidTuneTools::readHex( addrIn );
+            info.initAddr = info.loadAddr;
+            hasInitAddr = true;
             info.initAddr = (uint_least16_t)SidTuneTools::readHex( addrIn );
-            info.playAddr = (uint_least16_t)SidTuneTools::readHex( addrIn );
-            if ( !addrIn )
+            if ( addrIn )
             {
-                return false;
+                info.playAddr = (uint_least16_t)SidTuneTools::readHex( addrIn );
+                if ( !addrIn )
+                {
+                    return LOAD_ERROR;
+                }
+                hasAddress = true;
             }
-            hasAddress = true;
         }
         else if ( SidTuneTools::myStrNcaseCmp(cmpBuf,_sidtune_keyword_songs) == 0 )
         {
+#ifdef HAVE_SSTREAM
+            std::string sNumIn( cmpBuf + strlen(_sidtune_keyword_songs),
+                                toolLen - strlen(_sidtune_keyword_songs) );
+            std::istringstream numIn( sNumIn );
+#else
             std::istrstream numIn( cmpBuf + strlen(_sidtune_keyword_songs),
-                              toolLen - strlen(_sidtune_keyword_songs) );
+                                   toolLen - strlen(_sidtune_keyword_songs) );
+#endif
             if ( !numIn )
             {
-                return false;
+                return LOAD_ERROR;
             }
             info.songs = (uint_least16_t)SidTuneTools::readDec( numIn );
             info.startSong = (uint_least16_t)SidTuneTools::readDec( numIn );
@@ -384,85 +408,170 @@ bool SidTune::INFO_fileSupport(const void* dataBuffer, uint_least32_t dataLength
         }
         else if ( SidTuneTools::myStrNcaseCmp(cmpBuf,_sidtune_keyword_speed) == 0 )
         {
+#ifdef HAVE_SSTREAM
+            std::string sSpeedIn( cmpBuf + strlen(_sidtune_keyword_speed),
+                                  toolLen - strlen(_sidtune_keyword_speed) );
+            std::istringstream speedIn( sSpeedIn );
+#else
             std::istrstream speedIn( cmpBuf + strlen(_sidtune_keyword_speed),
-                                toolLen - strlen(_sidtune_keyword_speed) );
+                                     toolLen - strlen(_sidtune_keyword_speed) );
+#endif
             if ( !speedIn )
             {
-                return false;
+                return LOAD_ERROR;
             }
             oldStyleSpeed = SidTuneTools::readHex(speedIn);
             hasSpeed = true;
         }
         else if ( SidTuneTools::myStrNcaseCmp(cmpBuf,_sidtune_keyword_name) == 0 )
         {
-            strncpy( &infoString[0][0], cmpBuf + strlen(_sidtune_keyword_name), 31 );
+            SidTuneTools::copyStringValueToEOL(cmpBuf,&infoString[2][0],SIDTUNE_MAX_CREDIT_STRLEN);
             info.infoString[0] = &infoString[0][0];
             hasName = true;
         }
         else if ( SidTuneTools::myStrNcaseCmp(cmpBuf,_sidtune_keyword_author) == 0 )
         {
-            strncpy( &infoString[1][0], cmpBuf + strlen(_sidtune_keyword_author), 31 );
+            SidTuneTools::copyStringValueToEOL(cmpBuf,&infoString[2][0],SIDTUNE_MAX_CREDIT_STRLEN);
             info.infoString[1] = &infoString[1][0];
             hasAuthor = true;
         }
         else if ( SidTuneTools::myStrNcaseCmp(cmpBuf,_sidtune_keyword_copyright) == 0 )
         {
-            strncpy( &infoString[2][0], cmpBuf + strlen(_sidtune_keyword_copyright), 31 );
+            SidTuneTools::copyStringValueToEOL(cmpBuf,&infoString[2][0],SIDTUNE_MAX_CREDIT_STRLEN);
             info.infoString[2] = &infoString[2][0];
-            hasCopyright = true;
+            hasReleased = true;
         }
         else if ( SidTuneTools::myStrNcaseCmp(cmpBuf,_sidtune_keyword_musPlayer) == 0 )
         {
             info.musPlayer = true;
         }
+
+        
+        // New extensions from here on!
+        else if ( SidTuneTools::myStrNcaseCmp(cmpBuf, _sidtune_keyword_released) == 0 )
+        {
+            SidTuneTools::copyStringValueToEOL(cmpBuf,&infoString[2][0],SIDTUNE_MAX_CREDIT_STRLEN);
+            info.infoString[2] = &infoString[2][0];
+            hasReleased = true;
+        }
+        else if ( SidTuneTools::myStrNcaseCmp(cmpBuf,_sidtune_keyword_reloc) == 0 )
+        {
+#ifdef HAVE_SSTREAM
+            std::string sRelocIn( cmpBuf + strlen(_sidtune_keyword_reloc),
+                                  toolLen - strlen(_sidtune_keyword_reloc) );
+            std::istringstream relocIn( sRelocIn );
+#else
+            std::istrstream relocIn( cmpBuf + strlen(_sidtune_keyword_reloc),
+                                     toolLen - strlen(_sidtune_keyword_reloc) );
+#endif
+            info.relocStartPage = (uint_least8_t)SidTuneTools::readHex( relocIn );
+            if ( !relocIn )
+                break;
+            info.relocPages = (uint_least8_t)SidTuneTools::readHex( relocIn );
+        }
+        else if ( SidTuneTools::myStrNcaseCmp(cmpBuf,_sidtune_keyword_clock) == 0 )
+        {
+            char clock[8];
+            SidTuneTools::copyStringValueToEOL(cmpBuf,clock,sizeof(clock));
+            if ( SidTuneTools::myStrNcaseCmp( clock, "UNKNOWN" ) == 0 )
+                info.clockSpeed = SIDTUNE_CLOCK_UNKNOWN;
+            else if ( SidTuneTools::myStrNcaseCmp( clock, "PAL" ) == 0 )
+                info.clockSpeed = SIDTUNE_CLOCK_PAL;
+            else if ( SidTuneTools::myStrNcaseCmp( clock, "NTSC" ) == 0 )
+                info.clockSpeed = SIDTUNE_CLOCK_NTSC;
+            else if ( SidTuneTools::myStrNcaseCmp( clock, "ANY" ) == 0 )
+                info.clockSpeed = SIDTUNE_CLOCK_ANY;
+        }
+        else if ( SidTuneTools::myStrNcaseCmp(cmpBuf,_sidtune_keyword_sidModel) == 0 )
+        {
+            char model[8];
+            SidTuneTools::copyStringValueToEOL(cmpBuf,model,sizeof(model));
+            if ( SidTuneTools::myStrNcaseCmp( model, "UNKNOWN" ) == 0 )
+                info.sidModel = SIDTUNE_SIDMODEL_UNKNOWN;
+            else if ( SidTuneTools::myStrNcaseCmp( model, "6581" ) == 0 )
+                info.sidModel = SIDTUNE_SIDMODEL_6581;
+            else if ( SidTuneTools::myStrNcaseCmp( model, "8580" ) == 0 )
+                info.sidModel = SIDTUNE_SIDMODEL_8580;
+            else if ( SidTuneTools::myStrNcaseCmp( model, "ANY" ) == 0 )
+                info.sidModel = SIDTUNE_SIDMODEL_ANY;
+        }
+        else if ( SidTuneTools::myStrNcaseCmp(cmpBuf,_sidtune_keyword_compatibility) == 0 )
+        {
+            char comp[6];
+            SidTuneTools::copyStringValueToEOL(cmpBuf,comp,sizeof(comp));
+            if ( SidTuneTools::myStrNcaseCmp( comp, "C64" ) == 0 )
+                info.compatibility = SIDTUNE_COMPATIBILITY_C64;
+            else if ( SidTuneTools::myStrNcaseCmp( comp, "PSID" ) == 0 )
+                info.compatibility = SIDTUNE_COMPATIBILITY_PSID;
+            else if ( SidTuneTools::myStrNcaseCmp( comp, "R64" ) == 0 )
+                info.compatibility = SIDTUNE_COMPATIBILITY_R64;
+            else if ( SidTuneTools::myStrNcaseCmp( comp, "BASIC" ) == 0 )
+                info.compatibility = SIDTUNE_COMPATIBILITY_BASIC;
+        }
+
         else
         {
             hasUnknownChunk = true;
 #if defined(SIDTUNE_REJECT_UNKNOWN_FIELDS)
             info.formatString = _sidtune_txt_chunkError;
-            return false;
+            return LOAD_ERROR;
 #endif
         }
         // Skip to next tool.
         spTool += toolLen;
     }
 
-    // Collected ``required'' information complete ?
-    if ( hasAddress && hasName && hasAuthor && hasCopyright && hasSongs && hasSpeed )
-    {
-        // Create the speed/clock setting table.
-        convertOldStyleSpeedToTables(oldStyleSpeed);
-        if (( info.loadAddr == 0 ) && ( dataLength != 0 ))
-        {
-            SmartPtr_sidtt<const uint_least8_t> spDataBuf((const uint_least8_t*)dataBuffer,dataLength);
-            spDataBuf += fileOffset;
-            info.loadAddr = endian_16(spDataBuf[1],spDataBuf[0]);
-            if ( !spDataBuf )
-            {
-                info.formatString = _sidtune_txt_dataCorruptError;
-                return false;
-            }
-            fileOffset += 2;
+    if ( !(hasName && hasAuthor && hasReleased && hasSongs) )
+    {   // Something is missing (or damaged ?).
+        // Error string set above.
+        if ( hasName || hasAuthor || hasReleased || hasSongs )
+        {   // Something is missing (or damaged?).
+            info.formatString = _sidtune_txt_corruptError;
         }
-        if ( info.initAddr == 0 )
-        {
-            info.initAddr = info.loadAddr;
+        else
+        {   // No PlaySID conform info strings.
+            info.formatString = _sidtune_txt_noStringsError;
         }
-        info.numberOfInfoStrings = 3;
-        // We finally accept the input data.
-        info.formatString = _sidtune_txt_format;
-        return true;
+        return LOAD_ERROR;
     }
-    else if ( hasAddress || hasName || hasAuthor || hasCopyright || hasSongs || hasSpeed )
+
+    switch ( info.compatibility )
     {
-        // Something is missing (or damaged?).
-        info.formatString = _sidtune_txt_corruptError;
-        return false;
+    case SIDTUNE_COMPATIBILITY_PSID:
+    case SIDTUNE_COMPATIBILITY_C64:
+        if ( ! (hasAddress && hasSpeed) )
+        {
+            info.formatString = _sidtune_txt_corruptError;
+            return LOAD_ERROR;
+        }
+        break;
+
+    case SIDTUNE_COMPATIBILITY_R64:
+        if ( !(hasInitAddr || hasAddress) )
+        {
+            info.formatString = _sidtune_txt_corruptError;
+            return LOAD_ERROR;
+        }
+        // Allow user to provide single address
+        if ( !hasAddress )
+            info.loadAddr = 0;
+        else if ( info.loadAddr || info.playAddr )
+        {
+            info.formatString = _sidtune_txt_invalidError;
+            return LOAD_ERROR;
+        }
+        // Deliberate run on
+
+    case SIDTUNE_COMPATIBILITY_BASIC:
+        oldStyleSpeed = ~0;
     }
-    else
-    {
-        // No PlaySID conform info strings.
-        info.formatString = _sidtune_txt_noStringsError;
-        return false;
-    }
+
+    // Create the speed/clock setting table.
+    convertOldStyleSpeedToTables(oldStyleSpeed, info.clockSpeed);
+    info.numberOfInfoStrings = 3;
+    // We finally accept the input data.
+    info.formatString = _sidtune_txt_format;
+    if ( info.musPlayer && !dataBuf.isEmpty() )
+        return MUS_load (dataBuf);
+    return LOAD_OK;
 }

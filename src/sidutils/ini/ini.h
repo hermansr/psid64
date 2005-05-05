@@ -30,14 +30,22 @@
 
 typedef enum {INI_NEW, INI_EXIST, INI_READ} ini_mode_t;
 
+enum
+{
+    INI_NONE     = 0,
+    INI_MODIFIED = 1 << 0,
+    INI_NEWFILE  = 1 << 1,
+    INI_BACKUP   = 1 << 2, // Create backup file
+    INI_CASE     = 1 << 3  // Case sensitive
+};
+
 // Database containing all information about an ini file.
 typedef struct ini_t
 {
     char      *filename;
     FILE      *ftmp;   // Temporary work file
-    bool       changed;
-    bool       newfile;
     ini_mode_t mode;   // Access mode
+    int        flags;
 
     struct section_tag *first;
     struct section_tag *last;
@@ -62,7 +70,7 @@ typedef struct ini_t
 
 static void                __ini_strtrim         (char *str);
 #ifdef INI_USE_HASH_TABLE
-static unsigned long       __ini_createCrc32     (const char *pBuf, size_t length);
+static unsigned long       __ini_createCrc32     (const char *str, bool strcase);
 #endif
 
 #endif // _ini_h_

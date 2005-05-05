@@ -101,7 +101,7 @@ char* SidTuneTools::fileExtOfPath(char* s)
 
 // Parse input string stream. Read and convert a hexa-decimal number up 
 // to a ``,'' or ``:'' or ``\0'' or end of stream.
-uint_least32_t SidTuneTools::readHex( std::istrstream& hexin )
+uint_least32_t SidTuneTools::readHex( std::istringstream& hexin )
 {
     uint_least32_t hexLong = 0;
     char c;
@@ -130,7 +130,7 @@ uint_least32_t SidTuneTools::readHex( std::istrstream& hexin )
 
 // Parse input string stream. Read and convert a decimal number up 
 // to a ``,'' or ``:'' or ``\0'' or end of stream.
-uint_least32_t SidTuneTools::readDec( std::istrstream& decin )
+uint_least32_t SidTuneTools::readDec( std::istringstream& decin )
 {
     uint_least32_t hexLong = 0;
     char c;
@@ -157,14 +157,15 @@ uint_least32_t SidTuneTools::readDec( std::istrstream& decin )
 
 // Search terminated string for next newline sequence.
 // Skip it and return pointer to start of next line.
-const char* SidTuneTools::returnNextLine(const char* s)
+const char* SidTuneTools::returnNextLine(const char* s, uint_least32_t len)
 {
     // Unix: LF = 0x0A
     // Windows, DOS: CR,LF = 0x0D,0x0A
     // Mac: CR = 0x0D
     char c;
-    while ((c = *s) != 0)
+    while (len && ((c = *s) != 0))
     {
+        len--;
         s++;                            // skip read character
         if (c == 0x0A)
         {
@@ -172,14 +173,15 @@ const char* SidTuneTools::returnNextLine(const char* s)
         }
         else if (c == 0x0D)
         {
-            if (*s == 0x0A)
+            if (len && (*s == 0x0A))
             {
+                len--;
                 s++;                    // CR,LF found, skip LF
             }
             break;                      // CR or CR,LF found
         }
     }
-    if (*s == 0)                        // end of string ?
+    if ((len == 0) || (*s == 0))        // end of string ?
     {
         return 0;                       // no next line available
     }
@@ -187,7 +189,7 @@ const char* SidTuneTools::returnNextLine(const char* s)
 }
 
 // Skip any characters in an input string stream up to '='.
-void SidTuneTools::skipToEqu( std::istrstream& parseStream )
+void SidTuneTools::skipToEqu( std::istringstream& parseStream )
 {
     char c;
     do

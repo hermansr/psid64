@@ -47,13 +47,13 @@ int_least32_t SidDatabase::parseTimeStamp(const char* arg)
     while ( passes-- )
     {
         if ( isdigit(*arg) )
-    {
-        int t = atoi(arg);
-        seconds += t;
-        gotDigits = true;
-    }
+        {
+            int t = atoi(arg);
+            seconds += t;
+            gotDigits = true;
+        }
         while ( *arg && isdigit(*arg) )
-    {
+        {
             ++arg;
         }
         if ( *arg && *arg==':' )
@@ -92,8 +92,7 @@ uint_least8_t SidDatabase::timesFound (char *str)
 int SidDatabase::open (const char *filename)
 {
     close ();
-    // @FIXME@:  Libini should be changed
-    database = ini_open ((char *) filename, "r", ";");
+    database = ini_open (filename, "r", ";");
     if (!database)
     {
         errorString = ERR_UNABLE_TO_LOAD_DATABASE;

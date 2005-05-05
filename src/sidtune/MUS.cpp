@@ -29,6 +29,7 @@
 #   include <new>
 #endif
 
+static const char _sidtune_txt_invalid[] = "ERROR: File contains invalid data";
 static const char _sidtune_txt_format_mus[] = "C64 Sidplayer format (MUS)";
 static const char _sidtune_txt_format_str[] = "C64 Stereo Sidplayer format (MUS+STR)";
 static const char _sidtune_txt_notEnoughMemory[] = "ERROR: Not enough free memory";
@@ -40,78 +41,10 @@ static const uint_least16_t SIDTUNE_MUS_DATA_ADDR = 0x0900;
 static const uint_least16_t SIDTUNE_SID1_BASE_ADDR = 0xd400;
 static const uint_least16_t SIDTUNE_SID2_BASE_ADDR = 0xd500;
 
-bool SidTune::MUS_fileSupport(Buffer_sidtt<const uint8_t>& musBuf,
-                              Buffer_sidtt<const uint8_t>& strBuf)
+SidTune::LoadStatus SidTune::MUS_fileSupport(Buffer_sidtt<const uint_least8_t>& musBuf,
+                                             Buffer_sidtt<const uint_least8_t>& strBuf)
 {
-    // Clear info strings.
-    for (int i = 0; i < SIDTUNE_MAX_CREDIT_STRINGS; i++)
-        infoString[i][0] = 0;
-
-    uint_least32_t voice3Index;
-    if ( !MUS_detect(musBuf.get(),musBuf.len(),voice3Index) )
-        return false;
-
-    // Voice3Index now is offset to text lines (uppercase Pet-strings).
-    SmartPtr_sidtt<const uint8_t> spPet(musBuf.get(),musBuf.len());
-    spPet += voice3Index;
-    {
-        for ( int line = 0; line < 5; line++ )
-        {
-            MUS_decodePetLine(spPet,infoString[line]);
-            info.infoString[line] = infoString[line];
-        }
-    }
-    info.numberOfInfoStrings = 5;
-
-    info.loadAddr = SIDTUNE_MUS_DATA_ADDR;
-    info.sidChipBase1 = SIDTUNE_SID1_BASE_ADDR;
-    info.songs = (info.startSong = 1);
-    info.musPlayer = true;
-    
-    songSpeed[0]  = SIDTUNE_SPEED_CIA_1A;
-#ifdef SIDTUNE_PSID2NG
-    clockSpeed[0] = SIDTUNE_CLOCK_ANY;
-#endif
-    fileOffset = 2;  // data after load address
-
-    if ( !strBuf.isEmpty() )
-    {
-        if ( !MUS_detect(strBuf.get(),strBuf.len(),voice3Index) )
-            return false;
-
-        // Voice3Index now is offset to text lines (uppercase Pet-strings).
-        SmartPtr_sidtt<const uint8_t> spPet(strBuf.get(),strBuf.len());
-        spPet += voice3Index;
-        for ( int line = 5; line < 10; line++ )
-        {
-            MUS_decodePetLine(spPet,infoString[line]);
-            info.infoString[line] = infoString[line];
-        }
-        info.numberOfInfoStrings += 5;
-
-        info.sidChipBase2 = SIDTUNE_SID2_BASE_ADDR;
-        info.formatString = _sidtune_txt_format_str;
-    }
-    else
-    {    
-        info.sidChipBase2 = 0;
-        info.formatString = _sidtune_txt_format_mus;
-    }
-    MUS_setPlayerAddress();
-
-    // Remove trailing empty lines.
-    const int lines = info.numberOfInfoStrings; 
-    {
-        for ( int line = lines-1; line >= 0; line-- )
-        {
-            if (strlen(info.infoString[line]) == 0)
-                --info.numberOfInfoStrings;
-            else
-                break;
-        }
-    }
-    
-    return true;
+    return MUS_load (musBuf, strBuf, true);
 }
 
 bool SidTune::MUS_detect(const void* buffer, const uint_least32_t bufLen,
@@ -146,50 +79,6 @@ void SidTune::MUS_setPlayerAddress()
         info.initAddr = 0xfc90;
         info.playAddr = 0xfc96;
     }
-}
-
-static const char _sidtune_CHRtab[256] =  // CHR$ conversion table (0x01 = no output)
-{
-   0x0, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0xd, 0x1, 0x1,
-   0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,
-  0x20,0x21, 0x1,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d,0x2e,0x2f,
-  0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x3a,0x3b,0x3c,0x3d,0x3e,0x3f,
-  0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4a,0x4b,0x4c,0x4d,0x4e,0x4f,
-  0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,0x58,0x59,0x5a,0x5b,0x24,0x5d,0x20,0x20,
-  // alternative: CHR$(92=0x5c) => ISO Latin-1(0xa3)
-  0x2d,0x23,0x7c,0x2d,0x2d,0x2d,0x2d,0x7c,0x7c,0x5c,0x5c,0x2f,0x5c,0x5c,0x2f,0x2f,
-  0x5c,0x23,0x5f,0x23,0x7c,0x2f,0x58,0x4f,0x23,0x7c,0x23,0x2b,0x7c,0x7c,0x26,0x5c,
-  // 0x80-0xFF
-   0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,
-   0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,
-  0x20,0x7c,0x23,0x2d,0x2d,0x7c,0x23,0x7c,0x23,0x2f,0x7c,0x7c,0x2f,0x5c,0x5c,0x2d,
-  0x2f,0x2d,0x2d,0x7c,0x7c,0x7c,0x7c,0x2d,0x2d,0x2d,0x2f,0x5c,0x5c,0x2f,0x2f,0x23,
-  0x2d,0x23,0x7c,0x2d,0x2d,0x2d,0x2d,0x7c,0x7c,0x5c,0x5c,0x2f,0x5c,0x5c,0x2f,0x2f,
-  0x5c,0x23,0x5f,0x23,0x7c,0x2f,0x58,0x4f,0x23,0x7c,0x23,0x2b,0x7c,0x7c,0x26,0x5c,
-  0x20,0x7c,0x23,0x2d,0x2d,0x7c,0x23,0x7c,0x23,0x2f,0x7c,0x7c,0x2f,0x5c,0x5c,0x2d,
-  0x2f,0x2d,0x2d,0x7c,0x7c,0x7c,0x7c,0x2d,0x2d,0x2d,0x2f,0x5c,0x5c,0x2f,0x2f,0x23
-};
-
-int SidTune::MUS_decodePetLine(SmartPtr_sidtt<const uint8_t>& spPet, char* dest)
-{
-    int count = 0;
-    char c;
-    do
-    {
-        c = _sidtune_CHRtab[*spPet];  // ASCII CHR$ conversion
-        if ((c>=0x20) && (count<=31))
-        {
-            dest[count++] = c;  // copy to info string
-        }
-        // If character is 0x9d (left arrow key) then move back.
-        if ((*spPet==0x9d) && (count>=0))
-        {
-            count--;
-        }
-        spPet++;
-    }
-    while ( !((c==0x0D)||(c==0x00)||spPet.fail()) );
-    return count;
 }
 
 static const uint8_t _sidtune_sidplayer1[] =
@@ -604,14 +493,12 @@ static const uint8_t _sidtune_sidplayer2[] =
     0x60, 0x00, 0x20, 0x60, 0xec, 0x4c, 0x60, 0xfc, 0x20, 0x80, 0xec, 0x4c, 0x80, 0xfc
 };
 
-bool SidTune::MUS_mergeParts(Buffer_sidtt<const uint8_t>& musBuf,
-                             Buffer_sidtt<const uint8_t>& strBuf)
+bool SidTune::MUS_mergeParts(Buffer_sidtt<const uint_least8_t>& musBuf,
+                             Buffer_sidtt<const uint_least8_t>& strBuf)
 {
     Buffer_sidtt<uint8_t> mergeBuf;
     
     uint_least32_t mergeLen = musBuf.len()+strBuf.len();
-    
-    musDataLen = musBuf.len()-2;
     
     // Sanity check. I do not trust those MUS/STR files around.
     uint_least32_t freeSpace = endian_16(_sidtune_sidplayer1[1],_sidtune_sidplayer1[0])
@@ -643,19 +530,19 @@ bool SidTune::MUS_mergeParts(Buffer_sidtt<const uint8_t>& musBuf,
     {
         // Install MUS data #2 _NOT_ including load address.
 #ifndef SID_HAVE_BAD_COMPILER
-        memcpy(mergeBuf.get()+musBuf.len(),strBuf.get()+2,strBuf.len()-2);
+        memcpy(mergeBuf.get()+musBuf.len(),strBuf.get(),strBuf.len());
 #else
-        memcpy((void*)(mergeBuf.get()+musBuf.len()),strBuf.get()+2,strBuf.len()-2);
+        memcpy((void*)(mergeBuf.get()+musBuf.len()),strBuf.get(),strBuf.len());
 #endif
-       }
+    }
 
     musBuf.assign(mergeBuf.xferPtr(),mergeBuf.xferLen());
     strBuf.erase();
-    
+
     return true;
 }
 
-void SidTune::MUS_installPlayer(uint8_t *c64buf)
+void SidTune::MUS_installPlayer(uint_least8_t *c64buf)
 {
     if (status && (c64buf != 0))
     {
@@ -664,8 +551,8 @@ void SidTune::MUS_installPlayer(uint8_t *c64buf)
                                      _sidtune_sidplayer1[0]);
         memcpy(c64buf+dest,_sidtune_sidplayer1+2,sizeof(_sidtune_sidplayer1)-2);
         // Point player #1 to data #1.
-        c64buf[dest+0xc6e] = SIDTUNE_MUS_DATA_ADDR&0xFF;
-        c64buf[dest+0xc70] = SIDTUNE_MUS_DATA_ADDR>>8;
+        c64buf[dest+0xc6e] = (SIDTUNE_MUS_DATA_ADDR+2)&0xFF;
+        c64buf[dest+0xc70] = (SIDTUNE_MUS_DATA_ADDR+2)>>8;
         
         if (info.sidChipBase2 != 0)
         {
@@ -674,8 +561,170 @@ void SidTune::MUS_installPlayer(uint8_t *c64buf)
                              _sidtune_sidplayer2[0]);
             memcpy(c64buf+dest,_sidtune_sidplayer2+2,sizeof(_sidtune_sidplayer2)-2);
             // Point player #2 to data #2.
-            c64buf[dest+0xc6e] = (SIDTUNE_MUS_DATA_ADDR+musDataLen)&0xFF;
-            c64buf[dest+0xc70] = (SIDTUNE_MUS_DATA_ADDR+musDataLen)>>8;
+            c64buf[dest+0xc6e] = (SIDTUNE_MUS_DATA_ADDR+musDataLen+2)&0xFF;
+            c64buf[dest+0xc70] = (SIDTUNE_MUS_DATA_ADDR+musDataLen+2)>>8;
         }
     }
+}
+
+SidTune::LoadStatus SidTune::MUS_load (Buffer_sidtt<const uint_least8_t>& musBuf, bool init)
+{
+    Buffer_sidtt<const uint_least8_t> empty;
+    return MUS_load (musBuf, empty, init);
+}
+
+SidTune::LoadStatus SidTune::MUS_load (Buffer_sidtt<const uint_least8_t>& musBuf,
+                                       Buffer_sidtt<const uint_least8_t>& strBuf,
+                                       bool init)
+{
+    uint_least32_t voice3Index;
+    SmartPtr_sidtt<const uint8_t> spPet(musBuf.get()+fileOffset,musBuf.len()-fileOffset);
+    if ( !MUS_detect(&spPet[0],spPet.tellLength(),voice3Index) )
+        return LOAD_NOT_MINE;
+
+    if (init)
+    {
+        info.songs = (info.startSong = 1);
+        info.musPlayer = true;
+    
+        songSpeed[0]  = SIDTUNE_SPEED_CIA_1A;
+#ifdef SIDTUNE_PSID2NG
+        clockSpeed[0] = SIDTUNE_CLOCK_ANY;
+#endif
+    }
+
+    // Check setting compatibility for MUS playback
+    if ((info.compatibility != SIDTUNE_COMPATIBILITY_C64) ||
+        (info.relocStartPage != 0) || (info.relocPages != 0))
+    {
+        info.formatString = _sidtune_txt_invalid;
+        return LOAD_ERROR;
+    }
+
+    {   // All subtunes should be CIA
+        for (uint_least16_t i = 0; i < info.songs; i++)
+        {
+            if (songSpeed[i] != SIDTUNE_SPEED_CIA_1A)
+            {
+                info.formatString = _sidtune_txt_invalid;
+                return LOAD_ERROR;
+            }
+        }
+    }
+
+    musDataLen = musBuf.len();
+    info.loadAddr = SIDTUNE_MUS_DATA_ADDR;
+    info.sidChipBase1 = SIDTUNE_SID1_BASE_ADDR;
+
+    // No credits so extract them from the MUS files
+    bool credits = (infoString[0][0] | infoString[1][0] | infoString[2][0]) != 0;
+
+    // Voice3Index now is offset to text lines (uppercase Pet-strings).
+    spPet += voice3Index;
+    
+    // Already have credits just skip over the ones in the MUS
+    if (credits)
+    {
+        while (spPet[0])
+            convertPetsciiToAscii(spPet,0);
+    }
+    // Extract credits
+    else
+    {
+        for (int line = info.numberOfInfoStrings = 0; spPet[0]; line =
+             ++info.numberOfInfoStrings)
+        {
+            if (line < 10)
+            {
+                convertPetsciiToAscii(spPet,infoString[line]);
+                info.infoString[line] = infoString[line];
+            }
+            else
+                convertPetsciiToAscii(spPet,0);
+        }
+    }
+    spPet++;
+
+    // If we appear to have additional data at the end, check is it's
+    // another mus file (but only if a second file isn't supplied)
+    bool stereo = false;
+    if ( !strBuf.isEmpty() )
+    {
+        if ( !MUS_detect(strBuf.get(),strBuf.len(),voice3Index) )
+            return LOAD_ERROR;
+        spPet.setBuffer (strBuf.get(),strBuf.len());
+        stereo = true;
+    }
+    else
+    {   // For MUS + STR via stdin the files come combined
+        if ( spPet.good() )
+        {
+            uint_least16_t pos = (uint_least16_t) spPet.tellPos();
+            if ( MUS_detect(&spPet[0],spPet.tellLength()-pos,voice3Index) )
+            {
+                musDataLen = pos;
+                stereo = true;
+            }
+        }
+    }
+
+    if ( stereo )
+    {   // Voice3Index now is offset to text lines (uppercase Pet-strings).
+        spPet += voice3Index;
+
+        // Already have credits just skip over the ones in the MUS
+        if (credits)
+        {
+            while (spPet[0])
+                convertPetsciiToAscii(spPet,0);
+        }
+        // Extract credits
+        else
+        {
+            for (int line = info.numberOfInfoStrings; spPet[0]; line = 
+                ++info.numberOfInfoStrings)
+            {
+                if (line < 10)
+                {
+                    convertPetsciiToAscii(spPet,infoString[line]);
+                    info.infoString[line] = infoString[line];
+                }
+                else
+                    convertPetsciiToAscii(spPet,0);
+            }
+        }
+
+        info.sidChipBase2 = SIDTUNE_SID2_BASE_ADDR;
+        info.formatString = _sidtune_txt_format_str;
+    }
+    else
+    {    
+        info.sidChipBase2 = 0;
+        info.formatString = _sidtune_txt_format_mus;
+    }
+    MUS_setPlayerAddress();
+
+    if (!credits)
+    {   // Remove trailing empty lines.
+        const int lines = info.numberOfInfoStrings; 
+        {
+            for ( int line = lines-1; line >= 0; line-- )
+            {
+                if (strlen(info.infoString[line]) == 0)
+                    --info.numberOfInfoStrings;
+                else
+                    break;
+            }
+        }
+
+        // Three strings are assumed to be credits in
+        // the format title, author and released, which
+        // these are not
+        if (info.numberOfInfoStrings == 3)
+        {
+            info.infoString[3] = &infoString[3][0];
+            info.numberOfInfoStrings++;
+        }
+    }
+    return LOAD_OK;
 }

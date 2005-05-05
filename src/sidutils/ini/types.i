@@ -134,22 +134,16 @@ int INI_LINKAGE ini_readString (ini_fd_t fd, char *str, size_t size)
     ini_t *ini = (ini_t *) fd;
 
     // Check size and reserve space for NULL
-    if (size-- <= 0)
+    if (!ini || (size-- <= 0))
         return -1;
 
 #ifdef INI_ADD_LIST_SUPPORT
     if (ini->listDelims)
     {
-        size_t length;
         char  *data = __ini_readList (ini);
         if (!data)
             return -1;
-
-        // Check to make sure size is correct
-        length = strlen (data);
-        if (size > length)
-            size = length;
-        memcpy (str, data, size);
+		strncpy (str, data, size);
     }
     else
 #endif // INI_ADD_LIST_SUPPORT
@@ -188,8 +182,11 @@ int INI_LINKAGE ini_writeString (ini_fd_t fd, const char *str)
     ini_t *ini = (ini_t *) fd;
     struct key_tag *_key;
 
+    if (!ini)
+        return -1;
+
     _key = __ini_write (ini);
-    if (!_key)    
+    if (!_key)
         return -1;
 
     // Write data to bottom of backup file
@@ -214,25 +211,32 @@ int INI_LINKAGE ini_writeString (ini_fd_t fd, const char *str)
 int INI_LINKAGE ini_readInt (ini_fd_t fd, int *value)
 {
     ini_t *ini = (ini_t *) fd;
+    int ret    = 0;
+
+    if (!ini)
+        return -1;
 
 #ifdef INI_ADD_LIST_SUPPORT
     if (ini->listDelims)
     {
         char *data = __ini_readList (ini);
-        if (!data)
-            return -1;
-        sscanf (data, "%d", value);
+        if (data)
+            sscanf (data, "%d", value);
     }
     else
 #endif // INI_ADD_LIST_SUPPORT
     {
         size_t length;
-        if (__ini_read (ini, &length) < 0)
-            return -1;
-        if (length > 0)
-            fscanf (ini->ftmp, "%d", value);
+        if (__ini_read (ini, &length) >= 0)
+        {
+            if (length > 0)
+                ret = fscanf (ini->ftmp, "%d", value);
+        }
     }
-    return 0;
+
+    if (ret == 1)
+        return 0;
+    return -1;
 }
 
 
@@ -253,25 +257,32 @@ int INI_LINKAGE ini_readInt (ini_fd_t fd, int *value)
 int INI_LINKAGE ini_readLong (ini_fd_t fd, long *value)
 {
     ini_t *ini = (ini_t *) fd;
+    int ret    = 0;
+
+    if (!ini)
+        return -1;
 
 #ifdef INI_ADD_LIST_SUPPORT
     if (ini->listDelims)
     {
         char *data = __ini_readList (ini);
-        if (!data)
-            return -1;
-        sscanf (data, "%ld", value);
+        if (data)
+            ret = sscanf (data, "%ld", value);
     }
     else
 #endif // INI_ADD_LIST_SUPPORT
     {
         size_t length;
-        if (__ini_read (ini, &length) < 0)
-            return -1;
-        if (length > 0)
-            fscanf (ini->ftmp, "%ld", value);
+        if (__ini_read (ini, &length) >= 0)
+        {
+            if (length > 0)
+                ret = fscanf (ini->ftmp, "%ld", value);
+        }
     }
-    return 0;
+
+    if (ret == 1)
+        return 0;
+    return -1;
 }
 
 
@@ -290,25 +301,32 @@ int INI_LINKAGE ini_readLong (ini_fd_t fd, long *value)
 int INI_LINKAGE ini_readDouble (ini_fd_t fd, double *value)
 {
     ini_t *ini = (ini_t *) fd;
+    int ret    = 0;
+
+    if (!ini)
+        return -1;
 
 #ifdef INI_ADD_LIST_SUPPORT
     if (ini->listDelims)
     {
         char *data = __ini_readList (ini);
-        if (!data)
-            return -1;
-        sscanf (data, "%lf", value);
+        if (data)
+            ret = sscanf (data, "%lf", value);
     }
     else
 #endif // INI_ADD_LIST_SUPPORT
     {
         size_t length;
-        if (__ini_read (ini, &length) < 0)
-            return -1;
-        if (length > 0)
-            fscanf (ini->ftmp, "%lf", value);
+        if (__ini_read (ini, &length) >= 0)
+        {
+            if (length > 0)
+                ret = fscanf (ini->ftmp, "%lf", value);
+        }
     }
-    return 0;
+
+    if (ret == 1)
+        return 0;
+    return -1;
 }
 
 
@@ -329,6 +347,9 @@ int INI_LINKAGE ini_readBool (ini_fd_t fd, int *value)
 {
     ini_t *ini = (ini_t *) fd;
     char   buffer[6] = "";
+
+    if (!ini)
+        return -1;
 
 #ifdef INI_ADD_LIST_SUPPORT
     if (ini->listDelims)
@@ -366,19 +387,22 @@ int INI_LINKAGE ini_readBool (ini_fd_t fd, int *value)
             return -1;
         *value = *buffer - '0';
         break;
-    case 't':
-        if (strcmp (buffer, "true"))
-            return -1;
-        *value = 1;
-        break;
-    case 'f':
-        if (strcmp (buffer, "false"))
-            return -1;
-        *value = 0;
-        break;
     default:
-        // No match
-        return -1;
+        if (!strcasecmp (buffer, "true"))
+            *value = 1;
+        else if (!strcasecmp (buffer, "false"))
+            *value = 0;
+        else if (!strcasecmp (buffer, "on"))
+            *value = 1;
+        else if (!strcasecmp (buffer, "off"))
+            *value = 0;
+        else if (!strcasecmp (buffer, "yes"))
+            *value = 1;
+        else if (!strcasecmp (buffer, "no"))
+            *value = 0;
+        else // No match
+            return -1;
+        break;
     }
     return 0;
 }
@@ -402,6 +426,9 @@ int INI_LINKAGE ini_writeInt (ini_fd_t fd, int value)
     ini_t *ini = (ini_t *) fd;
     struct key_tag *_key;
     long   pos;
+
+    if (!ini)
+        return -1;
 
     _key = __ini_write (ini);
     if (!_key)
@@ -435,6 +462,9 @@ int INI_LINKAGE ini_writeLong (ini_fd_t fd, long value)
     struct key_tag *_key;
     long   pos;
 
+    if (!ini)
+        return -1;
+
     _key = __ini_write (ini);
     if (!_key)
         return -1;
@@ -466,6 +496,9 @@ int INI_LINKAGE ini_writeDouble (ini_fd_t fd, double value)
     ini_t *ini = (ini_t *) fd;
     struct key_tag *_key;
     long   pos;
+
+    if (!ini)
+        return -1;
 
     _key = __ini_write (ini);
     if (!_key)
@@ -500,7 +533,7 @@ int INI_LINKAGE ini_writeBool (ini_fd_t fd, int value)
     long   pos;
 
     // Check if value is legal
-    if ((value < 0) || (value > 1))
+    if (!ini || ((value < 0) || (value > 1)))
         return -1;
 
     _key = __ini_write (ini);
@@ -511,7 +544,7 @@ int INI_LINKAGE ini_writeBool (ini_fd_t fd, int value)
     if (value)
         fprintf (ini->ftmp, "true");
     else
-        fprintf (ini->ftmp, "false");        
+        fprintf (ini->ftmp, "false");
     pos = ftell (ini->ftmp);
     _key->length = (size_t) (pos - _key->pos);
     fprintf (ini->ftmp, "\n");

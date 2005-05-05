@@ -43,7 +43,7 @@ int __ini_listEval (ini_t *ini)
     if (ini->list)
     {
         free (ini->list);
-        ini->list = '\0';
+        ini->list = NULL;
     }
 
     // Re-evaluate with new settings
@@ -52,7 +52,7 @@ int __ini_listEval (ini_t *ini)
         return -1;
     if (!length)
     {
-        ini->listIndex  = '\0';
+        ini->listIndex  = 0;
         ini->listLength = 0;
         if (ini->selected->selected == &ini->tmpKey)
             return -1; // Can't read tmpKey
@@ -139,12 +139,15 @@ char *__ini_listRead (ini_t *ini)
     if (!ini->list)
     {
         if (__ini_listEval (ini) < 0)
-            return 0;
+            return NULL;
+        // Handle an empty list
+        if (!ini->listLength)
+            return "";
     }
 
     // Check to see if we are trying to get a value beyond the end of the list
     if (ini->listIndex >= ini->listLength)
-        return 0;
+        return NULL;
     p = ini->listIndexPtr;
     // Auto increment pointers to next index
     ini->listIndexPtr += (strlen (ini->listIndexPtr) + 1);
@@ -184,7 +187,7 @@ int INI_LINKAGE ini_listLength (ini_fd_t fd)
 
 
 /********************************************************************************************************************
- * Function          : ini_listDelims
+ * Function          : __ini_listDelims
  * Parameters        : ini - pointer to ini file database.  delims - string of delimitor chars
  * Returns           : -1 for Error or 0 for success
  * Globals Used      :
@@ -194,9 +197,8 @@ int INI_LINKAGE ini_listLength (ini_fd_t fd)
  *  Rev   |   Date   |  By   | Comment
  * ----------------------------------------------------------------------------------------------------------------
  ********************************************************************************************************************/
-int INI_LINKAGE ini_listDelims (ini_fd_t fd, const char *delims)
+int __ini_listDelims (struct ini_t *ini, const char *delims)
 {
-    ini_t *ini = (ini_t *) fd;
     if (ini->listDelims)
         free (ini->listDelims);
     ini->listDelims = NULL;
@@ -219,6 +221,23 @@ int INI_LINKAGE ini_listDelims (ini_fd_t fd, const char *delims)
         ini->list = NULL;
     }
     return 0;
+}
+
+
+/********************************************************************************************************************
+ * Function          : ini_listDelims
+ * Parameters        : fd - pointer to ini file database.  delims - string of delimitor chars
+ * Returns           : -1 for Error or 0 for success
+ * Globals Used      :
+ * Globals Modified  :
+ * Description       : Sets the delimiters used for list accessing, (default delim is NULL)
+ ********************************************************************************************************************
+ *  Rev   |   Date   |  By   | Comment
+ * ----------------------------------------------------------------------------------------------------------------
+ ********************************************************************************************************************/
+int INI_LINKAGE ini_listDelims (ini_fd_t fd, const char *delims)
+{
+    return __ini_listDelims ((ini_t *) fd, delims);
 }
 
 
@@ -302,6 +321,8 @@ int __ini_listIndexLength (ini_t *ini)
     {   // No list yet.  So try to get one
         if (__ini_listEval (ini) < 0)
             return -1;
+        if (!ini->listLength)
+            return 0;
     }
 
     // Now return length

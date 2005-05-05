@@ -39,8 +39,6 @@
     typedef int openmode;
 #endif
 
-// Used in address resolution procedure
-#define SIDTUNE_BASIC_START 0x0801
 
 const char* SidTune::txt_songNumberExceed = "SIDTUNE WARNING: Selected song number was too high";
 const char* SidTune::txt_empty = "SIDTUNE ERROR: No data to load";
@@ -59,6 +57,7 @@ const char* SidTune::txt_noErrors = "No errors";
 const char* SidTune::txt_na = "N/A";
 const char* SidTune::txt_badAddr = "SIDTUNE ERROR: Bad address data";
 const char* SidTune::txt_badReloc = "SIDTUNE ERROR: Bad reloc data";
+const char* SidTune::txt_corrupt = "SIDTUNE ERROR: File is incomplete or corrupt";
 
 // Default sidtune file name extensions. This selection can be overriden
 // by specifying a custom list in the constructor.
@@ -83,7 +82,7 @@ const char* defaultFileNameExt[] =
     // File extensions used (and created) by various C64 emulators and
     // related utilities. These extensions are recommended to be used as
     // a replacement for ".dat" in conjunction with two-file sidtunes.
-    ".c64", ".prg", ".C64", ".PRG",
+    ".c64", ".prg", ".p00", ".C64", ".PRG", ".P00",
     // Uncut extensions from Amiga.
     ".info", ".INFO", ".data", ".DATA",
     // Stereo Sidplayer (.mus/.MUS ought not be included because
@@ -92,6 +91,29 @@ const char* defaultFileNameExt[] =
     ".str", ".STR", ".mus", ".MUS",
     // End.
     0
+};
+
+// Petscii to Ascii conversion table
+static const char _sidtune_CHRtab[256] =  // CHR$ conversion table (0x01 = no output)
+{
+   0x0, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0xd, 0x1, 0x1,
+   0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,
+  0x20,0x21, 0x1,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d,0x2e,0x2f,
+  0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x3a,0x3b,0x3c,0x3d,0x3e,0x3f,
+  0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4a,0x4b,0x4c,0x4d,0x4e,0x4f,
+  0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,0x58,0x59,0x5a,0x5b,0x24,0x5d,0x20,0x20,
+  // alternative: CHR$(92=0x5c) => ISO Latin-1(0xa3)
+  0x2d,0x23,0x7c,0x2d,0x2d,0x2d,0x2d,0x7c,0x7c,0x5c,0x5c,0x2f,0x5c,0x5c,0x2f,0x2f,
+  0x5c,0x23,0x5f,0x23,0x7c,0x2f,0x58,0x4f,0x23,0x7c,0x23,0x2b,0x7c,0x7c,0x26,0x5c,
+  // 0x80-0xFF
+   0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,
+   0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,
+  0x20,0x7c,0x23,0x2d,0x2d,0x7c,0x23,0x7c,0x23,0x2f,0x7c,0x7c,0x2f,0x5c,0x5c,0x2d,
+  0x2f,0x2d,0x2d,0x7c,0x7c,0x7c,0x7c,0x2d,0x2d,0x2d,0x2f,0x5c,0x5c,0x2f,0x2f,0x23,
+  0x2d,0x23,0x7c,0x2d,0x2d,0x2d,0x2d,0x7c,0x7c,0x5c,0x5c,0x2f,0x5c,0x5c,0x2f,0x2f,
+  0x5c,0x23,0x5f,0x23,0x7c,0x2f,0x58,0x4f,0x23,0x7c,0x23,0x2b,0x7c,0x7c,0x26,0x5c,
+  0x20,0x7c,0x23,0x2d,0x2d,0x7c,0x23,0x7c,0x23,0x2f,0x7c,0x7c,0x2f,0x5c,0x5c,0x2d,
+  0x2f,0x2d,0x2d,0x7c,0x7c,0x7c,0x7c,0x2d,0x2d,0x2d,0x2f,0x5c,0x5c,0x2f,0x2f,0x23
 };
 
 const char** SidTune::fileNameExtensions = defaultFileNameExt;
@@ -137,6 +159,11 @@ bool SidTune::load(const char* fileName, const bool separatorIsSlash)
     cleanup();
     init();
     isSlashedFileName = separatorIsSlash;
+#if !defined(SIDTUNE_NO_STDIN_LOADER)
+    if ( strcmp(fileName,"-")==0 )
+        getFromStdIn();
+    else
+#endif
     getFromFiles(fileName);
     return status;
 }
@@ -186,7 +213,10 @@ uint_least16_t SidTune::selectSong(const uint_least16_t selectedSong)
     info.currentSong = song;
     info.songLength = songLength[song-1];
     // Retrieve song speed definition.
-    info.songSpeed = songSpeed[song-1];
+    if (info.compatibility == SIDTUNE_COMPATIBILITY_R64)
+        info.songSpeed = SIDTUNE_SPEED_CIA_1A;
+    else
+        info.songSpeed = songSpeed[song-1];
     info.clockSpeed = clockSpeed[song-1];
     // Assign song speed description string depending on clock speed.
     // Final speed description is available only after song init.
@@ -249,7 +279,7 @@ bool SidTune::placeSidTuneInC64mem(uint_least8_t* c64buf)
 
 bool SidTune::loadFile(const char* fileName, Buffer_sidtt<const uint_least8_t>& bufferRef)
 {
-    Buffer_sidtt<uint_least8_t> fileBuf;
+    Buffer_sidtt<const uint_least8_t> fileBuf;
     uint_least32_t fileLen = 0;
 
     // This sucks big time
@@ -321,28 +351,11 @@ bool SidTune::loadFile(const char* fileName, Buffer_sidtt<const uint_least8_t>& 
         info.statusString = SidTune::txt_empty;
         return false;
     }
-    
-    // Check for PowerPacker compression: load and decompress, if PP20 file.
-    PP20 myPP;
-    if ( myPP.isCompressed(fileBuf.get(),fileBuf.len()) )
-    {
-        uint_least8_t* destBufRef = 0;
-        if ( 0 == (fileLen = myPP.decompress(fileBuf.get(),fileBuf.len(),
-                                             &destBufRef)) )
-        {
-            info.statusString = myPP.getStatusString();
-            return false;
-        }
-        else
-        {
-            info.statusString = myPP.getStatusString();
-            // Replace compressed buffer with uncompressed buffer.
-            fileBuf.assign(destBufRef,fileLen);
-        }
-    }
+
+    if ( decompressPP20(fileBuf) < 0 )
+        return false;
 
     bufferRef.assign(fileBuf.xferPtr(),fileBuf.xferLen());
-
     return true;
 }
 
@@ -503,21 +516,35 @@ void SidTune::getFromBuffer(const uint_least8_t* const buffer, const uint_least3
     Buffer_sidtt<const uint_least8_t> buf1(tmpBuf,bufferLen);
     Buffer_sidtt<const uint_least8_t> buf2;  // empty
 
+    if ( decompressPP20(buf1) < 0 )
+        return;
+
     bool foundFormat = false;
+    LoadStatus ret;
     // Here test for the possible single file formats. --------------
-    if ( PSID_fileSupport( buffer, bufferLen ))
+    ret = PSID_fileSupport( buf1 ); 
+    if ( ret != LOAD_NOT_MINE )
     {
+        if ( ret == LOAD_ERROR )
+            return;
         foundFormat = true;
-    }
-    else if ( MUS_fileSupport(buf1,buf2) )
-    {
-        foundFormat = MUS_mergeParts(buf1,buf2);
     }
     else
     {
-        // No further single-file-formats available.
-        info.statusString = SidTune::txt_unrecognizedFormat;
+        ret = MUS_fileSupport(buf1,buf2);
+        if ( ret != LOAD_NOT_MINE )
+        {
+            if ( ret == LOAD_ERROR )
+                return;
+            foundFormat = MUS_mergeParts(buf1,buf2);
+        }
+        else
+        {
+            // No further single-file-formats available.
+            info.statusString = SidTune::txt_unrecognizedFormat;
+        }
     }
+
     if ( foundFormat )
     {
         status = acceptSidTune("-","-",buf1);
@@ -527,6 +554,19 @@ void SidTune::getFromBuffer(const uint_least8_t* const buffer, const uint_least3
 bool SidTune::acceptSidTune(const char* dataFileName, const char* infoFileName,
                             Buffer_sidtt<const uint_least8_t>& buf)
 {
+    // @FIXME@ - MUS
+    if ( info.numberOfInfoStrings == 3 )
+    {   // Add <?> (HVSC standard) to missing title, author, release fields
+        for (int i = 0; i < 3; i++)
+        {
+            if (infoString[i][0] == '\0')
+            {
+                strcpy (&infoString[i][0], "<?>");
+                info.infoString[i] = &infoString[i][0];
+            }
+        }
+    }
+
     deleteFileNameCopies();
     // Make a copy of the data file name and path, if available.
     if ( dataFileName != 0 )
@@ -589,7 +629,16 @@ bool SidTune::acceptSidTune(const char* dataFileName, const char* infoFileName,
     
     info.dataFileLen = buf.len();
     info.c64dataLen = buf.len() - fileOffset;
-    
+
+    // Calculate any remaining addresses and then
+    // confirm all the file details are correct
+    if ( resolveAddrs(buf.get() + fileOffset) == false )
+        return false;
+    if ( checkRelocInfo() == false )
+        return false;
+    if ( checkCompatibility() == false )
+        return false;
+
     if (info.dataFileLen >= 2)
     {
         // We only detect an offset of two. Some position independent
@@ -649,43 +698,20 @@ void SidTune::getFromFiles(const char* fileName)
     Buffer_sidtt<const uint_least8_t> fileBuf1, fileBuf2;
     Buffer_sidtt<char> fileName2;
 
-    // Try to load the single specified file.
+    // Try to load the single specified file.  The original method didn't
+    // quite work that well, so instead we now let the support files take
+    // ownership of a known file and don't assume we should just
+    // continue searching when an error is found.
     if ( loadFile(fileName,fileBuf1) )
     {
+        LoadStatus ret;
+
         // File loaded. Now check if it is in a valid single-file-format.
-        if ( PSID_fileSupport(fileBuf1.get(),fileBuf1.len()) )
+        ret = PSID_fileSupport(fileBuf1);
+        if (ret != LOAD_NOT_MINE)
         {
-            status = acceptSidTune(fileName,0,fileBuf1);
-            return;
-        }
-        else if ( MUS_fileSupport(fileBuf1,fileBuf2) )
-        {
-            // Try to find second file.
-            int n = 0;
-            while (fileNameExtensions[n] != 0)
-            {
-                if ( !createNewFileName(fileName2,fileName,fileNameExtensions[n]) )
-                    return;
-                // 1st data file was loaded into ``fileBuf1'',
-                // so we load the 2nd one into ``fileBuf2''.
-                // Do not load the first file again if names are equal.
-                if ( MYSTRICMP(fileName,fileName2.get())!=0 &&
-                     loadFile(fileName2.get(),fileBuf2) )
-                {
-                    if ( MUS_fileSupport(fileBuf1,fileBuf2) )
-                    {
-                        if ( MUS_mergeParts(fileBuf1,fileBuf2) )
-                        {
-                            status = acceptSidTune(fileName,fileName2.get(),
-                                                   fileBuf1);
-                        }
-                        return;  // in either case
-                    }
-                }
-                n++;
-            };
-            // No second file.
-            status = acceptSidTune(fileName,0,fileBuf1);
+            if (ret == LOAD_OK)
+                status = acceptSidTune(fileName,0,fileBuf1);
             return;
         }
 
@@ -700,13 +726,13 @@ void SidTune::getFromFiles(const char* fileName)
 // First we see if ``fileName'' could be a raw data file. In that case we
 // have to find the corresponding description file.
 
-            // Right now we do not have a second file. Hence the (0, 0, ...)
-            // parameters are set for the data buffer. This will not hurt the
-            // file support procedures.
+            // Right now we do not have a second file (fileBuf2 empty). This
+            // will not hurt the file support procedures.
 
             // Make sure that ``fileBuf1'' does not contain a description file.
-            if ( !SID_fileSupport(0,0,fileBuf1.get(),fileBuf1.len()) &&
-                 !INFO_fileSupport(0,0,fileBuf1.get(),fileBuf1.len()) )
+            ret = (LoadStatus)( SID_fileSupport (fileBuf2, fileBuf1) |
+                                INFO_fileSupport(fileBuf2, fileBuf1) );
+            if ( ret == LOAD_NOT_MINE )
             {
                 // Assuming ``fileName'' to hold the name of the raw data file,
                 // we now create the name of a description file (=fileName2) by
@@ -725,10 +751,8 @@ void SidTune::getFromFiles(const char* fileName)
                     if ( MYSTRICMP(fileName,fileName2.get())!=0 &&
                          loadFile(fileName2.get(),fileBuf2) )
                     {
-                        if ( SID_fileSupport(fileBuf1.get(),fileBuf1.len(),
-                                             fileBuf2.get(),fileBuf2.len())
-                            || INFO_fileSupport(fileBuf1.get(),fileBuf1.len(),
-                                                  fileBuf2.get(),fileBuf2.len())
+                        if ( (SID_fileSupport (fileBuf1, fileBuf2) == LOAD_OK)
+                          || (INFO_fileSupport(fileBuf1, fileBuf2) == LOAD_OK)
                             )
                         {
                             status = acceptSidTune(fileName,fileName2.get(),
@@ -740,6 +764,76 @@ void SidTune::getFromFiles(const char* fileName)
                 };
 
 // --------------------------------------- Could not find a description file.
+
+                // Try some native C64 file formats
+                ret = MUS_fileSupport(fileBuf1,fileBuf2);
+                if (ret != LOAD_NOT_MINE)
+                {
+                    if (ret == LOAD_ERROR)
+                        return;
+
+                    // Try to find second file.
+                    int n = 0;
+                    while (fileNameExtensions[n] != 0)
+                    {
+                        if ( !createNewFileName(fileName2,fileName,fileNameExtensions[n]) )
+                            return;
+                        // 1st data file was loaded into ``fileBuf1'',
+                        // so we load the 2nd one into ``fileBuf2''.
+                        // Do not load the first file again if names are equal.
+                        if ( MYSTRICMP(fileName,fileName2.get())!=0 &&
+                            loadFile(fileName2.get(),fileBuf2) )
+                        {
+                            // Check if tunes in wrong order and therefore swap them here
+                            if ( MYSTRICMP (fileNameExtensions[n], ".mus")==0 )
+                            {
+                                if ( MUS_fileSupport(fileBuf2,fileBuf1) == LOAD_OK )
+                                {
+                                    if ( MUS_mergeParts(fileBuf2,fileBuf1) )
+                                        status = acceptSidTune(fileName2.get(),fileName,
+                                                            fileBuf2);
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                if ( MUS_fileSupport(fileBuf1,fileBuf2) == LOAD_OK )
+                                {
+                                    if ( MUS_mergeParts(fileBuf1,fileBuf2) )
+                                        status = acceptSidTune(fileName,fileName2.get(),
+                                                            fileBuf1);
+                                    return;
+                                }
+                            }
+                            // The first tune loaded ok, so ignore errors on the
+                            // second tune, may find an ok one later
+                        }
+                        n++;
+                    };
+                    // No (suitable) second file, so reload first without second
+                    fileBuf2.erase();
+                    MUS_fileSupport(fileBuf1,fileBuf2);
+                    status = acceptSidTune(fileName,0,fileBuf1);
+                    return;
+                }
+
+                // Now directly support x00 (p00, etc)
+                ret = X00_fileSupport(fileName,fileBuf1);
+                if (ret != LOAD_NOT_MINE)
+                {
+                    if (ret == LOAD_OK)
+                        status = acceptSidTune(fileName,0,fileBuf1);
+                    return;
+                }
+
+                // Now directly support prgs and equivalents
+                ret = PRG_fileSupport(fileName,fileBuf1);
+                if (ret != LOAD_NOT_MINE)
+                {
+                    if (ret == LOAD_OK)
+                        status = acceptSidTune(fileName,0,fileBuf1);
+                    return;
+                }
 
                 info.statusString = SidTune::txt_unrecognizedFormat;
                 return;
@@ -754,8 +848,7 @@ void SidTune::getFromFiles(const char* fileName)
 // exist, we are out of luck, since we cannot detect data files.
 
             // Make sure ``fileBuf1'' contains a description file.
-            else if ( SID_fileSupport(0,0,fileBuf1.get(),fileBuf1.len()) ||
-                      INFO_fileSupport(0,0,fileBuf1.get(),fileBuf1.len()) )
+            else if ( ret == LOAD_OK )
             {
 
 // --------------------- Description file found. --- Looking for a data file.
@@ -774,14 +867,12 @@ void SidTune::getFromFiles(const char* fileName)
                     {
 // -------------- Some data file found, now identifying the description file.
 
-                        if ( SID_fileSupport(fileBuf2.get(),fileBuf2.len(),
-                                             fileBuf1.get(),fileBuf1.len())
-                            || INFO_fileSupport(fileBuf2.get(),fileBuf2.len(),
-                                                fileBuf1.get(),fileBuf1.len())
+                        if ( (SID_fileSupport (fileBuf2,fileBuf1) == LOAD_OK)
+                          || (INFO_fileSupport(fileBuf2,fileBuf1) == LOAD_OK)
                             )
                         {
                             status = acceptSidTune(fileName2.get(),fileName,
-                                                   fileBuf2);
+                                                    fileBuf2);
                             return;
                         }
                     }
@@ -793,14 +884,6 @@ void SidTune::getFromFiles(const char* fileName)
                 info.statusString = SidTune::txt_noDataFile;
                 return;
             } // end else if ( = is description file )
-
-// --------------------------------- Neither description nor data file found.
-
-            else
-            {
-                info.statusString = SidTune::txt_unrecognizedFormat;
-                return;
-            }
         } // end else ( = is no singlefile )
 
 // ---------------------------------------------------------- File I/O error.
@@ -885,12 +968,16 @@ bool SidTune::saveC64dataFile( const char* fileName, bool overWriteFlag )
             info.statusString = SidTune::txt_cantCreateFile;
         }
         else
-        {  
-            // Save c64 lo/hi load address.
-            uint_least8_t saveAddr[2];
-            saveAddr[0] = info.loadAddr & 255;
-            saveAddr[1] = info.loadAddr >> 8;
-            fMyOut.write((char*)saveAddr,2);
+        {
+            if ( !info.musPlayer )
+            {
+                // Save c64 lo/hi load address.
+                uint_least8_t saveAddr[2];
+                saveAddr[0] = info.loadAddr & 255;
+                saveAddr[1] = info.loadAddr >> 8;
+                fMyOut.write((char*)saveAddr,2);
+            }
+
             // Data starts at: bufferaddr + fileOffset
             // Data length: info.dataFileLen - fileOffset
             if ( !saveToOpenFile( fMyOut,cache.get()+fileOffset, info.dataFileLen - fileOffset ) )
@@ -981,43 +1068,6 @@ bool SidTune::savePSIDfile( const char* fileName, bool overWriteFlag )
     return success;
 }
 
-bool SidTune::checkRealC64Info (uint_least32_t speed)
-{
-    if (info.loadAddr != 0)
-        return false;
-    if (info.playAddr != 0)
-        return false;
-    if (speed != 0)
-        return false;
-    if (info.compatibility == SIDTUNE_COMPATIBILITY_PSID)
-        return false;
-    return true;
-}
-
-bool SidTune::checkRealC64Init (void)
-{
-    if (info.initAddr == 0)
-        info.initAddr = info.loadAddr;
-
-    // Check valid init address
-    switch (info.initAddr >> 12)
-    {
-    case 0x0F:
-    case 0x0E:
-    case 0x0D:
-    case 0x0B:
-    case 0x0A:
-        return false;
-    default:
-        if ( (info.initAddr < info.loadAddr) ||
-             (info.initAddr > (info.loadAddr + info.c64dataLen - 1)) )
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
 bool SidTune::checkRelocInfo (void)
 {
     uint_least8_t startp, endp;
@@ -1039,7 +1089,7 @@ bool SidTune::checkRelocInfo (void)
     endp   = (startp + info.relocPages - 1) & 0xff;
     if (endp < startp)
     {
-        info.formatString = txt_badReloc;
+        info.statusString = txt_badReloc;
         return false;
     }
 
@@ -1052,7 +1102,7 @@ bool SidTune::checkRelocInfo (void)
         if ( ((startp <= startlp) && (endp >= startlp)) ||
              ((startp <= endlp)   && (endp >= endlp)) )
         {
-            info.formatString = txt_badReloc;
+            info.statusString = txt_badReloc;
             return false;
         }
     }
@@ -1065,82 +1115,135 @@ bool SidTune::checkRelocInfo (void)
         || ((0xa0 <= endp) && (endp <= 0xbf))
         || (endp >= 0xd0))
     {
-        info.formatString = txt_badReloc;
+        info.statusString = txt_badReloc;
         return false;
     }
     return true;
 }
 
-bool SidTune::resolveAddrs (const uint_least8_t* c64data)
-{
-    if ( info.compatibility == SIDTUNE_COMPATIBILITY_R64 )
-    {
-        bool initAddrCheck = true;
+bool SidTune::resolveAddrs (const uint_least8_t *c64data)
+{   // Originally used as a first attempt at an RSID
+    // style format. Now reserved for future use
+    if ( info.playAddr == 0xffff )
+        info.playAddr  = 0;
 
-        // Check tune is loadable on a real C64
-        if ( info.loadAddr < SIDTUNE_R64_MIN_LOAD_ADDR )
+    // loadAddr = 0 means, the address is stored in front of the C64 data.
+    if ( info.loadAddr == 0 )
+    {
+        if ( info.c64dataLen < 2 )
         {
-            info.formatString = txt_badAddr;
+            info.statusString = txt_corrupt;
             return false;
         }
+        info.loadAddr = endian_16( *(c64data+1), *c64data );
+        fileOffset += 2;
+        c64data += 2;
+        info.c64dataLen -= 2;
+    }
 
-        if ( (info.initAddr == 0) && (info.loadAddr == SIDTUNE_BASIC_START) )
-        {   // Scan basic for a sys call
-            const uint_least8_t* pData = c64data;
-            uint_least16_t addr = 0;
-            uint_least16_t next = endian_little16(pData);
-            uint_least16_t init = 0;
-
-            while (next)
-            {   // skip addr & line number
-                const uint_least8_t *p = &pData[addr + 4];
-
-SidTune_resolveAddrs_basic:
-                // Check for SYS
-                if (*p++ != 0x9e)
-                {   // Check for ':' instruction seperator before
-                    // jumping to next basic line
-                    while (*p != '\0')
-                    {
-                        if (*p++ == ':')
-                        {   // Skip spaces
-                            while (*p == ' ')
-                                p++;                            
-                            // Make sure havent hit end of line
-                            if (*p != '\0')
-                                goto SidTune_resolveAddrs_basic;
-                        }
-                    }
-                    // Not a sys so jump to next intruction
-                    addr = next;
-                    // Get addr of next line of basic
-                    next = endian_little16(&pData[addr]);
-                    continue;
-                }
-                // Skip spaces
-                while (*p == ' ')
-                    p++;
-                // Found a sys, extract all numbers
-                while ( (*p >= '0') && (*p <= '9') )
-                {
-                    init *= 10;
-                    init += *p++ - '0';
-                }
-                info.initAddr = init;
-                // Assume address is legal otherwise
-                // a real c64 would crash
-                initAddrCheck = false;
-                break;
-            }
-        }
-
-        if ( checkRealC64Init() == false )
+    if ( info.compatibility == SIDTUNE_COMPATIBILITY_BASIC )
+    {
+        if ( info.initAddr != 0 )
         {
-	        info.formatString = txt_badAddr;
-	        return false;
+            info.statusString = txt_badAddr;
+            return false;
         }
     }
     else if ( info.initAddr == 0 )
         info.initAddr = info.loadAddr;
     return true;
+}
+
+bool SidTune::checkCompatibility (void)
+{
+    switch ( info.compatibility )
+    {
+    case SIDTUNE_COMPATIBILITY_R64:
+        // Check valid init address
+        switch (info.initAddr >> 12)
+        {
+        case 0x0F:
+        case 0x0E:
+        case 0x0D:
+        case 0x0B:
+        case 0x0A:
+            info.statusString = txt_badAddr;
+            return false;
+        default:
+            if ( (info.initAddr < info.loadAddr) ||
+                 (info.initAddr > (info.loadAddr + info.c64dataLen - 1)) )
+            {
+                info.statusString = txt_badAddr;
+                return false;
+            }
+        }
+        // deliberate run on
+
+    case SIDTUNE_COMPATIBILITY_BASIC:
+        // Check tune is loadable on a real C64
+        if ( info.loadAddr < SIDTUNE_R64_MIN_LOAD_ADDR )
+        {
+            info.statusString = txt_badAddr;
+            return false;
+        }    
+        break;
+    }
+    return true;
+}
+
+// returns 0 for no decompression (buf unchanged), 1 for decompression and -1 for error
+int SidTune::decompressPP20(Buffer_sidtt<const uint_least8_t>& buf)
+{
+    // Check for PowerPacker compression: load and decompress, if PP20 file.
+    PP20 myPP;
+    uint_least32_t fileLen;
+    if ( myPP.isCompressed(buf.get(),buf.len()) )
+    {
+        uint_least8_t* destBufRef = 0;
+        if ( 0 == (fileLen = myPP.decompress(buf.get(),buf.len(),
+                                             &destBufRef)) )
+        {
+            info.statusString = myPP.getStatusString();
+            return -1;
+        }
+        else
+        {
+            info.statusString = myPP.getStatusString();
+            // Replace compressed buffer with uncompressed buffer.
+            buf.assign(destBufRef,fileLen);
+        }
+        return 1;
+    }
+    return 0;
+}
+
+int SidTune::convertPetsciiToAscii(SmartPtr_sidtt<const uint8_t>& spPet, char* dest)
+{
+    int count = 0;
+    char c;
+    if (dest)
+    {
+        do
+        {
+            c = _sidtune_CHRtab[*spPet];  // ASCII CHR$ conversion
+            if ((c>=0x20) && (count<=31))
+                dest[count++] = c;  // copy to info string
+
+            // If character is 0x9d (left arrow key) then move back.
+            if ((*spPet==0x9d) && (count>0))
+                count--;
+            spPet++;
+        }
+        while ( !((c==0x0D)||(c==0x00)||spPet.fail()) );
+    }
+    else
+    {   // Just find end of string
+        do
+        {
+            c = _sidtune_CHRtab[*spPet];  // ASCII CHR$ conversion
+            spPet++;
+        }
+        while ( !((c==0x0D)||(c==0x00)||spPet.fail()) );
+    }
+    return count;
 }

@@ -18,17 +18,22 @@
 #define SIDTUNEMOD_H
 
 #include <sidplay/SidTune.h>
+
 #define SIDTUNE_MD5_LENGTH 32
 
 
 class SID_EXTERN SidTuneMod : public SidTune
 {
+ private:
+    char m_md5[SIDTUNE_MD5_LENGTH+1];
+
  public:  // --------------------------------------------------------- public
 
     SidTuneMod(const char* fileName) : SidTune(fileName)
     { ; }
 
-    void createMD5(char *md5); // Buffer must be SIDTUNE_MD5_LENGTH + 1
+    // Not providing an md5 buffer will cause the internal one to be used
+    const char *createMD5(char *md5 = 0); // Buffer must be SIDTUNE_MD5_LENGTH + 1
 };
 
 #endif  /* SIDTUNEMOD_H */

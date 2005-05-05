@@ -26,6 +26,7 @@ struct ini_t;
 static int   __ini_listEval        (struct ini_t *ini);
 static char *__ini_listRead        (struct ini_t *ini);
 static int   __ini_listIndexLength (struct ini_t *ini);
+static int   __ini_listDelims      (struct ini_t *ini, const char *delims);
 
 #endif // INI_ADD_LIST_SUPPORT
 #endif // _list_h_
