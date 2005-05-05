@@ -1,4 +1,128 @@
+2005-05-05  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* NEWS: added song selection using + and - keys
+
+2004-08-05  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/psid64.cpp, src/libpsid64/psidboot.a65, src/libpsid64/psidboot.h:
+	fixed incompatibility with various compressors (e.g. pucrunch, exomizer)
+
+	* README: reset computer not available in minimal driver
+
+	* README, src/libpsid64/psiddrv.a65, src/libpsid64/psidextdrv.h:
+	added next/previous song selection
+
+	* src/libpsid64/psid64.cpp, src/libpsid64/psiddrv.a65, src/libpsid64/psidextdrv.h:
+	display song number of song that is playing
+
+	* src/libpsid64/psiddrv.h, src/libpsid64/psidextdrv.h:
+	regenerated due to changes to psiddrv.a65
+
+	* include/psid64/psid64.h, src/libpsid64/psid64.cpp:
+	put end-of-text spaces at beginning of scroll text so that the first character
+	that appears in the scroll text has the right color
+
+	* src/libpsid64/psiddrv.a65:
+	created separate keyboard row and column tables to gain a few bytes in the
+	keyboard code
+
+2004-08-04  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* NEWS: updated 0.7 items
+
+	* Makefile.am, src/libpsid64/Makefile.am, src/libpsid64/psid64.cpp, src/libpsid64/psidboot.h, src/libpsid64/psiddrv.a65, src/libpsid64/psiddrv.h, src/libpsid64/psidextdrv.h, src/libpsid64/reloc65.cpp, src/libpsid64/reloc65.h:
+	added resolving of undefined references to the relocation code
+
+2004-07-26  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/ConsoleApp.cpp:
+	Fixed a character formatting bug that was introduced while converting the
+	option parser's C code to C++.
+
+2004-07-25  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* TODO: Added future enhancements suggested by users
+
+	* Doxyfile.in, configure.ac: Added Doxygen configuration file
+
+	* include/psid64/psid64.h: added Doxygen comments
+
+2004-07-20  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/Makefile.am: Turned on smooth scroll flag
+
+	* src/libpsid64/psiddrv.a65: layout change
+
+2003-05-24  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/psidboot.a65, src/libpsid64/psiddrv.a65:
+	Added random number generator support (CIA 1 timer A only)
+
+2003-05-23  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/psidboot.a65, src/libpsid64/psid64.cpp, src/libpsid64/psiddrv.a65:
+	Pass default song number via boot loader.
+
+	* src/libpsid64/psiddrv.a65:
+	Moved irqjob to front of driver code to ensure that the high byte of
+	irqjob and irqret are equal. Subsequently removed the setting of the
+	irq vector's high byte.
+
+	* src/libpsid64/psiddrv.a65: Enabled interrupts during screen updates.
+
+	* src/libpsid64/psiddrv.a65, src/libpsid64/psidboot.a65:
+	Preliminary smooth scroll support.
+
+	* src/libpsid64/psidboot.a65:
+	Removed SID initialization as this is done in the driver code now.
+
+	* src/libpsid64/psiddrv.a65: Clear SID registers.
+
+	* src/libpsid64/psid64.cpp, src/libpsid64/psiddrv.a65:
+	Optimized driver code by changing the way init/play are passed.
+	Moved decision on setting irq vectors from driver to C++, eliminating the
+	need of the load vector.
+
+2003-05-11  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/psiddrv.a65, src/libpsid64/psiddrv.h, src/libpsid64/psidextdrv.h:
+	don't clear VIC IRQs in irqret
+	RSIDs use default environment of CIA1 only
+
+	* include/psid64/psid64.h: added iomap member function
+
+	* src/libpsid64/psid64.cpp, src/libpsid64/psiddrv.a65, src/libpsid64/psiddrv.h, src/libpsid64/psidextdrv.h:
+	iomap calculation moved to C++ code, player environment more like sidplay2
+
+	* configure.ac: updated version number
+
+2003-05-01  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* configure.ac: fixed checking of boolean support (bug 730043)
+
+2003-04-23  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/sidutils/ini/keys.i, src/sidutils/ini/list.i, src/sidutils/ini/types.i, src/sidutils/ini/ini.cpp, src/sidutils/ini/ini.h, src/sidutils/ini/keys.h, src/sidutils/SidTuneMod.cpp, src/sidutils/ini/headings.h, src/sidutils/ini/headings.i, src/sidutils/SidDatabase.cpp, include/sidplay/utils/SidTuneMod.h, include/sidplay/utils/libini.h, include/sidplay/utils/SidDatabase.h:
+	synchronized sources with sidplay2
+
+	* src/libpsid64/psid64.cpp:
+	re-ordered member initializers of class Psid64 to match declaration order
+
+	* src/libpsid64/psidboot.a65: updated basic line number
+
+	* src/libpsid64/psiddrv.a65:
+	implemented inst/del key to toggle screen on and off
+
+	* src/libpsid64/psid64.cpp, src/libpsid64/psidboot.a65:
+	show all 31 characters of the PSID header
+
 2003-04-22  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/Makefile.am:
+	GNU sed version 4.0.5 does not seem to like the \w\w RE, replaced by a POSIX
+	1003.2 RE.
+
+	* ChangeLog: update changelog for version 0.6
 
 	* include/psid64/psid64.h:
 	removed extra qualification `Psid64::' on members
