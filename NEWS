@@ -1,10 +1,12 @@
                                   PSID64 NEWS
                                   ===========
 
-psid64-0.7 ():
+psid64-0.7 (Thu May  5 12:13:44 CEST 2005):
 
 * Improved RSID compatibility.
 * Use INST/DEL to toggle screen on and off.
+* Use + and - keys to select next and previous song respectively.
+* Display the song number of song currently being played.
 * Show all 31 characters of the PSID header.
 * Fixed NMI bank register bug.
 * Pass default song number via boot loader.
