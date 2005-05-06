@@ -1,16 +1,16 @@
-AC_DEFUN(MY_SUBST_DEF,
+AC_DEFUN([MY_SUBST_DEF],
 [
     eval "$1=\"#define $1\""
     AC_SUBST($1)
 ])
 
-AC_DEFUN(MY_SUBST_UNDEF,
+AC_DEFUN([MY_SUBST_UNDEF],
 [
     eval "$1=\"#undef $1\""
     AC_SUBST($1)
 ])
 
-AC_DEFUN(MY_SUBST,
+AC_DEFUN([MY_SUBST],
 [
     eval "$1=$2"
     AC_SUBST($1)
@@ -25,7 +25,7 @@ dnl Check whether compiler has a working ``bool'' type.
 dnl Will substitute @HAVE_BOOL@ with either a def or undef line.
 dnl -------------------------------------------------------------------------
 
-AC_DEFUN(MY_CHECK_BOOL,
+AC_DEFUN([MY_CHECK_BOOL],
 [
     AC_MSG_CHECKING([for bool])
     AC_CACHE_VAL(test_cv_have_bool,
@@ -48,7 +48,7 @@ dnl Check whether C++ library has member ios::bin instead of ios::binary.
 dnl Will substitute @HAVE_IOS_BIN@ with either a def or undef line.
 dnl -------------------------------------------------------------------------
 
-AC_DEFUN(MY_CHECK_IOS_BIN,
+AC_DEFUN([MY_CHECK_IOS_BIN],
 [
     AC_MSG_CHECKING([whether standard member ios::binary is available])
     AC_CACHE_VAL(test_cv_have_ios_binary,
@@ -73,7 +73,7 @@ dnl Check whether C++ library has member ios::bin instead of ios::binary.
 dnl Will substitute @HAVE_IOS_OPENMODE@ with either a def or undef line.
 dnl -------------------------------------------------------------------------
 
-AC_DEFUN(MY_CHECK_IOS_OPENMODE,
+AC_DEFUN([MY_CHECK_IOS_OPENMODE],
 [
     AC_MSG_CHECKING([whether standard member ios::openmode is available])
     AC_CACHE_VAL(test_cv_have_ios_openmode,
@@ -99,7 +99,7 @@ dnl Check whether C++ environment provides the "nothrow allocator".
 dnl Will substitute @HAVE_EXCEPTIONS@ if test code compiles.
 dnl -------------------------------------------------------------------------
 
-AC_DEFUN(MY_CHECK_EXCEPTIONS,
+AC_DEFUN([MY_CHECK_EXCEPTIONS],
 [
     AC_MSG_CHECKING([whether exceptions are available])
     AC_CACHE_VAL(test_cv_have_exceptions,
