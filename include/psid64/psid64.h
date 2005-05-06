@@ -77,7 +77,7 @@ public:
      * Set the path to the HVSC. This path is e.g. used to retrieve the STIL
      * information for a PSID file.
      */
-    bool setHvscRoot(std::string hvscRoot);
+    bool setHvscRoot(std::string &hvscRoot);
 
     /**
      * Get the path to the HVSC.
@@ -90,7 +90,7 @@ public:
     /**
      * Set the path to the HVSC song length database.
      */
-    bool setDatabaseFileName(std::string databaseFileName);
+    bool setDatabaseFileName(std::string &databaseFileName);
 
     /**
      * Get the path to the HVSC song length database.

@@ -198,12 +198,14 @@ bool ConsoleApp::main(int argc, char **argv)
     const char* hvscBase = getenv ("HVSC_BASE");
     if (hvscBase != NULL)
     {
-	m_psid64.setHvscRoot(hvscBase);
+	string hvscRoot(hvscBase);
+	m_psid64.setHvscRoot(hvscRoot);
     }
     const char* hvscSongLengths = getenv ("HVSC_SONGLENGTHS");
     if (hvscSongLengths != NULL)
     {
-	m_psid64.setDatabaseFileName(hvscSongLengths);
+	string databaseFileName(hvscSongLengths);
+	m_psid64.setDatabaseFileName(databaseFileName);
     }
     m_outputFileName = "";
 
@@ -231,16 +233,22 @@ bool ConsoleApp::main(int argc, char **argv)
 	    m_outputFileName = optarg;
 	    break;
 	case 'r':
-	    if (!m_psid64.setHvscRoot(optarg))
 	    {
- 		cerr << m_psid64.getStatus() << ": STILView will be disabled" << endl;
- 	    }
+		string hvscRoot(optarg);
+		if (!m_psid64.setHvscRoot(hvscRoot))
+		{
+		    cerr << m_psid64.getStatus() << ": STILView will be disabled" << endl;
+		}
+	    }
 	    break;
 	case 's':
-	    if (!m_psid64.setDatabaseFileName(optarg))
 	    {
- 		cerr << m_psid64.getStatus() << ": song lengths will be disabled" << endl;
- 	    }
+		string databaseFileName(optarg);
+		if (!m_psid64.setDatabaseFileName(databaseFileName))
+		{
+ 		    cerr << m_psid64.getStatus() << ": song lengths will be disabled" << endl;
+ 		}
+	    }
 	    break;
 	case 'v':
 	    m_verbose = true;

@@ -137,7 +137,7 @@ Psid64::~Psid64()
 }
 
 
-bool Psid64::setHvscRoot(std::string hvscRoot)
+bool Psid64::setHvscRoot(std::string &hvscRoot)
 {
     m_hvscRoot = hvscRoot;
     if (!m_hvscRoot.empty())
@@ -153,7 +153,7 @@ bool Psid64::setHvscRoot(std::string hvscRoot)
 }
 
 
-bool Psid64::setDatabaseFileName(std::string databaseFileName)
+bool Psid64::setDatabaseFileName(std::string &databaseFileName)
 {
     m_databaseFileName = databaseFileName;
     if (!m_databaseFileName.empty())
