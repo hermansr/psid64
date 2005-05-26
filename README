@@ -53,16 +53,30 @@ KEYS PLAYER INSTRUCTIONS
 ------------------------
 
 1-0, A-Z		Select song 1-36
-+			Select next song (*)
--			Select previous song (*)
-INST/DEL		Toggle screen blanking on/off (*)
++			Select next song (**)
+-			Select previous song (**)
+INST/DEL		Toggle screen blanking on/off (**)
 RUN/STOP		Stop playback
-LEFT ARROW		Fast forward (**)
-SHIFT LEFT / LOCK	Show rastertime used by player (**)
-CONTROL + CBM + DEL	Reset computer (*)
+LEFT ARROW		Fast forward (*)
+SHIFT LEFT / LOCK	Show rastertime used by player (*)
+CONTROL + CBM + DEL	Reset computer (**)
 
-* not available in minimal driver (i.e. the driver that blanks the screen)
-** not available for custom players (i.e. play address is $0000).
+* not available for custom players (i.e. play address is $0000).
+** not available in minimal driver (i.e. the driver that blanks the screen)
+
+
+JOYSTICK CONTROL
+----------------
+
+Except when using the minimal driver, a joystick connected to port two can be
+used to control some functions of the player.
+
+Up			Select next song
+Down			Select previous song
+Left			Stop playback
+Fire button		Fast forward (*)
+
+* not available for custom players (i.e. play address is $0000).
 
 
 OTHER TOOLS

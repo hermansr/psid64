@@ -53,6 +53,7 @@ playnum	.byte 0
 video	.byte 0
 random	.byte 0
 #ifdef SCREEN
+prevjoy	.byte 0
 #ifdef SMOOTH_SCROLL
 d016	.byte $08
 #endif /* SMOOTH_SCROLL */
@@ -84,12 +85,17 @@ noshift	lda $01
 	jsr play
 	pla
 	sta $01
+#ifdef SCREEN
+	lda $dc00			; test for joystick's fire button
+	and #$10
+	beq ffwd
+#endif /* SCREEN */
 	lda #$7f			; test for arrow left key
 	sta $dc00
 	lda $dc01
 	and #2
 	bne done
-	inc $d020			; flash $d020 during fast forward
+ffwd	inc $d020			; flash $d020 during fast forward
 	jmp noshift
 done	pla
 	sta $dc00
@@ -304,6 +310,7 @@ noscr
 	sei
 	jsr keyboard
 #ifdef SCREEN
+	jsr joystick
 	lda #$7f			; check for reset (control-cbm-delete)
 	sta $dc00
 	lda $dc01
@@ -431,7 +438,7 @@ incsong
 	cpx playmax
 	bcc xstart
 	ldx #0
-	beq xstart
+	beq xstart			; bra
 decsong
 	dex
 	bne newsong
@@ -541,6 +548,51 @@ keycol	.byte $80	;run/stop
 
 
 #ifdef SCREEN
+
+; A bit of CIA register $DC00 (Data Port A) is zero when the joystick connected
+; to port two is moved in a certain direction or the fire button is pressed. By
+; using the previous state of the joystick it is easy to determine the beginning
+; of a new move. In the table below, A is the previous state of $DC00 and B is
+; the current state of $DC00.
+;
+; A  B  (A xor B) and A
+; -  -  ---------------
+; 0  0  0
+; 0  1  0
+; 1  0  1
+; 1  1  0
+
+joystick .(
+	lda $dc00
+	tax
+	eor prevjoy
+	and prevjoy			; set bits indicate start of new move
+	stx prevjoy
+	lsr
+	bcc tdown
+	ldx playnum			; joystick moved up
+	inx
+	cpx playmax
+	bcc xstart
+	ldx #0
+	beq xstart			; bra
+tdown
+	lsr
+	bcc tleft
+	ldx playnum			; joystick moved down
+	bne maxsong
+	ldx playmax
+maxsong dex
+xstart	txa
+	jmp start			; start new song
+tleft
+	lsr
+	bcc exit
+	jmp stop			; joystick moved left
+exit
+	rts
+	.)
+
 
 colorline .(				; moving color line effect
 	ldy $d800+4
