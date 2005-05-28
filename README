@@ -74,6 +74,7 @@ used to control some functions of the player.
 Up			Select next song
 Down			Select previous song
 Left			Stop playback
+Right			Restart current song
 Fire button		Fast forward (*)
 
 * not available for custom players (i.e. play address is $0000).

@@ -119,7 +119,7 @@ cold	pla
 	sta video	; pal/ntsc flag
 	pla
 start	sta playnum	; song number
-	sei
+restart	sei
 	cld
 	ldx #$ff
 	txs
@@ -587,8 +587,12 @@ xstart	txa
 	jmp start			; start new song
 tleft
 	lsr
-	bcc exit
+	bcc tright
 	jmp stop			; joystick moved left
+tright
+	lsr
+	bcc exit
+	jmp restart			; joystick moved right
 exit
 	rts
 	.)
@@ -677,14 +681,14 @@ scroll	lda screen+SCROLLER_OFFSET+1,x
 	bcc scroll
 
 msgpos	= *+1
-restart	ldx eot
+newchar	ldx eot
 eot	= *+1
 	cpx #$ff
 	bne okchar
 	inx				; restart scroll text
 	stx msgpos
 	sty msgpos+1
-	beq restart
+	beq newchar			; bra
 okchar	stx screen+SCROLLER_OFFSET+39
 	inc msgpos
 	bne exit
