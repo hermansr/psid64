@@ -76,7 +76,7 @@ Screen::~Screen()
 void Screen::clear()
 {
     uint_least8_t c = iso2scr (' ');
-    for (unsigned int i = 0; i < m_screenSize; i++)
+    for (unsigned int i = 0; i < m_screenSize; ++i)
     {
 	m_screen[i] = c;
     }
@@ -115,7 +115,7 @@ void Screen::write(const char *str)
 	    m_screen[offs] = iso2scr ((uint_least8_t) *str);
 	    moveRight();
 	}
-	str++;
+	++str;
     }
 }
 

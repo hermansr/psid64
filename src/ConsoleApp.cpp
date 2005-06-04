@@ -261,11 +261,11 @@ bool ConsoleApp::main(int argc, char **argv)
 	case ':':
 	    cerr << PACKAGE << ": option requires an argument -- "
 	         << (char) optopt << endl;
-	    errflg++;
+	    ++errflg;
 	    break;
 	case '?':
 	    cerr << PACKAGE << ": invalid option -- " << (char) optopt << endl;
-	    errflg++;
+	    ++errflg;
 	    break;
 	default:
 	    cerr << PACKAGE << ":" << __FILE__ << ":" << __LINE__
@@ -284,7 +284,7 @@ bool ConsoleApp::main(int argc, char **argv)
     if ((argc - optind) < 1)
     {
 	printUsage ();
-	errflg++;
+	++errflg;
     }
 
     if (errflg)

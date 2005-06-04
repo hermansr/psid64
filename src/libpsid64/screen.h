@@ -82,7 +82,7 @@ public:
     {
 	if (m_x < (m_width - 1))
 	{
-	    m_x++;
+	    ++m_x;
 	}
     }
 
@@ -90,7 +90,7 @@ public:
     {
 	if (m_y < (m_height - 1))
 	{
-	    m_y++;
+	    ++m_y;
 	}
     }
 

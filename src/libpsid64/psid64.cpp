@@ -238,7 +238,7 @@ Psid64::convert()
     blocks[numBlocks].size = driver_size;
     blocks[numBlocks].data = psid_driver;
     blocks[numBlocks].description = "Driver code";
-    numBlocks++;
+    ++numBlocks;
 
     blocks[numBlocks].load = m_tuneInfo.loadAddr;
     blocks[numBlocks].size = m_tuneInfo.c64dataLen;
@@ -246,7 +246,7 @@ Psid64::convert()
     m_tune.placeSidTuneInC64mem(c64buf);
     blocks[numBlocks].data = &(c64buf[m_tuneInfo.loadAddr]);
     blocks[numBlocks].description = "Music data";
-    numBlocks++;
+    ++numBlocks;
 
     if (m_screenPage != 0x00)
     {
@@ -255,7 +255,7 @@ Psid64::convert()
 	blocks[numBlocks].size = m_screen->getDataSize();
 	blocks[numBlocks].data = m_screen->getData();
 	blocks[numBlocks].description = "Screen";
-	numBlocks++;
+	++numBlocks;
     }
 
     if (m_stilPage != 0x00)
@@ -264,7 +264,7 @@ Psid64::convert()
 	blocks[numBlocks].size = m_stilText.length();
 	blocks[numBlocks].data = (uint_least8_t*) m_stilText.c_str();
 	blocks[numBlocks].description = "STIL text";
-	numBlocks++;
+	++numBlocks;
     }
 
     qsort(blocks, numBlocks, sizeof(block_t), (SORTFUNC) block_cmp);
@@ -275,7 +275,7 @@ Psid64::convert()
 	uint_least16_t charset = m_charPage << 8;
 
 	cerr << "C64 memory map:" << endl;
-	for (int i = 0; i < numBlocks; i++)
+	for (int i = 0; i < numBlocks; ++i)
 	{
 	    if ((charset != 0) && (blocks[i].load > charset))
 	    {
@@ -298,7 +298,7 @@ Psid64::convert()
 
     // calculate total size of the blocks
     size = 0;
-    for (int i = 0; i < numBlocks; i++)
+    for (int i = 0; i < numBlocks; ++i)
     {
 	size = size + blocks[i].size;
     }
@@ -336,7 +336,7 @@ Psid64::convert()
     dest[addr++] = (uint_least8_t) ((jmpAddr+3) >> 8); // for tunes that call $a7ae during init
 
     // copy block data to psidboot.a65 parameters
-    for (int i = 0; i < numBlocks; i++)
+    for (int i = 0; i < numBlocks; ++i)
     {
 	uint_least16_t offs = addr + numBlocks - 1 - i;
 	dest[offs] = (uint_least8_t) (blocks[i].load & 0xff);
@@ -348,7 +348,7 @@ Psid64::convert()
     dest += boot_size;
 
     // copy blocks to c64 program file
-    for (int i = 0; i < numBlocks; i++)
+    for (int i = 0; i < numBlocks; ++i)
     {
 	memcpy(dest, blocks[i].data, blocks[i].size);
 	dest += blocks[i].size;
@@ -356,7 +356,7 @@ Psid64::convert()
 
 #if 0
     // FIXME: retrieve song length database information
-    for (int i = 0; i < m_tuneInfo.songs; i++)
+    for (int i = 0; i < m_tuneInfo.songs; ++i)
     {
 	m_tune.selectSong(i + 1);
         int_least32_t length = m_database.length (m_tune);
@@ -472,14 +472,14 @@ Psid64::formatStilText()
     // start the scroll text with some space characters (to separate end
     // from beginning and to make sure the color effect has reached the end
     // of the line before the first character is visible)
-    for (unsigned int i = 0; i < (STIL_EOT_SPACES-1); i++)
+    for (unsigned int i = 0; i < (STIL_EOT_SPACES-1); ++i)
     {
 	m_stilText += Screen::iso2scr(' ');
     }
 
     bool space = true;
     bool realText = false;
-    for (unsigned int i = 0; i < n; i++)
+    for (unsigned int i = 0; i < n; ++i)
     {
 	if (isspace(str[i]))
 	{
@@ -518,7 +518,7 @@ Psid64::findStilSpace(bool* pages, uint_least8_t scr,
 		      uint_least8_t size) const
 {
     uint_least8_t firstPage = 0;
-    for (unsigned int i = 0; i < MAX_PAGES; i++)
+    for (unsigned int i = 0; i < MAX_PAGES; ++i)
     {
 	if (pages[i] || ((scr && (scr <= i) && (i < (scr + NUM_SCREEN_PAGES))))
 	    || ((chars && (chars <= i) && (i < (chars + NUM_CHAR_PAGES))))
@@ -541,7 +541,7 @@ Psid64::findDriverSpace(bool* pages, uint_least8_t scr,
                         uint_least8_t chars, uint_least8_t size) const
 {
     uint_least8_t firstPage = 0;
-    for (unsigned int i = 0; i < MAX_PAGES; i++)
+    for (unsigned int i = 0; i < MAX_PAGES; ++i)
     {
 	if (pages[i] || (scr && (scr <= i) && (i < (scr + NUM_SCREEN_PAGES)))
 	    || (chars && (chars <= i) && (i < (chars + NUM_CHAR_PAGES))))
@@ -611,13 +611,13 @@ Psid64::findFreeSpace()
 	used[7] = (m_tuneInfo.loadAddr + m_tuneInfo.c64dataLen - 1) >> 8;
 
 	// Mark used pages in table.
-	for (i = 0; i < MAX_PAGES; i++)
+	for (i = 0; i < MAX_PAGES; ++i)
 	{
 	    pages[i] = false;
 	}
 	for (i = 0; i < sizeof(used) / sizeof(*used); i += 2)
 	{
-	    for (j = used[i]; j <= used[i + 1]; j++)
+	    for (j = used[i]; j <= used[i + 1]; ++j)
 	    {
 		pages[j] = true;
 	    }
@@ -640,7 +640,7 @@ Psid64::findFreeSpace()
 	    return;
 	}
 
-	for (i = 0; i < MAX_PAGES; i++)
+	for (i = 0; i < MAX_PAGES; ++i)
 	{
 	    pages[i] = ((startp <= i) && (i < endp)) ? false : true;
 	}
@@ -652,7 +652,7 @@ Psid64::findFreeSpace()
     }
 
     driver = 0;
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < 4; ++i)
     {
 	// Calculate the VIC bank offset. Screens located inside banks 1 and 3
 	// require a copy the character rom in ram. The code below uses a
@@ -804,8 +804,8 @@ Psid64::initDriver(uint_least8_t** ptr, int* n)
     if (m_tuneInfo.songs > 1)
     {
 	screen_songnum = screen + (10*40) + 24;
-	if (m_tuneInfo.songs >= 100) screen_songnum++;
-	if (m_tuneInfo.songs >= 10) screen_songnum++;
+	if (m_tuneInfo.songs >= 100) ++screen_songnum;
+	if (m_tuneInfo.songs >= 10) ++screen_songnum;
     }
     globals["screen_songnum"] = screen_songnum;
     globals["dd00"] = ((((m_screenPage & 0xc0) >> 6) ^ 3) | 0x04);
@@ -834,7 +834,7 @@ Psid64::initDriver(uint_least8_t** ptr, int* n)
     // get the speed bits (the driver only has space for the first 32 songs)
     uint_least32_t speed = 0;
     unsigned int songs = min(m_tuneInfo.songs, 32);
-    for (unsigned int i = 0; i < songs; i++)
+    for (unsigned int i = 0; i < songs; ++i)
     {
 	if (m_tune[i + 1].songSpeed != SIDTUNE_SPEED_VBI)
 	{
@@ -913,7 +913,7 @@ Psid64::drawScreen()
     m_screen->poke(35, 1, 0x5d);
     m_screen->poke( 4, 2, 0x6d);
     m_screen->poke(35, 2, 0x7d);
-    for (unsigned int i = 0; i < 30; i++)
+    for (unsigned int i = 0; i < 30; ++i)
     {
 	m_screen->poke(5 + i, 0, 0x40);
 	m_screen->poke(5 + i, 2, 0x40);
