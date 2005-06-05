@@ -6,8 +6,6 @@
 
 * display all PSID header information.
 
-* built-in support for pucrunch / exomizer.
-
 * investigate the use of PSID heuristics (e.g. Rockmonitor support).
 
 * improve C64 demo: make it more colorful, add a better scroller, etc.

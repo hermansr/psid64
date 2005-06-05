@@ -40,13 +40,15 @@ PSID64 is invoked from the command line as follows:
 where PSID_FILE is the names of one or more the PSID files. The resulting
 C64 executable(s) are written to the current directory. Options available:
 
-  -b, --blank-screen   use a minimal driver that blanks the screen
-  -g, --global-comment include the global comment STIL text
-  -o, --output=FILE    specify output file
-  -r, --root           specify HVSC root directory
-  -v, --verbose        explain what is being done
-  -h, --help           display this help and exit
-  -V, --version        output version information and exit
+  -b, --blank-screen     use a minimal driver that blanks the screen
+  -c, --compress         compress output file with Exomizer
+  -g, --global-comment   include the global comment STIL text
+  -o, --output=FILE      specify output file
+  -r, --root             specify HVSC root directory
+  -s, --songlengths=FILE specify HVSC song length database
+  -v, --verbose          explain what is being done
+  -h, --help             display this help and exit
+  -V, --version          output version information and exit
 
 
 KEYS PLAYER INSTRUCTIONS
@@ -78,6 +80,21 @@ Right			Restart current song
 Fire button		Fast forward (*)
 
 * not available for custom players (i.e. play address is $0000).
+
+
+CREDITS
+-------
+
+PSID64 contains the following contributed or derived work. In the order they
+first supplied contributions or code was derived from their work:
+
+    Dag Lem           - PSID driver reference implementation
+    Simon White       - SidUtils library
+    Michael Schwendt  - SidTune library
+    LaLa              - STILView library
+    Magnus Lind       - Exomizer compressor
+
+Credit where credit is due, so if I missed anyone please let me know.
 
 
 OTHER TOOLS

@@ -38,6 +38,7 @@
 #include "reloc65.h"
 #include "screen.h"
 #include "stilview/stil.h"
+#include "exomizer/exomizer.h"
 
 using std::cerr;
 using std::dec;
@@ -118,6 +119,7 @@ const char* Psid64::txt_noSidTuneConverted = "PSID64: No SID tune converted";
 
 Psid64::Psid64() :
     m_blankScreen(false),
+    m_compress(false),
     m_useGlobalComment(false),
     m_verbose(false),
     m_tune(0),
@@ -366,6 +368,18 @@ Psid64::convert()
 	}
     }
 #endif
+
+    if (m_compress)
+    {
+	// Use Exomizer to compress the program data. The first two bytes
+	// of m_programData are skipped as these contain the load address.
+	int load = 0x0801;
+	int start = 0x080d;
+	uint_least8_t* compressedData = new uint_least8_t[0x10000];
+	m_programSize = exomizer(m_programData + 2, m_programSize - 2, load, start, compressedData);
+	delete[] m_programData;
+	m_programData = compressedData;
+    }
 
     return true;
 }

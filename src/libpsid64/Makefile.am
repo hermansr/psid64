@@ -13,6 +13,23 @@ libpsid64_a_SOURCES = \
 	reloc65.h \
 	screen.cpp \
 	screen.h \
+	exomizer/chunkpool.c \
+	exomizer/chunkpool.h \
+	exomizer/exomizer.c \
+	exomizer/exomizer.h \
+	exomizer/log.h \
+	exomizer/match.c \
+	exomizer/match.h \
+	exomizer/optimal.c \
+	exomizer/optimal.h \
+	exomizer/output.c \
+	exomizer/output.h \
+	exomizer/radix.c \
+	exomizer/radix.h \
+	exomizer/search.c \
+	exomizer/search.h \
+	exomizer/sfx64ne.c \
+	exomizer/sfx.h \
 	stilview/stil.cpp \
 	stilview/stil.h \
 	stilview/stilcomm.cpp \

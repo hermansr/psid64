@@ -3,6 +3,7 @@
 
 psid64-0.8 ():
 
+* Built-in support for Exomizer.
 * Added support for a joystick in port two to control the player.
 
 psid64-0.7 (Thu May  5 12:13:44 CEST 2005):

@@ -121,6 +121,23 @@ public:
     }
 
     /**
+     * Set the compress option. When true, the output file is compressed with
+     * Exomizer.
+     */
+    inline void setCompress(bool compress)
+    {
+        m_compress = compress;
+    }
+
+    /**
+     * Get the compress option.
+     */
+    inline bool getCompress() const
+    {
+        return m_compress;
+    }
+
+    /**
      * Set the use global comment flag. When set, PSID64 tries to extract
      * the global comment field of a PSID from the STIL database.
      */
@@ -201,6 +218,7 @@ private:
 
     // configuration options
     bool m_blankScreen;
+    bool m_compress;
     bool m_useGlobalComment;
     bool m_verbose;
     std::string m_hvscRoot;
@@ -250,6 +268,7 @@ private:
 //    int block_cmp(block_t* a, block_t* b);
 //    char* build_output_filename(char* p_psid_file);
 //    std::string build_output_filename(const std::string &p_psid_file);
+    bool compress();
 };
 
 

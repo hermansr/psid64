@@ -42,7 +42,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-#define STR_GETOPT_OPTIONS		":bgho:r:s:vV"
+#define STR_GETOPT_OPTIONS		":bcgho:r:s:vV"
 
 
 // constructor
@@ -73,6 +73,7 @@ void ConsoleApp::printHelp ()
     cout << endl;
 #ifdef HAVE_GETOPT_LONG
     cout << "  -b, --blank-screen     use a minimal driver that blanks the screen" << endl;
+    cout << "  -c, --compress         compress output file with Exomizer" << endl;
     cout << "  -g, --global-comment   include the global comment STIL text" << endl;
     cout << "  -o, --output=FILE      specify output file" << endl;
     cout << "  -r, --root             specify HVSC root directory" << endl;
@@ -82,6 +83,7 @@ void ConsoleApp::printHelp ()
     cout << "  -V, --version          output version information and exit" << endl;
 #else
     cout << "  -b                     use a minimal driver that blanks the screen" << endl;
+    cout << "  -c                     compress output file with Exomizer" << endl;
     cout << "  -g                     include the global comment STIL text" << endl;
     cout << "  -o                     specify output file" << endl;
     cout << "  -r                     specify HVSC root directory" << endl;
@@ -180,6 +182,7 @@ bool ConsoleApp::main(int argc, char **argv)
     int                     option_index = 0;
     static struct option    long_options[] = {
 	{"blank-screen", 0, NULL, 'b'},
+	{"compress", 0, NULL, 'c'},
 	{"global-comment", 0, NULL, 'g'},
 	{"help", 0, NULL, 'h'},
 	{"output", 1, NULL, 'o'},
@@ -221,6 +224,9 @@ bool ConsoleApp::main(int argc, char **argv)
 	{
 	case 'b':
 	    m_psid64.setBlankScreen(true);
+	    break;
+	case 'c':
+	    m_psid64.setCompress(true);
 	    break;
 	case 'g':
 	    m_psid64.setUseGlobalComment(true);
