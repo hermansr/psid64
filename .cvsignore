@@ -1,0 +1,9 @@
+Doxyfile
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache
+config.log
+config.status
+configure
+psid64.spec
