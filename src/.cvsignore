@@ -3,3 +3,5 @@ Makefile.in
 config.h
 config.h.in
 .deps
+psid64
+stamp-h1
