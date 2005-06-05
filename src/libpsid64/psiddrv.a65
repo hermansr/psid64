@@ -86,6 +86,8 @@ noshift	lda $01
 	pla
 	sta $01
 #ifdef SCREEN
+	lda #$ff
+	sta $dc00
 	lda $dc00			; test for joystick's fire button
 	and #$10
 	beq ffwd
@@ -563,6 +565,8 @@ keycol	.byte $80	;run/stop
 ; 1  1  0
 
 joystick .(
+	lda #$ff
+	sta $dc00
 	lda $dc00
 	tax
 	eor prevjoy
