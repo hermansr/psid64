@@ -97,6 +97,23 @@ first supplied contributions or code was derived from their work:
 Credit where credit is due, so if I missed anyone please let me know.
 
 
+KNOWN PROBLEMS AND LIMITATIONS
+------------------------------
+
+At least two free 256 byte pages are required for the minimal driver and at
+least nine 256 byte pages are required for the extended driver.
+
+The accuracy of the clock cannot be guaranteed while fast forwarding a song.
+This is due to the fact that the driver does not know how often the play
+function is called. PSID64 assumes that the play function called 50 times per
+second on a PAL machine and 60 times per second on an NTSC machine.
+
+The scroller might show some artifacts when interrupts occur in just before or
+after the scroller area. To guarantee maximal compatibility with SID tunes it's
+neither feasible nor desired to program a scroller based on code that generates
+interrupts. Any ideas on how to improve the scroller code are welcome.
+
+
 OTHER TOOLS
 -----------
 
