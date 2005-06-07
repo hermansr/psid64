@@ -99,7 +99,7 @@ void ConsoleApp::printHelp ()
 string
 ConsoleApp::buildOutputFileName (const string& sidFileName) const
 {
-    string                 &prgFileName = * new string;
+    string prgFileName;
 
     if (m_outputFileName.empty() == false)
     {

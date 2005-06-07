@@ -134,6 +134,7 @@ Psid64::Psid64() :
 
 Psid64::~Psid64()
 {
+   delete m_stil;
    delete m_screen;
    delete[] m_programData;
 }
@@ -197,6 +198,7 @@ Psid64::convert()
     };
     block_t blocks[MAX_BLOCKS];
     int numBlocks;
+    uint_least8_t* psid_mem;
     uint_least8_t* psid_driver;
     int driver_size;
     uint_least16_t boot_size = sizeof(psid_boot);
@@ -232,7 +234,7 @@ Psid64::convert()
     }
 
     // relocate and initialize the driver
-    initDriver (&psid_driver, &driver_size);
+    initDriver (&psid_mem, &psid_driver, &driver_size);
 
     // fill the blocks structure
     numBlocks = 0;
@@ -355,6 +357,9 @@ Psid64::convert()
 	memcpy(dest, blocks[i].data, blocks[i].size);
 	dest += blocks[i].size;
     }
+
+    // free memory of relocated driver
+    delete[] psid_mem;
 
 #if 0
     // FIXME: retrieve song length database information
@@ -770,7 +775,7 @@ uint8_t Psid64::iomap(uint_least16_t addr)
 
 
 void
-Psid64::initDriver(uint_least8_t** ptr, int* n)
+Psid64::initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n)
 {
     static const uint_least8_t psid_driver[] = {
 #include "psiddrv.h"
@@ -779,6 +784,7 @@ Psid64::initDriver(uint_least8_t** ptr, int* n)
 #include "psidextdrv.h"
     };
     const uint_least8_t* driver;
+    uint_least8_t* psid_mem;
     uint_least8_t* psid_reloc;
     int psid_size;
     uint_least16_t reloc_addr;
@@ -802,8 +808,8 @@ Psid64::initDriver(uint_least8_t** ptr, int* n)
     }
 
     // Relocation of C64 PSID driver code.
-    psid_reloc = new uint_least8_t[psid_size];
-    if (psid_reloc == NULL)
+    psid_mem = psid_reloc = new uint_least8_t[psid_size];
+    if (psid_mem == NULL)
     {
 	return;
     }
@@ -869,6 +875,7 @@ Psid64::initDriver(uint_least8_t** ptr, int* n)
 	psid_reloc[addr++] = m_stilPage;
     }
 
+    *mem = psid_mem;
     *ptr = psid_reloc;
     *n = psid_size;
 }

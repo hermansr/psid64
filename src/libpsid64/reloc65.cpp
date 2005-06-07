@@ -140,6 +140,9 @@ int reloc65(char** buf, int* fsize, int addr, globals_t* globals)
 		file.buf[20]= zbase & 255;
 	}
 
+	/* free array with names of undefined labels */
+	free(file.ud);
+
 	switch(extract) {
 	case 0:	/* whole file */
 		return 1;
