@@ -30,6 +30,10 @@
 
 	.align 256
 
+#ifdef SCREEN
+#define CLOCK_OFFSET			489
+#define SCROLLER_OFFSET			840
+#endif
 	jmp cold
 	jmp setiomap
 
@@ -54,9 +58,15 @@ video	.byte 0
 random	.byte 0
 #ifdef SCREEN
 prevjoy	.byte 0
+clkcounter .byte 0
 #ifdef SMOOTH_SCROLL
 d016	.byte $08
 #endif /* SMOOTH_SCROLL */
+#endif /* SCREEN */
+
+	;Constants
+#ifdef SCREEN
+clkoffs	.byte 0,1,3,4,6,7
 #endif /* SCREEN */
 
 	; User interrupt vectors
@@ -98,6 +108,9 @@ noshift	lda $01
 	and #2
 	bne done
 ffwd	inc $d020			; flash $d020 during fast forward
+#ifdef SCREEN
+	jsr clock
+#endif /* SCREEN */
 	jmp noshift
 done	pla
 	sta $dc00
@@ -183,6 +196,16 @@ spfill	sta screen_songnum+1,y
 	cpy #3
 	bcc spfill
 nosongnum
+
+	ldx #5				; reset clock
+	lda #$30			; '0'
+rstclk	ldy clkoffs,x
+	sta screen+CLOCK_OFFSET,y
+	dex
+	bpl rstclk
+	lda #0
+	sta clkcounter
+
 #endif /* SCREEN */
 
 	; Set interrupt vectors
@@ -307,6 +330,7 @@ idle	jsr delay
 	jsr colortext
 	jsr scroller
 noscr
+	jsr clock
 #endif /* SCREEN */
 	php
 	sei
@@ -356,6 +380,9 @@ stop	.(
 clrsid	sta $d400,x
 	dex
 	bpl clrsid
+#ifdef SCREEN
+	stx clkcounter
+#endif /* SCREEN */
 	lda #$0f			; maximum volume
 	sta $d418
 	rts
@@ -602,6 +629,34 @@ exit
 	.)
 
 
+clock	.(				; update the clock
+	bit clkcounter
+	bmi exit
+	ldx #5
+	lda #2
+	dec clkcounter
+	bpl cl1
+	sta clkcounter
+	ldy video
+	bne cl1
+cl2	lda #1
+cl1	ldy clkoffs,x
+	clc
+	adc screen+CLOCK_OFFSET,y
+	sta screen+CLOCK_OFFSET,y
+	cmp clkcmp,x
+	bcc exit
+	lda #$30			; '0'
+	sta screen+CLOCK_OFFSET,y
+	dex
+	bpl cl2				; c=1
+exit
+	rts
+
+clkcmp	.byte $3a,$3a,$36,$3a,$3a,$3a
+	.)
+
+
 colorline .(				; moving color line effect
 	ldy $d800+4
 	ldx #0
@@ -646,8 +701,6 @@ txtcol	.byte 9,2,4,10,7,13,1,13,7,10,4,2,9,0,0,0
 	.)
 
 scroller .(
-
-#define SCROLLER_OFFSET			840
 
 	ldy stil
 	beq exit

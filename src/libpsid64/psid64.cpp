@@ -1008,14 +1008,13 @@ Psid64::drawScreen()
     {
 	m_screen->write("-");
     }
+    m_screen->write("\nClock  :   :  :");
 
     // some additional text
     m_screen->write("\n\n\
-This is an experimental PSID player for\n\
-the C64. It is an implementation of the\n\
-PSID V2 NG standard written by Dag Lem\n\
-and Simon White. The driver code and\n\
-screen are relocated based on\n\
+This is an experimental PSID player that\n\
+supports the PSID V2 NG standard. The\n\
+driver and screen are relocated based on\n\
 information stored inside the PSID.");
 
     // flashing bottom line (should be exactly 38 characters)

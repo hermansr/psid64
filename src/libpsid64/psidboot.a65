@@ -182,15 +182,14 @@ l3	cpx #7
 l4	lda #7
 l5	dey
 	sta $d800+160,y
-	sta $d800+240,y
+	sta $d800+280,y
 	dex
 	bpl l3
 	tya
 	bne l2
 
 	lda #12				; set color of area for STIL text
-stilcol	sta $d800+480,y
-	sta $d800+664,y
+stilcol	sta $d800+520,y
 	iny
 	bne stilcol
 
