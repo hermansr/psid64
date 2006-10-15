@@ -94,7 +94,7 @@ public:
 	}
     }
 
-    static inline uint_least8_t Screen::iso2scr(uint_least8_t c)
+    static inline uint_least8_t iso2scr(uint_least8_t c)
     {
 	static const uint_least8_t scrtab[] = {
 	    0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, // 0x00
