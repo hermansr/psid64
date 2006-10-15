@@ -23,6 +23,8 @@
 //                             I N C L U D E S
 //////////////////////////////////////////////////////////////////////////////
 
+#include "ConsoleApp.h"
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -35,14 +37,15 @@
 #include <unistd.h>
 #endif
 
-#include "ConsoleApp.h"
+#include <sstream>
 
 using std::cerr;
 using std::cout;
 using std::endl;
 using std::string;
+using std::istringstream;
 
-#define STR_GETOPT_OPTIONS		":bcgho:r:s:vV"
+#define STR_GETOPT_OPTIONS		":bcghi:o:r:s:vV"
 
 
 // constructor
@@ -74,6 +77,7 @@ void ConsoleApp::printHelp ()
 #ifdef HAVE_GETOPT_LONG
     cout << "  -b, --blank-screen     use a minimal driver that blanks the screen" << endl;
     cout << "  -c, --compress         compress output file with Exomizer" << endl;
+    cout << "  -i, --initial-song=NUM override the initial song to play" << endl;
     cout << "  -g, --global-comment   include the global comment STIL text" << endl;
     cout << "  -o, --output=FILE      specify output file" << endl;
     cout << "  -r, --root             specify HVSC root directory" << endl;
@@ -85,6 +89,7 @@ void ConsoleApp::printHelp ()
     cout << "  -b                     use a minimal driver that blanks the screen" << endl;
     cout << "  -c                     compress output file with Exomizer" << endl;
     cout << "  -g                     include the global comment STIL text" << endl;
+    cout << "  -i                     override the initial song to play" << endl;
     cout << "  -o                     specify output file" << endl;
     cout << "  -r                     specify HVSC root directory" << endl;
     cout << "  -s                     specify HVSC song length database" << endl;
@@ -185,6 +190,7 @@ bool ConsoleApp::main(int argc, char **argv)
 	{"compress", 0, NULL, 'c'},
 	{"global-comment", 0, NULL, 'g'},
 	{"help", 0, NULL, 'h'},
+	{"initial-song", 1, NULL, 'i'},
 	{"output", 1, NULL, 'o'},
 	{"root", 1, NULL, 'r'},
 	{"songlengths", 1, NULL, 's'},
@@ -234,6 +240,21 @@ bool ConsoleApp::main(int argc, char **argv)
 	case 'h':
 	    printHelp ();
 	    exit (0);
+	    break;
+	case 'i':
+	    {
+		istringstream istr(optarg);
+		int initialSong;
+		istr >> initialSong;
+		if ((1 <= initialSong) && (initialSong <= 255))
+		{
+		    m_psid64.setInitialSong(initialSong);
+		}
+		else
+		{
+		    cerr << "initial song should be an integer number between 1 and 255" << endl;
+		}
+	    }
 	    break;
 	case 'o':
 	    m_outputFileName = optarg;

@@ -138,6 +138,23 @@ public:
     }
 
     /**
+     * Set the initial song number. When 0 or larger than the total number of
+     * songs, the initial song as specified in the SID file header is used.
+     */
+    inline void setInitialSong(int initialSong)
+    {
+	m_initialSong = initialSong;
+    }
+
+    /**
+     * Get the initial song.
+     */
+    inline int getInitialSong()
+    {
+	return m_initialSong;
+    }
+
+    /**
      * Set the use global comment flag. When set, PSID64 tries to extract
      * the global comment field of a PSID from the STIL database.
      */
@@ -219,6 +236,7 @@ private:
     // configuration options
     bool m_blankScreen;
     bool m_compress;
+    int m_initialSong;
     bool m_useGlobalComment;
     bool m_verbose;
     std::string m_hvscRoot;

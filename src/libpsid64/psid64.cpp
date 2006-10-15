@@ -120,6 +120,7 @@ const char* Psid64::txt_noSidTuneConverted = "PSID64: No SID tune converted";
 Psid64::Psid64() :
     m_blankScreen(false),
     m_compress(false),
+    m_initialSong(0),
     m_useGlobalComment(false),
     m_verbose(false),
     m_tune(0),
@@ -316,12 +317,21 @@ Psid64::convert()
     // the value 0x0801 is related to start of the code in psidboot.a65
     uint_least16_t addr = 19;
 
-    // fill in the default song number (passed in at boot time)
+    // fill in the initial song number (passed in at boot time)
     uint_least16_t song;
     song  = dest[addr];
     song += (uint_least16_t) dest[addr + 1] << 8;
     song -= (0x0801 - 2);
-    dest[song] = (uint_least8_t) ((m_tuneInfo.startSong - 1) & 0xff);
+    int initialSong;
+    if ((1 <= m_initialSong) && (m_initialSong <= m_tuneInfo.songs))
+    {
+	initialSong = m_initialSong;
+    }
+    else
+    {
+	initialSong = m_tuneInfo.startSong;
+    }
+    dest[song] = (uint_least8_t) ((initialSong - 1) & 0xff);
 
     uint_least16_t eof = 0x0801 + boot_size - 2 + size;
     dest[addr++] = (uint_least8_t) (eof & 0xff); // end of C64 file
