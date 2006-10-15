@@ -701,7 +701,7 @@ Psid64::findFreeSpace()
 		    if (k == (j & 0x38))
 			continue;
 
-		    // check if character rom area is avaiable
+		    // check if character rom area is available
 		    chars = bank + k;
 		    if (pages[chars] || pages[chars + 1]
 			|| pages[chars + 2] || pages[chars + 3]
