@@ -77,8 +77,8 @@ void ConsoleApp::printHelp ()
 #ifdef HAVE_GETOPT_LONG
     cout << "  -b, --blank-screen     use a minimal driver that blanks the screen" << endl;
     cout << "  -c, --compress         compress output file with Exomizer" << endl;
-    cout << "  -i, --initial-song=NUM override the initial song to play" << endl;
     cout << "  -g, --global-comment   include the global comment STIL text" << endl;
+    cout << "  -i, --initial-song=NUM override the initial song to play" << endl;
     cout << "  -o, --output=FILE      specify output file" << endl;
     cout << "  -r, --root             specify HVSC root directory" << endl;
     cout << "  -s, --songlengths=FILE specify HVSC song length database" << endl;
