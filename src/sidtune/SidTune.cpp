@@ -200,7 +200,7 @@ uint_least16_t SidTune::selectSong(const uint_least16_t selectedSong)
         return 0;
     else
         info.statusString = SidTune::txt_noErrors;
-        
+
     uint_least16_t song = selectedSong;
     // Determine and set starting song number.
     if (selectedSong == 0)
@@ -215,6 +215,14 @@ uint_least16_t SidTune::selectSong(const uint_least16_t selectedSong)
     // Retrieve song speed definition.
     if (info.compatibility == SIDTUNE_COMPATIBILITY_R64)
         info.songSpeed = SIDTUNE_SPEED_CIA_1A;
+    else if (info.compatibility == SIDTUNE_COMPATIBILITY_PSID)
+    {   // This does not take into account the PlaySID bug upon evaluating the
+        // SPEED field. It would most likely break compatibility to lots of
+        // sidtunes, which have been converted from .SID format and vice versa.
+        // The .SID format does the bit-wise/song-wise evaluation of the SPEED
+        // value correctly, like it is described in the PlaySID documentation.
+        info.songSpeed = songSpeed[(song-1)&31];
+    }
     else
         info.songSpeed = songSpeed[song-1];
     info.clockSpeed = clockSpeed[song-1];
@@ -623,10 +631,10 @@ bool SidTune::acceptSidTune(const char* dataFileName, const char* infoFileName,
         info.startSong = 1;
     else if (info.startSong == 0)
         info.startSong++;
-    
+
     if ( info.musPlayer )
         MUS_setPlayerAddress();
-    
+
     info.dataFileLen = buf.len();
     info.c64dataLen = buf.len() - fileOffset;
 
@@ -646,7 +654,7 @@ bool SidTune::acceptSidTune(const char* dataFileName, const char* infoFileName,
         // to 0x0FFE and call player at 0x1000.
         info.fixLoad = (endian_little16(buf.get()+fileOffset)==(info.loadAddr+2));
     }
-    
+
     // Check the size of the data.
     if ( info.c64dataLen > SIDTUNE_MAX_MEMORY )
     {
@@ -878,7 +886,7 @@ void SidTune::getFromFiles(const char* fileName)
                     }
                     n++;
                 };
-                
+
 // ---------------------------------------- No corresponding data file found.
 
                 info.statusString = SidTune::txt_noDataFile;
@@ -901,27 +909,25 @@ void SidTune::convertOldStyleSpeedToTables(uint_least32_t speed, int clock)
 {
     // Create the speed/clock setting tables.
     //
-    // This does not take into account the PlaySID bug upon evaluating the
-    // SPEED field. It would most likely break compatibility to lots of
-    // sidtunes, which have been converted from .SID format and vice versa.
-    // The .SID format does the bit-wise/song-wise evaluation of the SPEED
-    // value correctly, like it is described in the PlaySID documentation.
-
+    // This routine implements the PSIDv2NG compliant speed conversion.  All tunes
+    // above 32 use the same song speed as tune 32
     int toDo = ((info.songs <= SIDTUNE_MAX_SONGS) ? info.songs : SIDTUNE_MAX_SONGS);
     for (int s = 0; s < toDo; s++)
     {
         clockSpeed[s] = clock;
-        if (( (speed>>(s&31)) & 1 ) == 0 )
-            songSpeed[s] = SIDTUNE_SPEED_VBI;
-        else
+        if (speed & 1)
             songSpeed[s] = SIDTUNE_SPEED_CIA_1A;
+        else
+            songSpeed[s] = SIDTUNE_SPEED_VBI;
+        if (s < 31)
+            speed >>= 1;
     }
 }
 
 //
 // File format conversion ---------------------------------------------------
 //
-                
+
 bool SidTune::saveToOpenFile(std::ofstream& toFile, const uint_least8_t* buffer,
                              uint_least32_t bufLen )
 {
@@ -964,7 +970,7 @@ bool SidTune::saveC64dataFile( const char* fileName, bool overWriteFlag )
             createAttr |= std::ios::app;
         std::ofstream fMyOut( fileName, createAttr );
         if ( !fMyOut || fMyOut.tellp()>0 )
-        { 
+        {
             info.statusString = SidTune::txt_cantCreateFile;
         }
         else
@@ -1009,11 +1015,11 @@ bool SidTune::saveSIDfile( const char* fileName, bool overWriteFlag )
             createAttr |= std::ios::app;
         std::ofstream fMyOut( fileName, createAttr );
         if ( !fMyOut || fMyOut.tellp()>0 )
-        { 
+        {
             info.statusString = SidTune::txt_cantCreateFile;
         }
         else
-        {  
+        {
             if ( !SID_fileSupportSave( fMyOut ) )
             {
                 info.statusString = SidTune::txt_fileIoError;
@@ -1052,7 +1058,7 @@ bool SidTune::savePSIDfile( const char* fileName, bool overWriteFlag )
             info.statusString = SidTune::txt_cantCreateFile;
         }
         else
-        {  
+        {
             if ( !PSID_fileSupportSave( fMyOut,cache.get() ) )
             {
                 info.statusString = SidTune::txt_fileIoError;
