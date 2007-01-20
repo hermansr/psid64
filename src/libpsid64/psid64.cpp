@@ -212,6 +212,11 @@ Psid64::convert()
 	return false;
     }
 
+    // handle special treatment of tunes programmed in BASIC
+    if (m_tuneInfo.compatibility == SIDTUNE_COMPATIBILITY_BASIC) {
+	return convertBASIC();
+    }
+
     // retrieve STIL entry for this SID tune
     if (!formatStilText())
     {
@@ -444,6 +449,36 @@ Psid64::write(ostream& out)
 //////////////////////////////////////////////////////////////////////////////
 //              P R I V A T E   M E M B E R   F U N C T I O N S
 //////////////////////////////////////////////////////////////////////////////
+
+bool
+Psid64::convertBASIC()
+{
+    // allocate space for BASIC program
+    m_programSize = 2 + m_tuneInfo.c64dataLen;
+    delete[] m_programData;
+    m_programData = new uint_least8_t[m_programSize];
+
+    // first the load address
+    m_programData[0] = (uint_least8_t) (m_tuneInfo.loadAddr & 0xff);
+    m_programData[1] = (uint_least8_t) (m_tuneInfo.loadAddr >> 8);
+
+    // then copy the BASIC program
+    uint_least8_t c64buf[65536];
+    m_tune.placeSidTuneInC64mem(c64buf);
+    memcpy(m_programData + 2, &(c64buf[m_tuneInfo.loadAddr]), m_tuneInfo.c64dataLen);
+
+    // print memory map
+    if (m_verbose)
+    {
+	cerr << "C64 memory map:" << endl;
+	cerr << "  $" << toHexWord(m_tuneInfo.loadAddr) << "-$"
+	     << toHexWord(m_tuneInfo.loadAddr +m_tuneInfo.c64dataLen) << "  "
+	     << "BASIC program" << endl;
+    }
+
+    return true;
+}
+
 
 bool
 Psid64::formatStilText()

@@ -268,6 +268,7 @@ private:
     unsigned int m_programSize;
 
     // member functions
+    bool convertBASIC();
     bool formatStilText();
     uint_least8_t findStilSpace(bool* pages, uint_least8_t scr,
 				uint_least8_t chars,
