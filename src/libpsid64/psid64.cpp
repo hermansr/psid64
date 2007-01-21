@@ -2,7 +2,7 @@
     $Id$
 
     psid64 - create a C64 executable from a PSID file
-    Copyright (C) 2001-2003  Roland Hermans <rolandh@users.sourceforge.net>
+    Copyright (C) 2001-2007  Roland Hermans <rolandh@users.sourceforge.net>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -453,27 +453,88 @@ Psid64::write(ostream& out)
 bool
 Psid64::convertBASIC()
 {
-    // allocate space for BASIC program
-    m_programSize = 2 + m_tuneInfo.c64dataLen;
+    const uint_least16_t load = m_tuneInfo.loadAddr;
+    const uint_least16_t end = load + m_tuneInfo.c64dataLen;
+    uint_least16_t bootCodeSize = m_compress ? 27 : 0;
+
+    // allocate space for BASIC program and boot code (optional)
+    m_programSize = 2 + m_tuneInfo.c64dataLen + bootCodeSize;
     delete[] m_programData;
     m_programData = new uint_least8_t[m_programSize];
 
     // first the load address
-    m_programData[0] = (uint_least8_t) (m_tuneInfo.loadAddr & 0xff);
-    m_programData[1] = (uint_least8_t) (m_tuneInfo.loadAddr >> 8);
+    m_programData[0] = (uint_least8_t) (load & 0xff);
+    m_programData[1] = (uint_least8_t) (load >> 8);
 
     // then copy the BASIC program
     uint_least8_t c64buf[65536];
     m_tune.placeSidTuneInC64mem(c64buf);
-    memcpy(m_programData + 2, &(c64buf[m_tuneInfo.loadAddr]), m_tuneInfo.c64dataLen);
+    memcpy(m_programData + 2, &(c64buf[load]), m_tuneInfo.c64dataLen);
+
+    if (m_compress)
+    {
+	uint_least16_t offs = 2 + m_tuneInfo.c64dataLen;
+	// lda #0
+	m_programData[offs++] = 0xa9;
+	m_programData[offs++] = 0x00;
+	// sta load-1
+	m_programData[offs++] = 0x8d;
+	m_programData[offs++] = (uint_least8_t) ((load - 1) & 0xff);
+	m_programData[offs++] = (uint_least8_t) ((load - 1) >> 8);
+	// lda #<load
+	m_programData[offs++] = 0xa9;
+	m_programData[offs++] = (uint_least8_t) (load & 0xff);
+	// sta $2b
+	m_programData[offs++] = 0x85;
+	m_programData[offs++] = 0x2b;
+	// lda #>load
+	m_programData[offs++] = 0xa9;
+	m_programData[offs++] = (uint_least8_t) (load >> 8);
+	// sta $2c
+	m_programData[offs++] = 0x85;
+	m_programData[offs++] = 0x2c;
+	// lda #<end
+	m_programData[offs++] = 0xa9;
+	m_programData[offs++] = (uint_least8_t) (end & 0xff);
+	// sta $2d
+	m_programData[offs++] = 0x85;
+	m_programData[offs++] = 0x2d;
+	// lda #>end
+	m_programData[offs++] = 0xa9;
+	m_programData[offs++] = (uint_least8_t) (end >> 8);
+	// sta $2e
+	m_programData[offs++] = 0x85;
+	m_programData[offs++] = 0x2e;
+	// jsr $a659
+	m_programData[offs++] = 0x20;
+	m_programData[offs++] = 0x59;
+	m_programData[offs++] = 0xa6;
+	// jmp $a7ae
+	m_programData[offs++] = 0x4c;
+	m_programData[offs++] = 0xae;
+	m_programData[offs++] = 0xa7;
+
+	// Use Exomizer to compress the program data. The first two bytes
+	// of m_programData are skipped as these contain the load address.
+	int start = end;
+	uint_least8_t* compressedData = new uint_least8_t[0x10000];
+	m_programSize = exomizer(m_programData + 2, m_programSize - 2, load, start, compressedData);
+	delete[] m_programData;
+	m_programData = compressedData;
+    }
 
     // print memory map
     if (m_verbose)
     {
 	cerr << "C64 memory map:" << endl;
-	cerr << "  $" << toHexWord(m_tuneInfo.loadAddr) << "-$"
-	     << toHexWord(m_tuneInfo.loadAddr +m_tuneInfo.c64dataLen) << "  "
-	     << "BASIC program" << endl;
+	cerr << "  $" << toHexWord(load) << "-$" << toHexWord(end)
+	     << "  BASIC program" << endl;
+	if (m_compress)
+	{
+	    cerr << "  $" << toHexWord(end) << "-$"
+		 << toHexWord(end + bootCodeSize)
+		 << "  Post decompression boot code" << endl;
+	}
     }
 
     return true;
