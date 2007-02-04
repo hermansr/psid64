@@ -1,18 +1,13 @@
-%define name @PACKAGE@
-%define version @VERSION@
-%define release 1
-%define prefix /usr
-
 Summary: A PSID file converter and native Commodore 64 music player.
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Copyright: GPL
-Url: http://psid64.sourceforge.net/
+Name: @PACKAGE@
+Version: @VERSION@
+Release: 1
+License: GPL
+URL: http://psid64.sourceforge.net/
 Group: Applications/Multimedia
 Source: %{name}-%{version}.tar.gz
-Prefix: %{prefix}
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
+Prefix: /usr
+Buildroot: %{_tmppath}/%{name}-%{version}-root
 
 %description
 PSID64 is a program that makes it possible to listen to your favourite
@@ -22,33 +17,46 @@ contains the PSID data, a pre-relocated player and may also - if there
 is enough space available in the C64 environment - contain a
 demonstration program with information about the PSID file.
 
+%package devel
+Summary: Header files and libraries for PSID64 development.
+Group: Development/Libraries
+
+%description devel
+The @PACKAGE@-devel package contains the header files and libraries needed
+to develop programs that use the PSID64 library.
+
 %prep
 %setup -q
 
 %build
 %configure
-make %{_smp_mflags}
+make
 
 %install
 rm -rf %{buildroot}
+
 %makeinstall
 
 %clean
 rm -rf %{buildroot}
 
 %files
-
+%defattr(-,root,root)
 %doc AUTHORS COPYING INSTALL NEWS README TODO
+%{_prefix}/bin/psid64
 
-%{prefix}/bin/psid64
-%{prefix}/include/psid64/psid64.h
-%{prefix}/lib/libpsid64.a
+%files devel
+%defattr(-,root,root)
+%{_prefix}/include/psid64/psid64.h
+%{_prefix}/lib/libpsid64.a
 
 %changelog
-* Thu Nov  7 2002 Roland Hermans
+* Thu Jan 21 2007 Roland Hermans
+- Upgraded to RPM 4.4.
+- Separate development package for header files and libraries.
 
+* Thu Nov  7 2002 Roland Hermans
 - Upgraded to RPM 4.1.
 
 * Sat Sep  8 2001 Roland Hermans
-
 - Initial RPM release.
