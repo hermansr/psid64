@@ -433,9 +433,9 @@ nopress	lda playmax
 	clc
 	adc #3				; inst/del, + and - key
 #endif /* SCREEN */
-	cmp #36
+	cmp #numkeys
 	bcc maxnum
-	lda #36
+	lda #numkeys-1
 maxnum	tax
 loop	lda keyrow,x
 	sta $dc00
@@ -528,6 +528,7 @@ keyrow	.byte $7f	;run/stop
 	.byte $fb	;x
 	.byte $f7	;y
 	.byte $fd	;z
+numkeys = * - keyrow
 
 keycol	.byte $80	;run/stop
 
