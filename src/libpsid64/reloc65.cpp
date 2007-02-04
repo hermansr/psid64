@@ -190,7 +190,7 @@ int read_undef(unsigned char *buf, file65 *fp) {
 	return l;
 }
 
-static int find_global(unsigned char *bp, file65 *fp, int seg) {
+static int find_global(unsigned char *bp, file65 *fp) {
 	char *name;
 	int nl = bp[0]+256*bp[1];
 
@@ -227,7 +227,7 @@ unsigned char *reloc_seg(unsigned char *buf, int len, unsigned char *rtab, file6
 		// two byte address
 		old = buf[adr] + 256*buf[adr+1];
 		if (seg) n_new = old + reldiff(seg);
-		else n_new = old + find_global(rtab, fp, seg);
+		else n_new = old + find_global(rtab, fp);
 		buf[adr] = n_new & 255;
 		buf[adr+1] = (n_new>>8)&255;
 		break;
@@ -235,7 +235,7 @@ unsigned char *reloc_seg(unsigned char *buf, int len, unsigned char *rtab, file6
 		// high byte of an address
 		old = buf[adr]*256 + *rtab;
 		if (seg) n_new = old + reldiff(seg);
-		else n_new = old + find_global(rtab, fp, seg);
+		else n_new = old + find_global(rtab, fp);
 		buf[adr] = (n_new>>8)&255;
 // FIXME: I don't understand the line below. Why should we write data do the
 // relocation table?
@@ -246,7 +246,7 @@ unsigned char *reloc_seg(unsigned char *buf, int len, unsigned char *rtab, file6
 		// low byte of an address
 		old = buf[adr];
 		if (seg) n_new = old + reldiff(seg);
-		else n_new = old + find_global(rtab, fp, seg);
+		else n_new = old + find_global(rtab, fp);
 		buf[adr] = n_new & 255;
 		break;
 	    }
@@ -275,7 +275,7 @@ unsigned char *reloc_globals(unsigned char *buf, file65 *fp) {
 	  old = buf[1] + 256*buf[2];
 
 	  if (seg) n_new = old + reldiff(seg);
-	  else n_new = old + find_global(buf+1, fp, seg);
+	  else n_new = old + find_global(buf+1, fp);
 /*printf("old=%04x, seg=%d, rel=%04x, n_new=%04x\n", old, seg, reldiff(seg), n_new);*/
 	  buf[1] = n_new & 255;
 	  buf[2] = (n_new>>8) & 255;
