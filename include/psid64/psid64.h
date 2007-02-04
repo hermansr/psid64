@@ -218,6 +218,9 @@ public:
     bool write(std::ostream& out = std::cout);
 
 private:
+    Psid64(const Psid64&);
+    Psid64 operator=(const Psid64&);
+
     static const unsigned int MAX_BLOCKS = 4;
     static const unsigned int MAX_PAGES = 256; // number of memory pages
     static const unsigned int NUM_MINDRV_PAGES = 2; // driver without screen display
