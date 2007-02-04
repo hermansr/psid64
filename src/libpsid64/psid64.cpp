@@ -1076,7 +1076,7 @@ Psid64::drawScreen()
 	m_screen->write("N/A");
     }
 
-    m_screen->write("\nTunes  : ");
+    m_screen->write("\nSongs  : ");
     m_screen->write(toNumStr(m_tuneInfo.songs));
     if (m_tuneInfo.songs > 1)
     {
