@@ -397,8 +397,8 @@ l2
 #ifdef SMOOTH_SCROLL
 	ldx d016			; smooth scroll
 	sec
-	sbc #$cb
-	cmp #$18
+	sbc #$c3
+	cmp #$20
 	bcc l3
 	ldx #8
 l3	stx $d016
