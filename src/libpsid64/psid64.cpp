@@ -1124,11 +1124,32 @@ Psid64::drawScreen()
     m_screen->write("\nClock  :   :  :");
 
     // some additional text
-    m_screen->write("\n\n\
-This is an experimental PSID player that\n\
-supports the PSID V2 NG standard. The\n\
-driver and screen are relocated based on\n\
-information stored inside the PSID.");
+    m_screen->write("\n\n  ");
+    if (m_tuneInfo.songs <= 1)
+    {
+	m_screen->write("   [1");
+    }
+    else if (m_tuneInfo.songs <= 10)
+    {
+	m_screen->write("  [1-");
+	m_screen->putchar((m_tuneInfo.songs % 10) + '0');
+    }
+    else if (m_tuneInfo.songs <= 11)
+    {
+	m_screen->write(" [1-0, A");
+    }
+    else
+    {
+	m_screen->write("[1-0, A-");
+	m_screen->putchar(m_tuneInfo.songs <= 36 ? m_tuneInfo.songs - 11 + 'A' : 'Z');
+    }
+    m_screen->write("] Select song [+] Next song\n");
+    m_screen->write("  [-] Previous song [DEL] Blank screen\n");
+    if (m_tuneInfo.playAddr)
+    {
+	m_screen->write("[~] Fast forward [LOCK] Show raster time\n");
+    }
+    m_screen->write("  [RUN/STOP] Stop [CTRL+CBM+DEL] Reset\n");
 
     // flashing bottom line (should be exactly 38 characters)
     m_screen->move(1,24);
