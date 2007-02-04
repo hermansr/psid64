@@ -100,21 +100,27 @@ void Screen::move(unsigned int x, unsigned int y)
 }
 
 
+void Screen::putchar(char c)
+{
+    if (c == '\n')
+    {
+	m_x = 0;
+	moveDown();
+    }
+    else
+    {
+	unsigned int offs = offset(m_x, m_y);
+	m_screen[offs] = iso2scr ((uint_least8_t) c);
+	moveRight();
+    }
+}
+
+
 void Screen::write(const char *str)
 {
     while (*str)
     {
-	if (*str == '\n')
-	{
-	    m_x = 0;
-	    moveDown();
-	}
-	else
-	{
-	    unsigned int offs = offset(m_x, m_y);
-	    m_screen[offs] = iso2scr ((uint_least8_t) *str);
-	    moveRight();
-	}
+	putchar(*str);
 	++str;
     }
 }
