@@ -75,7 +75,6 @@ int reloc65(char** buf, int* fsize, int addr, globals_t* globals)
 	int tflag=0, dflag=0, bflag=0, zflag=0;
 	int tbase=0, dbase=0, bbase=0, zbase=0;
 	int extract = 0;
-	int nundef;
 
 	file.globals = globals;
     
@@ -192,7 +191,6 @@ int read_undef(unsigned char *buf, file65 *fp) {
 }
 
 static int find_global(unsigned char *bp, file65 *fp, int seg) {
-	int i,l;
 	char *name;
 	int nl = bp[0]+256*bp[1];
 
