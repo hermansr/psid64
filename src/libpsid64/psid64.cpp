@@ -138,7 +138,7 @@ Psid64::Psid64() :
     m_screenPage(0),
     m_charPage(0),
     m_stilPage(0),
-    m_programData(0),
+    m_programData(NULL),
     m_programSize(0)
 {
 }
