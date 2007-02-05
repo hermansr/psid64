@@ -394,7 +394,7 @@ Psid64::convert()
     {
 	m_tune.selectSong(i + 1);
         int_least32_t length = m_database.length (m_tune);
-	if (m_verbose && (i > 0))
+	if (m_verbose && (length > 0))
 	{
 	    cerr << i + 1 << ": " << length << endl;
 	}
