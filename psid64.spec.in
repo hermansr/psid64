@@ -34,8 +34,7 @@ make
 
 %install
 rm -rf %{buildroot}
-
-%makeinstall
+make DESTDIR=%{buildroot} install
 
 %clean
 rm -rf %{buildroot}
