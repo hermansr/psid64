@@ -1,4 +1,150 @@
+2007-02-24  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* NEWS: completed info for release 0.8
+
+	* psid64.spec.in: Fedora packaging guidelines and rpmlint fixes
+
+	* psid64.spec.in:
+	Prefer use of DESTDIR over %makeinstall (see Fedora packaging guidelines)
+
+2007-02-05  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/psid64.cpp: check length; not song number
+
+	* src/libpsid64/psid64.cpp: initialize pointer with NULL instead of 0
+
+2007-02-04  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/screen.cpp:
+	initialize all member variables of class Screen
+
+	* src/libpsid64/psid64.cpp:
+	initialize all member variables of class PSID64
+
+	* src/libpsid64/reloc65.cpp: removed unused parameter
+
+	* src/libpsid64/reloc65.cpp: removed unused variables
+
+	* include/psid64/psid64.h:
+	Define a copy constructor and an assignment operator for class PSID64 to comply with Effective C++ rule 11
+
+	* psid64.spec.in:
+	Upgraded to RPM 4.4. Separate development package for header files and libraries.
+
+	* src/libpsid64/psid64.cpp: use consistent terminology
+
+	* src/libpsid64/psidextdrv.h: fixed debug issue
+
+	* src/libpsid64/psid64.cpp:
+	replaced generic info about PSID64 by key usage
+
+	* src/libpsid64/psiddrv.a65, src/libpsid64/psidextdrv.h:
+	three instead of two lines above the scroller do not contain any text and therefore can be used for the smooth scroll
+
+	* src/libpsid64/screen.h:
+	translate tilde sign (~) into arrow left character
+
+	* src/libpsid64/screen.cpp, src/libpsid64/screen.h:
+	added putchar() method for writing a single character to the screen
+
+	* src/libpsid64/psiddrv.a65, src/libpsid64/psiddrv.h, src/libpsid64/psidextdrv.h:
+	fixed bug in determining the number of keyboard scans
+
+	* README: added references to djcross-gcc and upx
+
+2007-01-21  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/psid64.cpp: fixed problem with compressed BASIC songs
+
+2007-01-20  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* include/psid64/psid64.h, src/libpsid64/psid64.cpp, NEWS:
+	added support for SID tunes written in BASIC
+
+2006-10-21  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/sidtune/SidTune.cpp:
+	updated to revision 1.37 in sidplay2 repository
+
+2006-10-15  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/ConsoleApp.cpp: sort options in help text
+
+	* NEWS, src/libpsid64/psid64.cpp, include/psid64/psid64.h, src/ConsoleApp.cpp:
+	added -i option to override the initial song to play
+
+	* src/libpsid64/psid64.cpp: fixed comment typo
+
+	* include/psid64/psid64.h, src/libpsid64/screen.h:
+	Removed extra qualifications that give compilations problems with GCC 4.1.1
+
+2005-06-07  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* include/psid64/psid64.h, src/ConsoleApp.cpp, src/libpsid64/psid64.cpp, src/libpsid64/reloc65.cpp:
+	fixed some (potential) memory leakage errors
+
+	* README: added section on known problems and limitations
+
+	* src/libpsid64/psiddrv.a65, include/psid64/psid64.h, src/libpsid64/psid64.cpp, src/libpsid64/psidboot.a65, src/libpsid64/psidboot.h, src/libpsid64/psidextdrv.h, NEWS:
+	added clock to indicate running time
+
+2005-06-05  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/sidutils/ini/.cvsignore, include/sidplay/.cvsignore:
+	ignore generated files
+
+	* src/.cvsignore: added psid64 and stamp-h1
+
+	* src/.cvsignore: added .deps
+
+	* src/sidutils/.cvsignore, src/sidutils/MD5/.cvsignore, src/libpsid64/.cvsignore, src/sidtune/.cvsignore, .cvsignore, src/.cvsignore:
+	ignore generated files
+
+	* src/libpsid64/psiddrv.a65, src/libpsid64/psidextdrv.h:
+	unselect all keyboard scan rows before reading joystick to prevent interference
+
+	* src/libpsid64/Makefile.am, src/libpsid64/psid64.cpp, include/psid64/psid64.h, src/ConsoleApp.cpp, NEWS, README, TODO:
+	added Exomizer support
+
+	* src/libpsid64/exomizer/exomizer.c, src/libpsid64/exomizer/exomizer.h, src/libpsid64/exomizer/log.h:
+	based on Exomizer 1.1.5 source
+
+	* src/libpsid64/exomizer/chunkpool.c, src/libpsid64/exomizer/chunkpool.h, src/libpsid64/exomizer/match.c, src/libpsid64/exomizer/match.h, src/libpsid64/exomizer/optimal.c, src/libpsid64/exomizer/optimal.h, src/libpsid64/exomizer/output.c, src/libpsid64/exomizer/output.h, src/libpsid64/exomizer/radix.c, src/libpsid64/exomizer/radix.h, src/libpsid64/exomizer/search.c, src/libpsid64/exomizer/search.h, src/libpsid64/exomizer/sfx.h, src/libpsid64/exomizer/sfx64ne.c:
+	Exomizer 1.1.5 source
+
+2005-06-04  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/psid64.cpp, src/libpsid64/screen.cpp, src/libpsid64/screen.h, src/ConsoleApp.cpp:
+	prefer preincrement over postincrement
+
+2005-05-28  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* configure.ac: increased version number
+
+	* README, src/libpsid64/psiddrv.a65, src/libpsid64/psidextdrv.h:
+	move joystick to the right to restart current song
+
+2005-05-26  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/psidextdrv.h, NEWS, README, src/libpsid64/psiddrv.a65:
+	Added support for a joystick in port two to control the player
+
+2005-05-06  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/ConsoleApp.cpp, src/libpsid64/psid64.cpp, include/psid64/psid64.h:
+	pass strings by reference to Psid64 member functions
+
+	* macros/sidtune.m4: fixed m4 warnings
+
 2005-05-05  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* include/sidplay/utils/SidTuneMod.h, include/sidplay/utils/libini.h, src/sidtune/IconInfo.cpp, src/sidtune/InfoFile.cpp, src/sidtune/MUS.cpp, src/sidtune/Makefile.am, src/sidtune/PSID.cpp, src/sidtune/SidTune.cpp, src/sidtune/SidTuneCfg.h, src/sidtune/SidTuneTools.cpp, src/sidtune/SidTuneTools.h, src/sidtune/p00.cpp, src/sidtune/prg.cpp, src/sidutils/SidDatabase.cpp, src/sidutils/SidTuneMod.cpp, src/sidutils/ini/headings.i, src/sidutils/ini/ini.cpp, src/sidutils/ini/ini.h, src/sidutils/ini/keys.i, src/sidutils/ini/list.h, src/sidutils/ini/list.i, src/sidutils/ini/types.i, include/sidplay/SidTune.h:
+	updated sidtune and sidutils
+
+	* include/sidplay/SmartPtr.h:
+	updated with latest version from sidplay2 to fix compiler warnings
+
+	* ChangeLog: update changelog for version 0.7
 
 	* NEWS: added song selection using + and - keys
 
