@@ -6,7 +6,6 @@ License: GPL
 URL: http://psid64.sourceforge.net/
 Group: Applications/Multimedia
 Source: %{name}-%{version}.tar.gz
-Prefix: /usr
 Buildroot: %{_tmppath}/%{name}-%{version}-root
 
 %description
@@ -30,7 +29,7 @@ to develop programs that use the PSID64 library.
 
 %build
 %configure
-make
+make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
@@ -42,20 +41,22 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root)
 %doc AUTHORS COPYING INSTALL NEWS README TODO
-%{_prefix}/bin/psid64
+%{_bindir}/psid64
 
 %files devel
 %defattr(-,root,root)
-%{_prefix}/include/psid64/psid64.h
-%{_prefix}/lib/libpsid64.a
+%doc AUTHORS COPYING INSTALL NEWS README TODO
+%{_includedir}/psid64/psid64.h
+%{_libdir}/libpsid64.a
 
 %changelog
-* Thu Jan 21 2007 Roland Hermans
-- Upgraded to RPM 4.4.
-- Separate development package for header files and libraries.
+* Sat Feb 24 2007 Roland Hermans <rolandh at users.sourceforge.net> 0.8-1
+- upgraded to RPM 4.4
+- separate development package for header files and libraries
+- Fedora packaging guidelines and rpmlint fixes
 
-* Thu Nov  7 2002 Roland Hermans
-- Upgraded to RPM 4.1.
+* Thu Nov  7 2002 Roland Hermans <rolandh at users.sourceforge.net> 0.5-1
+- upgraded to RPM 4.1
 
-* Sat Sep  8 2001 Roland Hermans
-- Initial RPM release.
+* Sat Sep  8 2001 Roland Hermans <rolandh at users.sourceforge.net> 0.1-1
+- initial RPM release
