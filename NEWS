@@ -1,7 +1,7 @@
                                   PSID64 NEWS
                                   ===========
 
-psid64-0.8 ():
+psid64-0.8 (Sat Feb 24 20:22:00 CET 2007):
 
 * Built-in support for Exomizer.
 * Added support for a joystick in port two to control the player.
