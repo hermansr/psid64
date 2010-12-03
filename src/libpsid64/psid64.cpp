@@ -1000,7 +1000,7 @@ Psid64::initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n)
 
 
 void
-Psid64::addFlag(bool &hasFlags, string flagName)
+Psid64::addFlag(bool &hasFlags, const string &flagName)
 {
     if (hasFlags)
     {

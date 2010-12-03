@@ -283,7 +283,7 @@ private:
     void findFreeSpace();
     uint8_t iomap(uint_least16_t addr);
     void initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n);
-    void addFlag(bool &hasFlags, std::string flagName);
+    void addFlag(bool &hasFlags, const std::string &flagName);
     std::string toHexWord(uint_least16_t value) const;
     std::string toNumStr(int value) const;
     void drawScreen();

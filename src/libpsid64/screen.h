@@ -52,7 +52,7 @@ public:
     void putchar(char c);
     void write(const char *str);
 
-    inline void write(std::string str)
+    inline void write(const std::string& str)
     {
 	write(str.c_str());
     }
