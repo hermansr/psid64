@@ -27,13 +27,13 @@
 #include "config.h"
 #endif
 
+#include <psid64/psid64.h>
+
 #include <cctype>
 #include <iomanip>
 #include <iostream>
 #include <ostream>
 #include <sstream>
-
-#include <psid64/psid64.h>
 
 #include "reloc65.h"
 #include "screen.h"
