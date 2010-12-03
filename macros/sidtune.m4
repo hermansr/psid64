@@ -54,14 +54,14 @@ AC_DEFUN([MY_CHECK_IOS_BIN],
     AC_CACHE_VAL(test_cv_have_ios_binary,
     [
         AC_TRY_COMPILE(
-            [#include <fstream.h>],
-            [ifstream myTest(ios::in|ios::binary);],
+            [#include <fstream>],
+            [std::ifstream myTest(0,std::ios::in|std::ios::binary);],
             [test_cv_have_ios_binary=yes],
             [test_cv_have_ios_binary=no]
         )
     ])
     AC_MSG_RESULT($test_cv_have_ios_binary)
-    if test "$test_cv_have_ios_binary" = yes; then
+    if test "$test_cv_have_ios_binary" = no; then
         AC_DEFINE(HAVE_IOS_BIN,,
             [Define if standard member ``ios::binary'' is called ``ios::bin''.]
         )
@@ -79,9 +79,9 @@ AC_DEFUN([MY_CHECK_IOS_OPENMODE],
     AC_CACHE_VAL(test_cv_have_ios_openmode,
     [
         AC_TRY_COMPILE(
-            [#include <fstream.h>
-             #include <iomanip.h>],
-            [ios::openmode myTest = ios::in;],
+            [#include <fstream>
+             #include <iomanip>],
+            [std::ios::openmode myTest = std::ios::in;],
             [test_cv_have_ios_openmode=yes],
             [test_cv_have_ios_openmode=no]
         )
@@ -105,8 +105,8 @@ AC_DEFUN([MY_CHECK_EXCEPTIONS],
     AC_CACHE_VAL(test_cv_have_exceptions,
     [
         AC_TRY_COMPILE(
-            [#include <new.h>],
-            [char* buf = new(nothrow) char[1024];],
+            [#include <new>],
+            [char* buf = std::new(nothrow) char[1024];],
             [test_cv_have_exceptions=yes],
             [test_cv_have_exceptions=no]
         )

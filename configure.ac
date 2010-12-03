@@ -10,7 +10,9 @@ AC_PROG_LN_S
 AC_PROG_RANLIB
 
 dnl Checks for libraries.
-dnl AM_PATH_GLIB(1.2.2,,AC_MSG_ERROR([*** GLIB >= 1.2.2 not installed - please install first ***]))
+dnl PKG_CHECK_MODULES(DEPS, glib-2.0 >= 2.2)
+dnl AC_SUBST(DEPS_CFLAGS)
+dnl AC_SUBST(DEPS_LIBS)
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -58,6 +60,10 @@ MY_SUBST(SID_SIZEOF_LONG_INT,$ac_cv_sizeof_long_int)
 
 dnl Use C++ for other tests.
 AC_LANG(C++)
+
+dnl Checks for C++ library functions.
+AC_CHECK_HEADER(sstream,[AC_DEFINE(HAVE_SSTREAM,,
+  [Define if you have the <sstream> header file.])],[])
 
 dnl Check whether the compiler has bool.
 MY_CHECK_BOOL

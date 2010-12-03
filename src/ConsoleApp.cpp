@@ -37,6 +37,7 @@
 #include <unistd.h>
 #endif
 
+#include <cstdlib>
 #include <sstream>
 
 using std::cerr;
