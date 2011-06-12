@@ -1,6 +1,11 @@
 EXTRA_DIST = stilview/README.txt stilview/STILView-config.patch
 
+# enable warnings and turn them into errors to enforce warning free code
+AM_CFLAGS = -Wall -Werror
+
 lib_LIBRARIES = libpsid64.a
+
+libpsid64_a_CFLAGS = $(AM_CFLAGS)
 
 libpsid64_a_SOURCES = \
 	psid64.cpp \
