@@ -70,10 +70,14 @@ static void reverse(unsigned char *start, int len)
 unsigned int output_ctx_close(output_ctx ctx,   /* IN */
                               FILE * out)       /* OUT */
 {
+/*
     int rval;
+*/
     int len;
 
+/*
     rval = 0;
+*/
     /* flush the buffer */
     len = ctx->pos - ctx->start;
 

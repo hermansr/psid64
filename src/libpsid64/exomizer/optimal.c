@@ -98,6 +98,7 @@ void interval_node_delete(interval_nodep inp)
 static
 void interval_node_dump(interval_nodep inp)
 {
+#if 0 /* logging is diabled */
     int end;
 
     end = 0;
@@ -109,6 +110,7 @@ void interval_node_dump(interval_nodep inp)
         inp = inp->next;
     }
     LOG(LOG_NORMAL, ("[eol@%d]\n", end));
+#endif
 }
 
 float optimal_encode_int(int arg, void *priv, output_ctxp out)
@@ -599,12 +601,16 @@ static int optimal_fixup1(interval_nodep *npp,
 void optimal_fixup(encode_match_data emd, int max_len, int max_offset)
 {
     encode_match_privp data;
+/*
     interval_nodep *offset;
+*/
     interval_nodep len;
 
     data = emd->priv;
 
+/*
     offset = data->offset_f_priv;
+*/
     len = data->len_f_priv;
 
     optimal_fixup1(&len, 1, 0, -1, max_len);

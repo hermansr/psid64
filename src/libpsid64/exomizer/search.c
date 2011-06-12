@@ -64,7 +64,9 @@ search_nodep search_buffer(match_ctx ctx,       /* IN */
     static search_node snp_arr[65536];
     const_matchp mp;
     search_nodep snp;
+/*
     search_nodep best_copy_snp;
+*/
     int best_copy_len;
 
     search_nodep best_rle_snp;
@@ -81,7 +83,9 @@ search_nodep search_buffer(match_ctx ctx,       /* IN */
     snp->total_score = 0;
     snp->prev = NULL;
 
+/*
     best_copy_snp = snp;
+*/
     best_copy_len = 0.0;
 
     best_rle_snp = NULL;
