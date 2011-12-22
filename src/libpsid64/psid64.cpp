@@ -1129,6 +1129,28 @@ Psid64::drawScreen()
     default:
         break;
     }
+    if (((m_tuneInfo.secondSIDAddress & 1) == 0)
+        && (((0x42 <= m_tuneInfo.secondSIDAddress) && (m_tuneInfo.secondSIDAddress <= 0x7e))
+         || ((0xe0 <= m_tuneInfo.secondSIDAddress) && (m_tuneInfo.secondSIDAddress <= 0xfe))))
+    {
+        ostringstream oss;
+	oss << " at $" << toHexWord((m_tuneInfo.secondSIDAddress * 0x10) + 0xd000);
+	switch (m_tuneInfo.sid2Model)
+	{
+	case SIDTUNE_SIDMODEL_6581:
+	    addFlag(hasFlags, "6581" + oss.str());
+	    break;
+	case SIDTUNE_SIDMODEL_8580:
+	    addFlag(hasFlags, "8580" + oss.str());
+	    break;
+	case SIDTUNE_SIDMODEL_ANY:
+	    addFlag(hasFlags, "6581/8580" + oss.str());
+	    break;
+	default:
+	    addFlag(hasFlags, "SID" + oss.str());
+            break;
+	}
+    }
     if (!hasFlags)
     {
 	m_screen->write("-");
