@@ -33,7 +33,7 @@
 // Header has been extended for 'RSID' format
 // The following changes are present:
 //     id = 'RSID'
-//     version = 2 only
+//     version = 2 or 3 only
 //     play, load and speed reserved 0
 //     psidspecific flag reserved 0
 //     init cannot be under ROMS/IO
@@ -42,7 +42,7 @@
 struct psidHeader           // all values big-endian
 {
     char id[4];             // 'PSID' (ASCII)
-    uint8_t version[2];     // 0x0001 or 0x0002
+    uint8_t version[2];     // 0x0001, 0x0002 or 0x0003
     uint8_t data[2];        // 16-bit offset to binary data in file
     uint8_t load[2];        // 16-bit C64 address to load file to
     uint8_t init[2];        // 16-bit C64 address of init subroutine
@@ -57,7 +57,8 @@ struct psidHeader           // all values big-endian
     uint8_t flags[2];       // only version 0x0002
     uint8_t relocStartPage; // only version 0x0002B
     uint8_t relocPages;     // only version 0x0002B
-    uint8_t reserved[2];    // only version 0x0002
+    uint8_t secondSIDAddress; // only version 0x0003, reserved in version 0x0002
+    uint8_t reserved;       // only version 0x0002 and 0x0003
 };
 
 enum
@@ -66,7 +67,8 @@ enum
     PSID_SPECIFIC  = 1 << 1, // These two are mutally exclusive
     PSID_BASIC     = 1 << 1, 
     PSID_CLOCK     = 3 << 2,
-    PSID_SIDMODEL  = 3 << 4
+    PSID_SIDMODEL  = 3 << 4,
+    PSID_SID2MODEL = 3 << 6
 };
 
 enum
@@ -80,8 +82,8 @@ enum
 enum
 {
     PSID_SIDMODEL_UNKNOWN = 0,
-    PSID_SIDMODEL_6581    = 1 << 4,
-    PSID_SIDMODEL_8580    = 1 << 5,
+    PSID_SIDMODEL_6581    = 1 << 0,
+    PSID_SIDMODEL_8580    = 1 << 1,
     PSID_SIDMODEL_ANY     = PSID_SIDMODEL_6581 | PSID_SIDMODEL_8580
 };
 
@@ -122,6 +124,7 @@ SidTune::LoadStatus SidTune::PSID_fileSupport(Buffer_sidtt<const uint_least8_t>&
            compatibility = SIDTUNE_COMPATIBILITY_PSID;
            // Deliberate run on
        case 2:
+       case 3:
            break;
        default:
            info.formatString = _sidtune_unknown_psid;
@@ -131,8 +134,12 @@ SidTune::LoadStatus SidTune::PSID_fileSupport(Buffer_sidtt<const uint_least8_t>&
     }
     else if (endian_big32((const uint_least8_t*)pHeader->id)==RSID_ID)
     {
-       if (endian_big16(pHeader->version) != 2)
+       switch (endian_big16(pHeader->version))
        {
+       case 2:
+       case 3:
+           break;
+       default:
            info.formatString = _sidtune_unknown_rsid;
            return LOAD_ERROR;
        }
@@ -171,8 +178,10 @@ SidTune::LoadStatus SidTune::PSID_fileSupport(Buffer_sidtt<const uint_least8_t>&
 
     info.musPlayer      = false;
     info.sidModel       = SIDTUNE_SIDMODEL_UNKNOWN;
+    info.sid2Model      = SIDTUNE_SIDMODEL_UNKNOWN;
     info.relocPages     = 0;
     info.relocStartPage = 0;
+    info.secondSIDAddress = 0;
     if ( endian_big16(pHeader->version) >= 2 )
     {
         uint_least16_t flags = endian_big16(pHeader->flags);
@@ -204,14 +213,26 @@ SidTune::LoadStatus SidTune::PSID_fileSupport(Buffer_sidtt<const uint_least8_t>&
         info.clockSpeed = clock;
 
         info.sidModel = SIDTUNE_SIDMODEL_UNKNOWN;
-        if (flags & PSID_SIDMODEL_6581)
+        if ((flags >> 4) & PSID_SIDMODEL_6581)
             info.sidModel |= SIDTUNE_SIDMODEL_6581;
-        if (flags & PSID_SIDMODEL_8580)
+        if ((flags >> 4) & PSID_SIDMODEL_8580)
             info.sidModel |= SIDTUNE_SIDMODEL_8580;
+
+        info.sid2Model = SIDTUNE_SIDMODEL_UNKNOWN;
+        if ((flags >> 6) & PSID_SIDMODEL_6581)
+            info.sid2Model |= SIDTUNE_SIDMODEL_6581;
+        if ((flags >> 6) & PSID_SIDMODEL_8580)
+            info.sid2Model |= SIDTUNE_SIDMODEL_8580;
 
         info.relocStartPage = pHeader->relocStartPage;
         info.relocPages     = pHeader->relocPages;
+
 #endif // SIDTUNE_PSID2NG
+    }
+
+    if ( endian_big16(pHeader->version) >= 3 )
+    {
+        info.secondSIDAddress = pHeader->secondSIDAddress;
     }
 
     // Check reserved fields to force real c64 compliance
@@ -319,8 +340,10 @@ bool SidTune::PSID_fileSupportSave(std::ofstream& fMyOut, const uint_least8_t* d
 
     tmpFlags |= (info.clockSpeed << 2);
     tmpFlags |= (info.sidModel << 4);
+    tmpFlags |= (info.sid2Model << 6);
     endian_big16(myHeader.flags,tmpFlags);
-    endian_big16(myHeader.reserved,0);
+    myHeader.secondSIDAddress = info.secondSIDAddress;
+    myHeader.reserved = 0;
 
     fMyOut.write( (char*)&myHeader, sizeof(psidHeader) );
 
