@@ -2,7 +2,12 @@
 
 SUBDIRS = libpsid64 sidtune sidutils
 
+# enable warnings and turn them into errors to enforce warning free code
+AM_CFLAGS = -Wall -Werror
+
 bin_PROGRAMS = psid64
+
+psid64_CFLAGS = $(AM_CFLAGS)
 
 psid64_SOURCES = \
 	ConsoleApp.cpp \
