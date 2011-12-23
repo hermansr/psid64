@@ -93,7 +93,14 @@ unsigned int output_ctx_close(output_ctx ctx,   /* IN */
         ctx->flags &= ~OUTPUT_FLAG_REVERSE;
     }
 
-    fwrite(ctx->buf + ctx->start, 1, len, out);
+    size_t len_written;
+    len_written = fwrite(ctx->buf + ctx->start, 1, len, out);
+    if (len_written != len)
+    {
+        LOG(LOG_ERROR, ("error: failed to write all output data in output_ctx_close()\n"));
+        exit(1);
+    }
+
     return len;
 }
 
