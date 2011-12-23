@@ -1,4 +1,43 @@
+2011-12-23  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* README: updated links to XA and DJGPP cross compiler
+
+	* src/libpsid64/exomizer/output.c: check return value of fwrite()
+
+2011-12-22  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/sidutils/Makefile.am, src/sidtune/Makefile.am, src/Makefile.am:
+	enable warnings and turn them into errors to enforce warning free code
+
+	* configure.ac: updated version number to 0.9
+
+	* src/libpsid64/psid64.cpp: when applicable display info for second SID
+
+	* include/sidplay/SidTune.h, src/sidtune/PSID.cpp:
+	added support for PSID/RSID v3 format
+
+2011-06-12  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/Makefile.am:
+	enable warnings and turn them into errors to enforce warning free code
+
+	* src/libpsid64/exomizer/optimal.c, src/libpsid64/exomizer/output.c, src/libpsid64/exomizer/search.c:
+	commented out lines to prevent compiler warnings about variables being set but not used
+
+2010-12-03  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/psid64.cpp:
+	first include the unit's header file to make sure it does not depend on other header files (except config.h)
+
+	* include/psid64/psid64.h, src/libpsid64/psid64.cpp, src/libpsid64/screen.h:
+	use const string& for Screen::write parameter str as this string may not be modified
+
+	* configure.ac, macros/sidtune.m4, src/ConsoleApp.cpp, src/libpsid64/Makefile.am:
+	added Fedora 14 development tools compatibility (autoconf 2.66, automake 1.11.1, gcc 4.5.1)
+
 2007-02-24  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* ChangeLog: update changelog for version 0.8
 
 	* NEWS: completed info for release 0.8
 
