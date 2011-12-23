@@ -1,6 +1,11 @@
                                   PSID64 NEWS
                                   ===========
 
+psid64-0.9 (Fri Dec 23 15:23:54 CET 2011):
+
+* Added support for PSID/RSID v3 formats.
+* When applicable display info for second SID.
+
 psid64-0.8 (Sat Feb 24 20:22:00 CET 2007):
 
 * Built-in support for Exomizer.
