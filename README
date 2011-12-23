@@ -120,12 +120,12 @@ OTHER TOOLS
 Andre Fachat's relocating 6502 cross assembler XA is used to create the
 relocatable driver code. XA can be found at:
 
-    http://www.tu-chemnitz.de/~fachat/c64/xa/index.html
+    http://www.floodgap.com/retrotech/xa/
 
-The Linux to DJGPP cross-compiler djcross-gcc-4.1.1 has been used to build the
+The Linux to DJGPP cross-compiler djcross-gcc-4.6.2 has been used to build the
 MS-DOS executable. It is maintained by Andris Pavenis and available at:
 
-    http://ap1.pp.fi/djgpp/gcc/4.1.1/gcc411.html
+    http://ap1.pp.fi/djgpp/gcc/4.6.2/
 
 UPX is a free, portable, extendable, high-performance executable packer for
 several different executable formats. It has been used to create the compressed
