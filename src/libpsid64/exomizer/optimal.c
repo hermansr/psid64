@@ -39,10 +39,10 @@ struct _interval_node {
     int start;
     int score;
     struct _interval_node *next;
-    char prefix;
-    char bits;
-    char depth;
-    char flags;
+    signed char prefix;
+    signed char bits;
+    signed char depth;
+    signed char flags;
 };
 
 typedef struct _interval_node interval_node[1];
