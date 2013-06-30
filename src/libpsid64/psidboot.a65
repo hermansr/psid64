@@ -107,7 +107,7 @@ skip2	dex
 	ldy #0
 	sty zp
 	sty dest
-	ldx #7
+	ldx #3
 	dec 1				; $33
 copy3	lda (zp),y
 	sta (dest),y

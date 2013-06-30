@@ -226,7 +226,7 @@ private:
     static const unsigned int NUM_MINDRV_PAGES = 2; // driver without screen display
     static const unsigned int NUM_EXTDRV_PAGES = 5; // driver with screen display
     static const unsigned int NUM_SCREEN_PAGES = 4; // size of screen in pages
-    static const unsigned int NUM_CHAR_PAGES = 8; // size of charset in pages
+    static const unsigned int NUM_CHAR_PAGES = 4; // size of charset in pages
     static const unsigned int STIL_EOT_SPACES = 10; // number of spaces before EOT
 
     // error and status message strings

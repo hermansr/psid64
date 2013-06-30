@@ -1,10 +1,17 @@
                                   PSID64 NEWS
                                   ===========
 
+psid64-1.0 (~~~~~~~~~~~~~~~~~~~ CET 2013):
+
+* Reduced footprint of extended driver in case character ROM must be copied.
+* Fixed compression issue on Raspberry Pi.
+* Prebuilt binary for 32-bit and 64-bit Windows available.
+
 psid64-0.9 (Fri Dec 23 15:23:54 CET 2011):
 
 * Added support for PSID/RSID v3 formats.
 * When applicable display info for second SID.
+* Prebuilt binary for OS X (Lion) available.
 
 psid64-0.8 (Sat Feb 24 20:22:00 CET 2007):
 

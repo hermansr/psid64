@@ -822,9 +822,7 @@ Psid64::findFreeSpace()
 		    // check if character rom area is available
 		    chars = bank + k;
 		    if (pages[chars] || pages[chars + 1]
-			|| pages[chars + 2] || pages[chars + 3]
-			|| pages[chars + 4] || pages[chars + 5]
-			|| pages[chars + 6] || pages[chars + 7])
+			|| pages[chars + 2] || pages[chars + 3])
 			continue;
 
 		    driver =
