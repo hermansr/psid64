@@ -1,7 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(src/main.cpp)
-AM_INIT_AUTOMAKE(psid64, 0.9)
+AC_INIT(psid64, 1.0)
+AC_CONFIG_SRCDIR(src/main.cpp)
 AM_CONFIG_HEADER(src/config.h)
+AM_INIT_AUTOMAKE
 
 dnl Checks for programs.
 AC_PROG_CXX
@@ -26,6 +27,9 @@ AC_TYPE_SIZE_T
 dnl Checks for library functions.
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS([getopt_long memset strncasecmp strcasecmp strchr strndup strrchr strstr snprintf])
+
+dnl Enable compilation wth per-target flags
+AM_PROG_CC_C_O
 
 dnl
 dnl BEGIN_SIDTUNE_TESTS
