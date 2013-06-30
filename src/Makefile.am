@@ -20,6 +20,3 @@ psid64_LDADD = \
 	sidutils/libsidutils.a \
 	sidutils/MD5/libMD5.a \
 	sidutils/ini/libini.a
-
-# show all warnings
-AM_CFLAGS = -Wall
