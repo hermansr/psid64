@@ -69,7 +69,7 @@ static int __ini_read (ini_t *ini, size_t *size)
  *  Rev   |   Date   |  By   | Comment
  * ----------------------------------------------------------------------------------------------------------------
  ********************************************************************************************************************/
-static char *__ini_readList (ini_t *ini)
+static const char *__ini_readList (ini_t *ini)
 {
     if (!ini->selected)
         return NULL;
@@ -140,7 +140,7 @@ int INI_LINKAGE ini_readString (ini_fd_t fd, char *str, size_t size)
 #ifdef INI_ADD_LIST_SUPPORT
     if (ini->listDelims)
     {
-        char  *data = __ini_readList (ini);
+        const char  *data = __ini_readList (ini);
         if (!data)
             return -1;
 		strncpy (str, data, size);
@@ -219,7 +219,7 @@ int INI_LINKAGE ini_readInt (ini_fd_t fd, int *value)
 #ifdef INI_ADD_LIST_SUPPORT
     if (ini->listDelims)
     {
-        char *data = __ini_readList (ini);
+        const char *data = __ini_readList (ini);
         if (data)
             sscanf (data, "%d", value);
     }
@@ -265,7 +265,7 @@ int INI_LINKAGE ini_readLong (ini_fd_t fd, long *value)
 #ifdef INI_ADD_LIST_SUPPORT
     if (ini->listDelims)
     {
-        char *data = __ini_readList (ini);
+        const char *data = __ini_readList (ini);
         if (data)
             ret = sscanf (data, "%ld", value);
     }
@@ -309,7 +309,7 @@ int INI_LINKAGE ini_readDouble (ini_fd_t fd, double *value)
 #ifdef INI_ADD_LIST_SUPPORT
     if (ini->listDelims)
     {
-        char *data = __ini_readList (ini);
+        const char *data = __ini_readList (ini);
         if (data)
             ret = sscanf (data, "%lf", value);
     }
@@ -354,7 +354,7 @@ int INI_LINKAGE ini_readBool (ini_fd_t fd, int *value)
 #ifdef INI_ADD_LIST_SUPPORT
     if (ini->listDelims)
     {
-        char *data = __ini_readList (ini);
+        const char *data = __ini_readList (ini);
         if (!data)
             return -1;
         sscanf (data, "%5s", buffer);
