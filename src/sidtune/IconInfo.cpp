@@ -335,7 +335,6 @@ SidTune::LoadStatus SidTune::INFO_fileSupport(Buffer_sidtt<const uint_least8_t>&
     hasReleased = false,
     hasSongs = false,
     hasSpeed = false,
-    hasUnknownChunk = false,
     hasInitAddr = false;
 
     // Calculate number of tooltype strings.
@@ -511,7 +510,6 @@ SidTune::LoadStatus SidTune::INFO_fileSupport(Buffer_sidtt<const uint_least8_t>&
 
         else
         {
-            hasUnknownChunk = true;
 #if defined(SIDTUNE_REJECT_UNKNOWN_FIELDS)
             info.formatString = _sidtune_txt_chunkError;
             return LOAD_ERROR;
