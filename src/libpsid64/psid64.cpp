@@ -932,7 +932,7 @@ Psid64::initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n)
     memcpy(psid_reloc, driver, psid_size);
     reloc_addr = m_driverPage << 8;
 
-    // undefined references in the drive code need to be added to globals
+    // undefined references in the driver code need to be added to globals
     globals_t globals;
     int screen = m_screenPage << 8;
     globals["screen"] = screen;
@@ -948,6 +948,18 @@ Psid64::initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n)
     vsa = (uint_least8_t) ((m_screenPage & 0x3c) << 2);
     cba = (uint_least8_t) (m_charPage ? (m_charPage >> 2) & 0x0e : 0x06);
     globals["d018"] = vsa | cba;
+    int sid2base;
+    if (((m_tuneInfo.secondSIDAddress & 1) == 0)
+        && (((0x42 <= m_tuneInfo.secondSIDAddress) && (m_tuneInfo.secondSIDAddress <= 0x7e))
+         || ((0xe0 <= m_tuneInfo.secondSIDAddress) && (m_tuneInfo.secondSIDAddress <= 0xfe))))
+    {
+	sid2base = (m_tuneInfo.secondSIDAddress * 0x10) + 0xd000;
+    }
+    else
+    {
+	sid2base = 0xd400;
+    }
+    globals["sid2base"] = sid2base;
 
     if (!reloc65 ((char **) &psid_reloc, &psid_size, reloc_addr, &globals))
     {

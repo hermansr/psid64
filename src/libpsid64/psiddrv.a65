@@ -375,9 +375,15 @@ stop	.(
 	sta $d404			; set test bit to shut down SID voices
 	sta $d40b
 	sta $d412
+#ifdef SCREEN
+	sta sid2base+$04
+	sta sid2base+$0b
+	sta sid2base+$12
+#endif
 	txa				; clear SID registers
 	ldx #$17
 clrsid	sta $d400,x
+	sta sid2base,x
 	dex
 	bpl clrsid
 #ifdef SCREEN
@@ -385,6 +391,9 @@ clrsid	sta $d400,x
 #endif /* SCREEN */
 	lda #$0f			; maximum volume
 	sta $d418
+#ifdef SCREEN
+	sta sid2base+$18
+#endif
 	rts
 	.)
 
