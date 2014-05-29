@@ -16,6 +16,12 @@
  ***************************************************************************/
 /***************************************************************************
  *  $Log$
+ *  Revision 1.2  2014/05/29 21:37:01  rolandh
+ *  Prevent a compiler warning on platforms where type uint_least16_t is larger than 16 bits, or uint_least32_t is larger than 32 bits.
+ *
+ *  Revision 1.2  2014/05/29 21:31:42  rolandh
+ *  Prevent a compiler warning on platforms where type uint_least16_t is larger than 16 bits.
+ *
  *  Revision 1.1  2003/04/13 10:09:50  rolandh
  *  switched to C++
  *
@@ -144,7 +150,7 @@ inline void endian_16swap8 (uint_least16_t &word)
 // Convert high-byte and low-byte to 16-bit word.
 inline uint_least16_t endian_16 (uint8_t hi, uint8_t lo)
 {
-    uint_least16_t word;
+    uint_least16_t word = 0x0000;
     endian_16lo8 (word, lo);
     endian_16hi8 (word, hi);
     return word;
@@ -349,8 +355,8 @@ inline void endian_32swap8 (uint_least32_t &dword)
 // Convert high-byte and low-byte to 32-bit word.
 inline uint_least32_t endian_32 (uint8_t hihi, uint8_t hilo, uint8_t hi, uint8_t lo)
 {
-    uint_least32_t dword;
-    uint_least16_t word;
+    uint_least32_t dword = 0x00000000;
+    uint_least16_t word = 0x0000;
     endian_32lo8  (dword, lo);
     endian_32hi8  (dword, hi);
     endian_16lo8  (word,  hilo);
