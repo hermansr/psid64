@@ -173,7 +173,6 @@ struct key_tag *__ini_createKey (ini_t *ini, char *key)
 {
     struct section_tag *section;
     struct key_tag     *pNew;
-    long   pos;
 
     if (!*key)
         return NULL;
@@ -184,7 +183,6 @@ struct key_tag *__ini_createKey (ini_t *ini, char *key)
     {   // Reset details of existing key
         free (pNew->key);
         pNew->key = key;
-        pos       = 0;
     }
     else
     {   // Create a new key and add at end;
