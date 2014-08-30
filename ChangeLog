@@ -1,4 +1,68 @@
+2014-08-30  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* NEWS: Updated NEWS text for psid64-1.0.
+
+	* include/psid64/psid64.h, src/ConsoleApp.cpp, src/libpsid64/psid64.cpp:
+	Added -i option to convert SID to C64 program file without driver code.
+
+	* psid64.spec.in: Added distribution suffix to release.
+
+	* README: Updated tools section with used cross-compiler environments
+
+	* src/sidutils/ini/headings.i, src/sidutils/ini/keys.i, src/sidutils/ini/types.i:
+	rework to solve compiler warnings in sidutils
+
+2014-05-29  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/sidtune/IconInfo.cpp:
+	Removed set but unused variable hasUnknownChunk.
+
+	* include/sidplay/sidendian.h:
+	Prevent a compiler warning on platforms where type uint_least16_t is larger than 16 bits, or uint_least32_t is larger than 32 bits.
+
+	* src/sidutils/ini/keys.i: Removed set but unused variable pos.
+
+	* src/libpsid64/psid64.cpp, src/libpsid64/psiddrv.a65, src/libpsid64/psiddrv.h, src/libpsid64/psidextdrv.h:
+	Initialize second SID. For simplicity the first SID is initialized twice in case no second SID is specified. The minimal driver only performs a basic initialization so that the driver still fits in two memory pages.
+
+	* src/sidutils/ini/list.h, src/sidutils/ini/list.i, src/sidutils/ini/types.i:
+	Fixed gcc 4.8.2 compiler warning
+
+2014-05-29  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/sidtune/IconInfo.cpp:
+	Removed set but unused variable hasUnknownChunk.
+
+	* include/sidplay/sidendian.h:
+	Prevent a compiler warning on platforms where type uint_least16_t is larger than 16 bits, or uint_least32_t is larger than 32 bits.
+
+	* src/sidutils/ini/keys.i: Removed set but unused variable pos.
+
+	* src/libpsid64/psid64.cpp, src/libpsid64/psiddrv.a65, src/libpsid64/psiddrv.h, src/libpsid64/psidextdrv.h:
+	Initialize second SID. For simplicity the first SID is initialized twice in case no second SID is specified. The minimal driver only performs a basic initialization so that the driver still fits in two memory pages.
+
+	* src/sidutils/ini/list.h, src/sidutils/ini/list.i, src/sidutils/ini/types.i:
+	Fixed gcc 4.8.2 compiler warning
+
+2013-06-30  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* NEWS, include/psid64/psid64.h, src/libpsid64/psid64.cpp, src/libpsid64/psidboot.a65, src/libpsid64/psidboot.h:
+	Reduced footprint of extended driver in case character ROM must be copied.
+
+	* src/Makefile.am: Removed duplicate C compiler flag -Wall in makefile
+
+	* configure.ac: updated to automake 1.13
+
+2013-05-05  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/exomizer/optimal.c:
+	Corrected datatypes, required for platforms where char is unsigned rather than signed. This fixes the issue of Sönke Raufeisen where PSID64's -c option produced corrupt files on a Raspberry Pi.
+
 2011-12-23  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* ChangeLog: update changelog for version 0.9
+
+	* NEWS: added info on new features
 
 	* README: updated links to XA and DJGPP cross compiler
 
