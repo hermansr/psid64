@@ -94,8 +94,14 @@ struct section_tag *__ini_faddHeading (ini_t *ini, FILE *file, long pos, size_t 
         str = (char *) malloc (sizeof(char) * length);
         assert (str);
         fseek  (file, pos, SEEK_SET);
-        fgets  (str, (int) length, file);
-        __ini_strtrim (str);
+        if (fgets  (str, (int) length, file) != NULL)
+        {
+            __ini_strtrim (str);
+        }
+        else
+        {
+            *str = '\0';
+        }
     }
     else
     {

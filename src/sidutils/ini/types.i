@@ -366,7 +366,8 @@ int INI_LINKAGE ini_readBool (ini_fd_t fd, int *value)
         if (__ini_read (ini, &length) < 0)
             return -1;
         if (length > 0)
-            fscanf (ini->ftmp, "%5s", buffer);
+            if (fscanf (ini->ftmp, "%5s", buffer) != 1)
+                return -1;
     }
 
     {   // Convert string to lower case
