@@ -122,13 +122,19 @@ relocatable driver code. XA can be found at:
 
     http://www.floodgap.com/retrotech/xa/
 
-The Linux to DJGPP cross-compiler djcross-gcc-4.6.2 has been used to build the
+The Linux to DJGPP cross-compiler djcross-gcc-4.8.2 has been used to build the
 MS-DOS executable. It is maintained by Andris Pavenis and available at:
 
-    http://ap1.pp.fi/djgpp/gcc/4.6.2/
+    http://ap1.pp.fi/djgpp/gcc/4.8.2/
 
 UPX is a free, portable, extendable, high-performance executable packer for
 several different executable formats. It has been used to create the compressed
 executable of the MS-DOS release.
 
     http://upx.sourceforge.net/
+
+The Fedora MinGW cross-compiler environment has been used to build the Windows
+32-bit and 64-bit executables.
+
+    http://fedoraproject.org/wiki/MinGW
+    http://www.mingw.org/
