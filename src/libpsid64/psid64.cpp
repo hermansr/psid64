@@ -118,6 +118,7 @@ const char* Psid64::txt_noSidTuneConverted = "PSID64: No SID tune converted";
 // constructor
 
 Psid64::Psid64() :
+    m_noDriver(false),
     m_blankScreen(false),
     m_compress(false),
     m_initialSong(0),
@@ -222,6 +223,12 @@ Psid64::convert()
     {
 	m_statusString = txt_noSidTuneLoaded;
 	return false;
+    }
+
+    // handle special treatment of conversion without driver code
+    if (m_noDriver)
+    {
+	return convertNoDriver();
     }
 
     // handle special treatment of tunes programmed in BASIC
@@ -461,6 +468,38 @@ Psid64::write(ostream& out)
 //////////////////////////////////////////////////////////////////////////////
 //              P R I V A T E   M E M B E R   F U N C T I O N S
 //////////////////////////////////////////////////////////////////////////////
+
+bool
+Psid64::convertNoDriver()
+{
+    const uint_least16_t load = m_tuneInfo.loadAddr;
+    const uint_least16_t end = load + m_tuneInfo.c64dataLen;
+
+    // allocate space for C64 program
+    m_programSize = 2 + m_tuneInfo.c64dataLen;
+    delete[] m_programData;
+    m_programData = new uint_least8_t[m_programSize];
+
+    // first the load address
+    m_programData[0] = (uint_least8_t) (load & 0xff);
+    m_programData[1] = (uint_least8_t) (load >> 8);
+
+    // then copy the music data
+    uint_least8_t c64buf[65536];
+    m_tune.placeSidTuneInC64mem(c64buf);
+    memcpy(m_programData + 2, &(c64buf[load]), m_tuneInfo.c64dataLen);
+
+    // print memory map
+    if (m_verbose)
+    {
+	cerr << "C64 memory map:" << endl;
+	cerr << "  $" << toHexWord(load) << "-$" << toHexWord(end)
+	     << "  Music data" << endl;
+    }
+
+    return true;
+}
+
 
 bool
 Psid64::convertBASIC()

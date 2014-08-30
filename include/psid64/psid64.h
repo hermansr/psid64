@@ -101,6 +101,23 @@ public:
     }
 
     /**
+     * Set the no driver option. When true, no driver code is added to the C64
+     * executable and PSID64 only acts as a .sid to .prg converter.
+     */
+    inline void setNoDriver(bool noDriver)
+    {
+        m_noDriver = noDriver;
+    }
+
+    /**
+     * Get the no driver option.
+     */
+    inline bool getNoDriver() const
+    {
+        return m_noDriver;
+    }
+
+    /**
      * Set the blank screen option. When true, the screen is forced to be
      * blank, even when there is enough free memory available to display
      * a screen with information about the PSID. A C64 executable that blanks
@@ -237,6 +254,7 @@ private:
     static const char* txt_noSidTuneConverted;
 
     // configuration options
+    bool m_noDriver;
     bool m_blankScreen;
     bool m_compress;
     int m_initialSong;
@@ -271,6 +289,7 @@ private:
     unsigned int m_programSize;
 
     // member functions
+    bool convertNoDriver();
     bool convertBASIC();
     bool formatStilText();
     uint_least8_t findStilSpace(bool* pages, uint_least8_t scr,

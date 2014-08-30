@@ -46,7 +46,7 @@ using std::endl;
 using std::string;
 using std::istringstream;
 
-#define STR_GETOPT_OPTIONS		":bcghi:o:r:s:vV"
+#define STR_GETOPT_OPTIONS		":bcghi:no:r:s:vV"
 
 
 // constructor
@@ -80,6 +80,7 @@ void ConsoleApp::printHelp ()
     cout << "  -c, --compress         compress output file with Exomizer" << endl;
     cout << "  -g, --global-comment   include the global comment STIL text" << endl;
     cout << "  -i, --initial-song=NUM override the initial song to play" << endl;
+    cout << "  -n, --no-driver        convert SID to C64 program file without driver code" << endl;
     cout << "  -o, --output=FILE      specify output file" << endl;
     cout << "  -r, --root             specify HVSC root directory" << endl;
     cout << "  -s, --songlengths=FILE specify HVSC song length database" << endl;
@@ -91,6 +92,7 @@ void ConsoleApp::printHelp ()
     cout << "  -c                     compress output file with Exomizer" << endl;
     cout << "  -g                     include the global comment STIL text" << endl;
     cout << "  -i                     override the initial song to play" << endl;
+    cout << "  -n                     convert SID to C64 program file without driver code" << endl;
     cout << "  -o                     specify output file" << endl;
     cout << "  -r                     specify HVSC root directory" << endl;
     cout << "  -s                     specify HVSC song length database" << endl;
@@ -192,6 +194,7 @@ bool ConsoleApp::main(int argc, char **argv)
 	{"global-comment", 0, NULL, 'g'},
 	{"help", 0, NULL, 'h'},
 	{"initial-song", 1, NULL, 'i'},
+        {"no-driver", 0, NULL, 'n'},
 	{"output", 1, NULL, 'o'},
 	{"root", 1, NULL, 'r'},
 	{"songlengths", 1, NULL, 's'},
@@ -205,6 +208,7 @@ bool ConsoleApp::main(int argc, char **argv)
     m_psid64.setVerbose(false);
     m_psid64.setUseGlobalComment(false);
     m_psid64.setBlankScreen(false);
+    m_psid64.setNoDriver(false);
     const char* hvscBase = getenv ("HVSC_BASE");
     if (hvscBase != NULL)
     {
@@ -256,6 +260,9 @@ bool ConsoleApp::main(int argc, char **argv)
 		    cerr << "initial song should be an integer number between 1 and 255" << endl;
 		}
 	    }
+	    break;
+	case 'n':
+	    m_psid64.setNoDriver(true);
 	    break;
 	case 'o':
 	    m_outputFileName = optarg;
