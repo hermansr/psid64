@@ -1,11 +1,11 @@
 Summary: A PSID file converter and native Commodore 64 music player.
 Name: @PACKAGE@
 Version: @VERSION@
-Release: 1
+Release: 1%{?dist}
 License: GPL
 URL: http://psid64.sourceforge.net/
 Group: Applications/Multimedia
-Source: %{name}-%{version}.tar.gz
+Source: http://sourceforge.net/projects/psid64/files/%{name}/%{version}/%{name}-%{version}.tar.gz
 Buildroot: %{_tmppath}/%{name}-%{version}-root
 
 %description
