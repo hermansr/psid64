@@ -43,6 +43,8 @@ C64 executable(s) are written to the current directory. Options available:
   -b, --blank-screen     use a minimal driver that blanks the screen
   -c, --compress         compress output file with Exomizer
   -g, --global-comment   include the global comment STIL text
+  -i, --initial-song=NUM override the initial song to play
+  -n, --no-driver        convert SID to C64 program file without driver code
   -o, --output=FILE      specify output file
   -r, --root             specify HVSC root directory
   -s, --songlengths=FILE specify HVSC song length database
