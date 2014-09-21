@@ -58,6 +58,7 @@ public:
     }
 
     void poke(unsigned int x, unsigned int y, uint_least8_t value);
+    void poke(unsigned int offs, uint_least8_t value);
 
     inline const uint_least8_t *getData() const
     {

@@ -136,3 +136,12 @@ void Screen::poke(unsigned int x, unsigned int y, uint_least8_t value)
 	m_screen[offs] = value;
     }
 }
+
+
+void Screen::poke(unsigned int offs, uint_least8_t value)
+{
+    if (offs < m_screenSize)
+    {
+	m_screen[offs] = value;
+    }
+}

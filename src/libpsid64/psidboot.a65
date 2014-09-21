@@ -17,7 +17,8 @@
 
 r1_org	= $00f7
 
-#define MAX_BLOCKS			4
+#define MAX_BLOCKS			5
+#define BAR_FG_COLOR			6
 
 	.word $0801
 
@@ -117,6 +118,12 @@ copy3	lda (zp),y
 	inc dest+1
 	dex
 	bpl copy3
+	txa				; create character for progress bar
+	dec dest+1
+	ldy #$f8
+cbar1	sta (dest),y
+	iny
+	bne cbar1
 
 nochars	lda #$37
 	sta 1
@@ -171,7 +178,7 @@ l1	lda linecol,x
 	dex
 	bpl l1
 
-	ldy #240			; set color of information lines
+	ldy #200			; set color of information lines
 l2	ldx #39
 	lda #1
 l3	cpx #7
@@ -182,16 +189,17 @@ l3	cpx #7
 l4	lda #7
 l5	dey
 	sta $d800+160,y
-	sta $d800+280,y
+	sta $d800+320,y
 	dex
 	bpl l3
 	tya
 	bne l2
 
-	lda #12				; set color of area for STIL text
-stilcol	sta $d800+520,y
+	lda #12				; set color of area for instructions
+instcol	sta $d800+560,y
 	iny
-	bne stilcol
+	cpy #160
+	bne instcol
 
 #ifndef SMOOTH_SCROLL
 	ldx #19
@@ -227,11 +235,11 @@ copyr1	lda r1_src,y
 	jmp memmove
 
 
-vicdata	.byte $00,$00,$00,$00,$00,$00,$00,$00
+vicdata	.byte $00,$92,$00,$00,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
-	.byte $00,$6b,$37,$00,$00,$00,$08,$00
+	.byte $00,$6b,$37,$00,$00,$01,$08,$00
 	.byte $14,$0f,$00,$00,$00,$00,$00,$00
-	.byte $00,$00,$01,$02,$03,$04,$00,$01
+	.byte $00,$00,$01,$02,$03,$04,$00,BAR_FG_COLOR
 	.byte $02,$03,$04,$05,$06,$07
 
 linecol	.byte 9,11,8,12,10,15,7,1,13,7,3,12,14,4,6

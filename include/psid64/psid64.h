@@ -238,13 +238,16 @@ private:
     Psid64(const Psid64&);
     Psid64 operator=(const Psid64&);
 
-    static const unsigned int MAX_BLOCKS = 4;
+    static const unsigned int MAX_BLOCKS = 5;
     static const unsigned int MAX_PAGES = 256; // number of memory pages
     static const unsigned int NUM_MINDRV_PAGES = 2; // driver without screen display
-    static const unsigned int NUM_EXTDRV_PAGES = 5; // driver with screen display
+    static const unsigned int NUM_EXTDRV_PAGES = 6; // driver with screen display
     static const unsigned int NUM_SCREEN_PAGES = 4; // size of screen in pages
     static const unsigned int NUM_CHAR_PAGES = 4; // size of charset in pages
     static const unsigned int STIL_EOT_SPACES = 10; // number of spaces before EOT
+    static const unsigned int BAR_X = 15;
+    static const unsigned int BAR_WIDTH = 19;
+    static const unsigned int BAR_SPRITE_SCREEN_OFFSET = 0x300;
 
     // error and status message strings
     static const char* txt_relocOverlapsImage;
@@ -279,19 +282,30 @@ private:
     // conversion data
     Screen *m_screen;
     std::string m_stilText;
+    uint_least8_t m_songlengthsData[4 * SIDTUNE_MAX_SONGS];
+    size_t m_songlengthsSize;
     uint_least8_t m_driverPage; // startpage of driver, 0 means no driver
     uint_least8_t m_screenPage; // startpage of screen, 0 means no screen
     uint_least8_t m_charPage; // startpage of chars, 0 means no chars
     uint_least8_t m_stilPage; // startpage of stil, 0 means no stil
+    uint_least8_t m_songlengthsPage; // startpage of song length data, 0 means no song lengths
 
     // converted file
     uint_least8_t *m_programData;
     unsigned int m_programSize;
 
     // member functions
+    int_least32_t roundDiv(int_least32_t dividend, int_least32_t divisor);
     bool convertNoDriver();
     bool convertBASIC();
     bool formatStilText();
+    bool getSongLengths();
+    uint_least8_t findSonglengthsSpace(bool* pages, uint_least8_t scr,
+				       uint_least8_t chars,
+				       uint_least8_t driver,
+				       uint_least8_t stil,
+				       uint_least8_t stil_pages,
+				       uint_least8_t size) const;
     uint_least8_t findStilSpace(bool* pages, uint_least8_t scr,
 				uint_least8_t chars,
 				uint_least8_t driver,

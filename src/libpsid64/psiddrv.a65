@@ -32,6 +32,14 @@
 
 #ifdef SCREEN
 #define CLOCK_OFFSET			489
+#define BAR_X				15
+#define BAR_OFFSET			(480 + BAR_X)
+#define BAR_WIDTH			19
+#define BAR_PIXELS			(BAR_WIDTH * 8)
+#define BAR_FG_COLOR			6
+#define BAR_BG_COLOR			14
+#define LENGTH_OFFSET			515
+#define BAR_SPRITE_SCREEN_OFFSET	$0300
 #define SCROLLER_OFFSET			840
 #endif
 	jmp cold
@@ -47,18 +55,18 @@ speed	.word 0, 0
 irqvec	.byte 0
 initiomap .byte 0
 playiomap .byte 0
-#ifdef SCREEN
-stil	.byte 0
-d011	.byte $1b
-#endif /* SCREEN */
 
 	; Variables
 playnum	.byte 0
 video	.byte 0
 random	.byte 0
 #ifdef SCREEN
+d011	.byte $1b
 prevjoy	.byte 0
 clkcounter .byte 0
+barcounter .word 0			; progress bar increment counter
+bartpi	.word 0				; progress bar ticks per increment
+barpos	.byte 0				; progress bar position
 #ifdef SMOOTH_SCROLL
 d016	.byte $08
 #endif /* SMOOTH_SCROLL */
@@ -66,7 +74,7 @@ d016	.byte $08
 
 	;Constants
 #ifdef SCREEN
-clkoffs	.byte 0,1,3,4,6,7
+clkoffs	.byte 0,1,3,4
 #endif /* SCREEN */
 
 	; User interrupt vectors
@@ -131,7 +139,7 @@ nmijob	rti
 cold	pla
 	sta random	; seed for random number generator
 	pla
-	sta video	; pal/ntsc flag
+	sta video	; pal/ntsc flag (0=ntsc, 1=pal)
 	pla
 start	sta playnum	; song number
 restart	sei
@@ -197,14 +205,19 @@ spfill	sta screen_songnum+1,y
 	bcc spfill
 nosongnum
 
-	ldx #5				; reset clock
+	ldx #4				; reset clock
 	lda #$30			; '0'
-rstclk	ldy clkoffs,x
+rstclk	ldy clkoffs-1,x
 	sta screen+CLOCK_OFFSET,y
 	dex
-	bpl rstclk
-	lda #0
-	sta clkcounter
+	bne rstclk
+	stx clkcounter
+	stx barcounter			; reset playback progress bar
+	stx barcounter+1
+	stx barpos
+	jsr drawbar
+	lda #<barsprptr
+	sta screen+$3f8
 
 #endif /* SCREEN */
 
@@ -245,6 +258,23 @@ timer	sta $dc04
 	ldy #$00
 songset	tya
 	pha
+
+#ifdef SCREEN
+	lda #>songlengths_min
+	beq nosonglen
+	lda songlengths_min,y		; minutes part of song length as BCD
+	ldx #0
+	jsr wrsonglen
+	lda songlengths_sec,y		; seconds part of song length as BCD
+	inx
+	jsr wrsonglen
+	lda songtpi_lo,y		; ticks per increment of progress bar
+	sta bartpi			; to simplify pal/ntsc support there are
+	lda songtpi_hi,y		; always 300 ticks per second
+	sta bartpi+1
+nosonglen
+#endif /* SCREEN */
+
 
 	; RSIDs use default environment of CIA1 only
         lda initiomap
@@ -640,30 +670,111 @@ exit
 
 
 clock	.(				; update the clock
-	bit clkcounter
-	bmi exit
-	ldx #5
-	lda #2
-	dec clkcounter
-	bpl cl1
-	sta clkcounter
+	ldx clkcounter
+	bmi exit			; clock is not running
+	inx
+	txa
 	ldy video
-	bne cl1
-cl2	lda #1
-cl1	ldy clkoffs,x
-	clc
-	adc screen+CLOCK_OFFSET,y
-	sta screen+CLOCK_OFFSET,y
-	cmp clkcmp,x
-	bcc exit
+	cmp clkspd,y
+	bcc cl1
+	ldx #4
+cl2	ldy clkoffs-1,x
+	lda screen+CLOCK_OFFSET,y
+	adc #0				; c=1
+	cmp clkcmp-1,x
+	bcc cl3
 	lda #$30			; '0'
+	.byte $2c			; bit $xxxxx
+cl3	ldx #1				; no wraparound, so break the loop
 	sta screen+CLOCK_OFFSET,y
 	dex
-	bpl cl2				; c=1
+	bne cl2				; c=1
+cl1	stx clkcounter
+
+	ldy video			; update playback progress bar
+	ldx barspd,y
+	ldy bartpi
+	tya
+	ora bartpi+1
+	beq exit			; no songlength info for this song
+bc3	inc barcounter
+	bne bc1
+	inc barcounter+1
+bc1	cpy barcounter
+	bne bc2
+	lda bartpi+1			; c=1
+	sbc barcounter+1
+	bne bc2
+	sta barcounter
+	sta barcounter+1
+	lda barpos
+	cmp #BAR_PIXELS
+	bcs bc2
+	inc barpos
+bc2	dex
+	bne bc3
+	jsr drawbar
 exit
 	rts
 
-clkcmp	.byte $3a,$3a,$36,$3a,$3a,$3a
+clkcmp	.byte $3a,$3a,$36,$3a
+clkspd	.byte 60,50			; ntsc/pal frames per second
+barspd	.byte 5,6			; ntsc/pal ticks per frame
+	.)
+
+
+wrsonglen	.(			; write BCD coded song length part
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	jsr wrdigit
+	pla
+	and #$0f
+wrdigit	ora #$30
+	sta screen+LENGTH_OFFSET,x
+	inx
+	rts
+	.)
+
+
+drawbar	.(				; draw playback progress bar
+	lda barpos
+	tax
+	and #$f8			; position sprite for color overlapping
+	clc
+	adc #(BAR_X*8)+24
+	sta $d000
+	lda #0
+	rol
+	sta $d010
+	txa
+	and #7				; draw sprite
+	tay
+	lda dbspr,y
+	ldy #24
+db3	sta screen+BAR_SPRITE_SCREEN_OFFSET-3,y
+	dey
+	dey
+	dey
+	bne db3
+	txa
+	lsr				; set progress bar character colors
+	lsr
+	lsr
+	tax
+	lda #BAR_FG_COLOR
+db1	dex
+	bpl db2
+	lda #BAR_BG_COLOR
+db2	sta $d800+BAR_OFFSET,y
+	iny
+	cpy #BAR_WIDTH
+	bne db1
+	rts
+
+dbspr	.byte $00,$80,$c0,$e0,$f0,$f8,$fc,$fe
 	.)
 
 
@@ -712,8 +823,8 @@ txtcol	.byte 9,2,4,10,7,13,1,13,7,10,4,2,9,0,0,0
 
 scroller .(
 
-	ldy stil
-	beq exit
+	ldy #>stil
+	beq exit			; no stil text
 #ifdef SMOOTH_SCROLL
 	ldx #38
 colscr1	lda $d800+SCROLLER_OFFSET,x

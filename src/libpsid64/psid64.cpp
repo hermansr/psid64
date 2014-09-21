@@ -135,10 +135,12 @@ Psid64::Psid64() :
     m_stil(new STIL),
     m_screen(new Screen),
     m_stilText(),
+    m_songlengthsSize(0),
     m_driverPage(0),
     m_screenPage(0),
     m_charPage(0),
     m_stilPage(0),
+    m_songlengthsPage(0),
     m_programData(NULL),
     m_programSize(0)
 {
@@ -242,6 +244,12 @@ Psid64::convert()
 	return false;
     }
 
+    // retrieve song length data for this SID tune
+    if (!getSongLengths())
+    {
+	return false;
+    }
+
     // find space for driver and screen (optional)
     findFreeSpace();
     if (m_driverPage == 0x00)
@@ -293,6 +301,15 @@ Psid64::convert()
 	blocks[numBlocks].size = m_stilText.length();
 	blocks[numBlocks].data = (uint_least8_t*) m_stilText.c_str();
 	blocks[numBlocks].description = "STIL text";
+	++numBlocks;
+    }
+
+    if (m_songlengthsPage != 0x00)
+    {
+	blocks[numBlocks].load = m_songlengthsPage << 8;
+	blocks[numBlocks].size = m_songlengthsSize;
+	blocks[numBlocks].data = m_songlengthsData;
+	blocks[numBlocks].description = "Song length data";
 	++numBlocks;
     }
 
@@ -395,19 +412,6 @@ Psid64::convert()
     // free memory of relocated driver
     delete[] psid_mem;
 
-#if 0
-    // FIXME: retrieve song length database information
-    for (int i = 0; i < m_tuneInfo.songs; ++i)
-    {
-	m_tune.selectSong(i + 1);
-        int_least32_t length = m_database.length (m_tune);
-	if (m_verbose && (length > 0))
-	{
-	    cerr << i + 1 << ": " << length << endl;
-	}
-    }
-#endif
-
     if (m_compress)
     {
 	// Use Exomizer to compress the program data. The first two bytes
@@ -468,6 +472,13 @@ Psid64::write(ostream& out)
 //////////////////////////////////////////////////////////////////////////////
 //              P R I V A T E   M E M B E R   F U N C T I O N S
 //////////////////////////////////////////////////////////////////////////////
+
+int_least32_t
+Psid64::roundDiv(int_least32_t dividend, int_least32_t divisor)
+{
+    return (dividend + (divisor / 2)) / divisor;
+}
+
 
 bool
 Psid64::convertNoDriver()
@@ -688,6 +699,101 @@ Psid64::formatStilText()
 }
 
 
+bool
+Psid64::getSongLengths()
+{
+    bool have_songlengths = false;
+    for (int i = 0; i < m_tuneInfo.songs; ++i)
+    {
+	// retrieve song length database information
+	m_tune.selectSong(i + 1);
+        int_least32_t length = m_database.length (m_tune);
+	if (length > 0)
+	{
+	    // maximum representable length is 99:59
+	    if (length > 5999)
+	    {
+		length = 5999;
+	    }
+
+	    // store song length as binary-coded decimal minutes and seconds
+	    uint_least8_t min = length / 60;
+	    uint_least8_t sec = length % 60;
+	    m_songlengthsData[i] = ((min / 10) << 4) | (min % 10);
+	    m_songlengthsData[i + m_tuneInfo.songs] = ((sec / 10) << 4) | (sec % 10);
+#if 0
+	    if (m_verbose)
+	    {
+		cerr << "Length of song " << i + 1 << ": "
+		     << setfill('0') << setw(2) << static_cast<int>(min) << ":"
+		     << setfill('0') << setw(2) << static_cast<int>(sec) << endl;
+	    }
+#endif
+
+	    // As floating point divisions are quite expensive on a 6502 instead
+	    // a counter is used in the driver code to determine when to update
+	    // the progress bar. The maximum error introduced by this method is:
+	    // bar_pixels / ticks_per_sec / 2, which is 0.253333s for a 19 chars
+	    // wide progress bar and 5 (NTSC) or 6 (PAL) ticks per frame.
+	    const int_least32_t bar_pixels = BAR_WIDTH * 8;
+	    const int_least32_t ticks_per_sec = 300; // PAL: 50 Hz * 6, NTSC: 60 Hz * 5
+	    int_least32_t bartpi = roundDiv(length * ticks_per_sec, bar_pixels);
+	    m_songlengthsData[i + (2 * m_tuneInfo.songs)] = bartpi & 0xff;
+	    m_songlengthsData[i + (3 * m_tuneInfo.songs)] = (bartpi >> 8) & 0xff;
+	    have_songlengths = true;
+	}
+	else
+	{
+	    // no song length data for this song
+	    m_songlengthsData[i] = 0x00;
+	    m_songlengthsData[i + m_tuneInfo.songs] = 0x00;
+	    m_songlengthsData[i + (2 * m_tuneInfo.songs)] = 0x00;
+	    m_songlengthsData[i + (3 * m_tuneInfo.songs)] = 0x00;
+	}
+    }
+
+    // Only need a block with song length data if at least one song has song
+    // length data.
+    if (have_songlengths)
+    {
+	m_songlengthsSize = 4 * m_tuneInfo.songs;
+    }
+    else
+    {
+	m_songlengthsSize = 0;
+    }
+
+    return true;
+}
+
+
+uint_least8_t
+Psid64::findSonglengthsSpace(bool* pages, uint_least8_t scr,
+                             uint_least8_t chars, uint_least8_t driver,
+                             uint_least8_t stil, uint_least8_t stil_pages,
+		             uint_least8_t size) const
+{
+    uint_least8_t firstPage = 0;
+    for (unsigned int i = 0; i < MAX_PAGES; ++i)
+    {
+	if (pages[i] || ((scr && (scr <= i) && (i < (scr + NUM_SCREEN_PAGES))))
+	    || ((chars && (chars <= i) && (i < (chars + NUM_CHAR_PAGES))))
+	    || ((driver <= i) && (i < (driver + NUM_EXTDRV_PAGES)))
+	    || ((stil <= i) && (i < (stil + stil_pages))))
+	{
+	    if ((i - firstPage) >= size)
+	    {
+		return firstPage;
+	    }
+	    firstPage = i + 1;
+	}
+    }
+
+    return 0;
+}
+
+
+
 uint_least8_t
 Psid64::findStilSpace(bool* pages, uint_least8_t scr,
                       uint_least8_t chars, uint_least8_t driver,
@@ -766,6 +872,7 @@ Psid64::findFreeSpace()
 
     // calculate size of the STIL text in pages
     uint_least8_t stilSize = (m_stilText.length() + 255) >> 8;
+    uint_least8_t songlengthsSize = (m_songlengthsSize + 255) >> 8;
 
     m_screenPage = (uint_least8_t) (0x00);
     m_driverPage = (uint_least8_t) (0x00);
@@ -876,6 +983,12 @@ Psid64::findFreeSpace()
 			    m_stilPage = findStilSpace(pages, scr, chars,
 						       driver, stilSize);
 			}
+			if (songlengthsSize)
+			{
+			    m_songlengthsPage = findSonglengthsSpace(
+			        pages, scr, chars, driver, m_stilPage,
+				stilSize, songlengthsSize);
+			}
 			return;
 		    }
 		}
@@ -891,6 +1004,12 @@ Psid64::findFreeSpace()
 		    {
 			m_stilPage = findStilSpace(pages, scr, 0, driver,
 						   stilSize);
+		    }
+		    if (songlengthsSize)
+		    {
+			m_songlengthsPage = findSonglengthsSpace(
+			    pages, scr, 0, driver, m_stilPage, stilSize,
+			    songlengthsSize);
 		    }
 		    return;
 		}
@@ -975,6 +1094,7 @@ Psid64::initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n)
     globals_t globals;
     int screen = m_screenPage << 8;
     globals["screen"] = screen;
+    globals["barsprptr"] = ((screen + BAR_SPRITE_SCREEN_OFFSET) & 0x3fc0) >> 6;
     int screen_songnum = 0;
     if (m_tuneInfo.songs > 1)
     {
@@ -999,6 +1119,21 @@ Psid64::initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n)
 	sid2base = 0xd400;
     }
     globals["sid2base"] = sid2base;
+    globals["stil"] = m_stilPage * 0x100;
+    if (m_songlengthsPage != 0x00)
+    {
+        globals["songlengths_min"] = m_songlengthsPage * 0x100;
+        globals["songlengths_sec"] = (m_songlengthsPage * 0x100) + m_tuneInfo.songs;
+        globals["songtpi_lo"] = (m_songlengthsPage * 0x100) + (2 * m_tuneInfo.songs);
+        globals["songtpi_hi"] = (m_songlengthsPage * 0x100) + (3 * m_tuneInfo.songs);
+    }
+    else
+    {
+        globals["songlengths_min"] = 0x0000;
+        globals["songlengths_sec"] = 0x0000;
+        globals["songtpi_lo"] = 0x0000;
+        globals["songtpi_hi"] = 0x0000;
+    }
 
     if (!reloc65 ((char **) &psid_reloc, &psid_size, reloc_addr, &globals))
     {
@@ -1036,11 +1171,6 @@ Psid64::initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n)
     psid_reloc[addr++] = (uint_least8_t) ((m_tuneInfo.loadAddr < 0x31a) ? 0xff : 0x05);
     psid_reloc[addr++] = iomap (m_tuneInfo.initAddr);
     psid_reloc[addr++] = iomap (m_tuneInfo.playAddr);
-
-    if (m_screenPage != 0x00)
-    {
-	psid_reloc[addr++] = m_stilPage;
-    }
 
     *mem = psid_mem;
     *ptr = psid_reloc;
@@ -1204,7 +1334,16 @@ Psid64::drawScreen()
     {
 	m_screen->write("-");
     }
-    m_screen->write("\nClock  :   :  :");
+    m_screen->write("\nClock  :   :");
+    if (m_songlengthsPage != 0)
+    {
+	uint_least8_t bar_char = (m_charPage == 0) ? 0xa0 : 0x7f;
+ 	for (unsigned int i = 0; i < BAR_WIDTH; ++i)
+	{
+	    m_screen->poke(BAR_X + i, 12, bar_char);
+	}
+	m_screen->poke(BAR_X + BAR_WIDTH + 3, 12, 0x3a);
+    }
 
     // some additional text
     m_screen->write("\n\n  ");
@@ -1237,4 +1376,10 @@ Psid64::drawScreen()
     // flashing bottom line (should be exactly 38 characters)
     m_screen->move(1,24);
     m_screen->write("Website: http://psid64.sourceforge.net");
+
+    // initialize sprite for progress bar
+    for (unsigned int i = 0; i < 63; ++i)
+    {
+	m_screen->poke(BAR_SPRITE_SCREEN_OFFSET + i, 0x00);
+    }
 }
