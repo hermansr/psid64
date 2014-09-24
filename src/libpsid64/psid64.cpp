@@ -776,10 +776,10 @@ Psid64::findSonglengthsSpace(bool* pages, uint_least8_t scr,
     uint_least8_t firstPage = 0;
     for (unsigned int i = 0; i < MAX_PAGES; ++i)
     {
-	if (pages[i] || ((scr && (scr <= i) && (i < (scr + NUM_SCREEN_PAGES))))
-	    || ((chars && (chars <= i) && (i < (chars + NUM_CHAR_PAGES))))
+	if (pages[i] || (scr && (scr <= i) && (i < (scr + NUM_SCREEN_PAGES)))
+	    || (chars && (chars <= i) && (i < (chars + NUM_CHAR_PAGES)))
 	    || ((driver <= i) && (i < (driver + NUM_EXTDRV_PAGES)))
-	    || ((stil <= i) && (i < (stil + stil_pages))))
+	    || (stil && (stil <= i) && (i < (stil + stil_pages))))
 	{
 	    if ((i - firstPage) >= size)
 	    {
@@ -802,8 +802,8 @@ Psid64::findStilSpace(bool* pages, uint_least8_t scr,
     uint_least8_t firstPage = 0;
     for (unsigned int i = 0; i < MAX_PAGES; ++i)
     {
-	if (pages[i] || ((scr && (scr <= i) && (i < (scr + NUM_SCREEN_PAGES))))
-	    || ((chars && (chars <= i) && (i < (chars + NUM_CHAR_PAGES))))
+	if (pages[i] || (scr && (scr <= i) && (i < (scr + NUM_SCREEN_PAGES)))
+	    || (chars && (chars <= i) && (i < (chars + NUM_CHAR_PAGES)))
 	    || ((driver <= i) && (i < (driver + NUM_EXTDRV_PAGES))))
 	{
 	    if ((i - firstPage) >= size)
