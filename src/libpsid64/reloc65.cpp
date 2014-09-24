@@ -33,7 +33,7 @@
 
 #define	BUF	(9*2+8)		/* 16 bit header */
 
-typedef struct {
+struct file65 {
 	char 		*fname;
 	size_t 		fsize;
 	unsigned char	*buf;
@@ -48,16 +48,16 @@ typedef struct {
 	unsigned char 	*rdtab;
 	unsigned char 	*extab;
 	globals_t       *globals;
-} file65;
+};
 
-typedef struct {
+struct glob {
 	char 	*name;
 	int	len;		/* length of labelname */
 	int	fl;		/* 0=ok, 1=multiply defined */
 	int	val;		/* address value */
 	int	seg;		/* segment */
 	file65	*file;		/* in which file is it? */
-} glob;
+};
 
 
 int read_options(unsigned char *f);
