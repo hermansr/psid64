@@ -36,8 +36,6 @@
 #define BAR_OFFSET			(480 + BAR_X)
 #define BAR_WIDTH			19
 #define BAR_PIXELS			(BAR_WIDTH * 8)
-#define BAR_FG_COLOR			6
-#define BAR_BG_COLOR			14
 #define LENGTH_OFFSET			515
 #define BAR_SPRITE_SCREEN_OFFSET	$0300
 #define SCROLLER_OFFSET			840
@@ -154,18 +152,6 @@ haveio	ora #$34
 	sta $01
 	jsr stop
 #ifdef SCREEN
-	ldx #0
-	stx $dc03
-	stx $dd03
-	dex
-	stx $dc02
-	lda #<dd00			; relocation always in words
-	sta $dd00
-	lda #<d018			; relocation always in words
-	sta $d018
-	lda #$3f
-	sta $dd02
-
 	; Display current song number with leading spaces
 	lda #>screen_songnum
 	beq nosongnum
@@ -183,7 +169,7 @@ ldiv100	sbc #100
 	stx screen_songnum		; here always y == 0
 	iny
 	ldx #$30
-	bne adiv10
+	bne adiv10			; bra
 lt100	cmp #10
 	bcc lt10
 ldiv10	sbc #10
@@ -216,8 +202,6 @@ rstclk	ldy clkoffs-1,x
 	stx barcounter+1
 	stx barpos
 	jsr drawbar
-	lda #<barsprptr
-	sta screen+$3f8
 
 #endif /* SCREEN */
 
@@ -764,10 +748,10 @@ db3	sta screen+BAR_SPRITE_SCREEN_OFFSET-3,y
 	lsr
 	lsr
 	tax
-	lda #BAR_FG_COLOR
+	lda #<COL_BAR_FG
 db1	dex
 	bpl db2
-	lda #BAR_BG_COLOR
+	lda #<COL_BAR_BG
 db2	sta $d800+BAR_OFFSET,y
 	iny
 	cpy #BAR_WIDTH

@@ -11,6 +11,7 @@ libpsid64_a_SOURCES = \
 	psid64.cpp \
 	psidboot.a65 \
 	psidboot.h \
+	psidextboot.h \
 	psiddrv.a65 \
 	psiddrv.h \
 	psidextdrv.h \
@@ -43,6 +44,7 @@ libpsid64_a_SOURCES = \
 
 BUILT_SOURCES = \
 	psidboot.h \
+	psidextboot.h \
 	psiddrv.h \
 	psidextdrv.h
 
@@ -53,7 +55,10 @@ SUFFIXES = .a65
 	od -v -An -w8 -tx1 $(srcdir)/$*.o65 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@
 
 psidboot.h: psidboot.a65
-	xa $< -o - -DSMOOTH_SCROLL | od -v -An -w8 -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@
+	xa -c -R -G $< -o - -DSMOOTH_SCROLL | od -v -An -w8 -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@
+
+psidextboot.h: psidboot.a65
+	xa -c -R -G $< -o - -DSCREEN -DSMOOTH_SCROLL | od -v -An -w8 -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@
 
 psiddrv.h: psiddrv.a65
 	xa -c -R -G $< -o - | od -v -An -w8 -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@

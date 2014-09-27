@@ -67,6 +67,7 @@ typedef int             (*SORTFUNC) (const void*, const void*);
 
 static inline unsigned int min(unsigned int a, unsigned int b);
 static int block_cmp(block_t* a, block_t* b);
+static void setThemeGlobals(globals_t& globals);
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -97,6 +98,22 @@ block_cmp(block_t* a, block_t* b)
     }
 
     return 0;
+}
+
+
+static void
+setThemeGlobals(globals_t& globals)
+{
+    globals["COL_BORDER"] = 0x00;
+    globals["COL_BACKGROUND"] = 0x00;
+    globals["COL_TITLE"] = 0x0f;
+    globals["COL_PARAMETER"] = 0x0d;
+    globals["COL_COLON"] = 0x07;
+    globals["COL_VALUE"] = 0x01;
+    globals["COL_LEGEND"] = 0x0c;
+    globals["COL_BAR_FG"] = 0x06;
+    globals["COL_BAR_BG"] = 0x0e;
+    globals["COL_SCROLLER"] = 0x01;
 }
 
 
@@ -209,15 +226,17 @@ Psid64::load(const char* fileName)
 bool
 Psid64::convert()
 {
-    static const uint_least8_t psid_boot[] = {
+    static const uint_least8_t psid_boot_obj[] = {
 #include "psidboot.h"
+    };
+    static const uint_least8_t psid_extboot_obj[] = {
+#include "psidextboot.h"
     };
     block_t blocks[MAX_BLOCKS];
     int numBlocks;
     uint_least8_t* psid_mem;
     uint_least8_t* psid_driver;
     int driver_size;
-    uint_least16_t boot_size = sizeof(psid_boot);
     uint_least16_t size;
 
     // ensure valid sidtune object
@@ -349,20 +368,7 @@ Psid64::convert()
 	size = size + blocks[i].size;
     }
 
-    m_programSize = boot_size + size;
-    delete[] m_programData;
-    m_programData = new uint_least8_t[m_programSize];
-    uint_least8_t *dest = m_programData;
-    memcpy(dest, psid_boot, boot_size);
-
-    // the value 0x0801 is related to start of the code in psidboot.a65
-    uint_least16_t addr = 19;
-
-    // fill in the initial song number (passed in at boot time)
-    uint_least16_t song;
-    song  = dest[addr];
-    song += (uint_least16_t) dest[addr + 1] << 8;
-    song -= (0x0801 - 2);
+    // determine initial song number (passed in at boot time)
     int initialSong;
     if ((1 <= m_initialSong) && (m_initialSong <= m_tuneInfo.songs))
     {
@@ -372,9 +378,113 @@ Psid64::convert()
     {
 	initialSong = m_tuneInfo.startSong;
     }
-    dest[song] = (uint_least8_t) ((initialSong - 1) & 0xff);
 
-    uint_least16_t eof = 0x0801 + boot_size - 2 + size;
+    // little gimmick: BASIC line number will be set to the preferred SID model
+    int lineNumber;
+    switch (m_tuneInfo.sidModel)
+    {
+    case SIDTUNE_SIDMODEL_6581:
+	lineNumber = 6581;
+	break;
+    case SIDTUNE_SIDMODEL_8580:
+	lineNumber = 8580;
+	break;
+    default:
+	lineNumber = 1103;
+        break;
+    }
+
+    // select boot code object
+    const uint_least8_t* boot_obj;
+    int boot_size;
+    if (m_screenPage == 0x00)
+    {
+        boot_obj = psid_boot_obj;
+        boot_size = sizeof(psid_boot_obj);
+    }
+    else
+    {
+        boot_obj = psid_extboot_obj;
+        boot_size = sizeof(psid_extboot_obj);
+    }
+
+    // relocate boot code
+    uint_least8_t* boot_mem;
+    uint_least8_t* boot_reloc;
+    boot_mem = boot_reloc = new uint_least8_t[boot_size];
+    if (boot_mem == NULL)
+    {
+	return false;
+    }
+    memcpy(boot_reloc, boot_obj, boot_size);
+
+    globals_t globals;
+    setThemeGlobals(globals);
+    globals["song"] = (initialSong - 1) & 0xff;
+    uint_least16_t jmpAddr = m_driverPage << 8;
+    // start address of driver
+    globals["player"] = jmpAddr;
+    // address of new stop vector for tunes that call $a7ae during init
+    globals["stopvec"] = jmpAddr+3;
+    const uint_least16_t load_addr = 0x0801;
+    int screen = m_screenPage << 8;
+    globals["screen"] = screen;
+    globals["barsprptr"] = ((screen + BAR_SPRITE_SCREEN_OFFSET) & 0x3fc0) >> 6;
+    globals["dd00"] = ((((m_screenPage & 0xc0) >> 6) ^ 3) | 0x04);
+    uint_least8_t vsa;	// video screen address
+    uint_least8_t cba;	// character memory base address
+    vsa = (uint_least8_t) ((m_screenPage & 0x3c) << 2);
+    cba = (uint_least8_t) (m_charPage ? (m_charPage >> 2) & 0x0e : 0x06);
+    globals["d018"] = vsa | cba;
+
+    // the additional BASIC starter code is not needed when compressing file
+    uint_least16_t basic_size = (m_compress ? 0 : 12);
+    uint_least16_t boot_addr = load_addr + basic_size;
+    if (!reloc65 ((char **) &boot_reloc, &boot_size, boot_addr, &globals))
+    {
+	cerr << PACKAGE << ": Relocation error." << endl;
+	return false;
+    }
+
+    uint_least16_t file_size = basic_size + boot_size + size;
+    m_programSize = 2 + file_size;
+    delete[] m_programData;
+    m_programData = new uint_least8_t[m_programSize];
+    uint_least8_t *dest = m_programData;
+    *(dest++) = (uint_least8_t) (load_addr & 0xff);
+    *(dest++) = (uint_least8_t) (load_addr >> 8);
+    if (basic_size > 0)
+    {
+	// pointer to next BASIC line
+	*(dest++) = (uint_least8_t) ((load_addr + 10) & 0xff);
+	*(dest++) = (uint_least8_t) ((load_addr + 10) >> 8);
+	// line number
+	*(dest++) = (uint_least8_t) (lineNumber & 0xff);
+	*(dest++) = (uint_least8_t) (lineNumber >> 8);
+	// SYS token
+	*(dest++) = (uint_least8_t) 0x9e;
+	// "2061"
+	*(dest++) = (uint_least8_t) 0x32;
+	*(dest++) = (uint_least8_t) 0x30;
+	*(dest++) = (uint_least8_t) 0x36;
+	*(dest++) = (uint_least8_t) 0x31;
+	// end of BASIC line
+	*(dest++) = (uint_least8_t) 0x00;
+	// pointer to next BASIC line
+	*(dest++) = (uint_least8_t) 0x00;
+	*(dest++) = (uint_least8_t) 0x00;
+    }
+    memcpy(dest, boot_reloc, boot_size);
+
+    // free memory of relocated boot code
+    delete[] boot_mem;
+
+    uint_least16_t addr = 5; // parameter offset in psidboot.a65
+    uint_least16_t eof = load_addr + file_size;
+    if (m_screenPage != 0x00)
+    {
+        dest[addr++] = (uint_least8_t) (m_charPage); // page for character set, or 0
+    }
     dest[addr++] = (uint_least8_t) (eof & 0xff); // end of C64 file
     dest[addr++] = (uint_least8_t) (eof >> 8);
     dest[addr++] = (uint_least8_t) (0x10000 & 0xff); // end of high memory
@@ -383,12 +493,6 @@ Psid64::convert()
     dest[addr++] = (uint_least8_t) ((0x10000 - size) & 0xff); // start of blocks after moving
     dest[addr++] = (uint_least8_t) ((0x10000 - size) >> 8);
     dest[addr++] = (uint_least8_t) (numBlocks - 1); // number of blocks - 1
-    dest[addr++] = (uint_least8_t) (m_charPage); // page for character set, or 0
-    uint_least16_t jmpAddr = m_driverPage << 8;
-    dest[addr++] = (uint_least8_t) (jmpAddr & 0xff); // start address of driver
-    dest[addr++] = (uint_least8_t) (jmpAddr >> 8);
-    dest[addr++] = (uint_least8_t) ((jmpAddr+3) & 0xff); // address of new stop vector
-    dest[addr++] = (uint_least8_t) ((jmpAddr+3) >> 8); // for tunes that call $a7ae during init
 
     // copy block data to psidboot.a65 parameters
     for (int i = 0; i < numBlocks; ++i)
@@ -416,10 +520,12 @@ Psid64::convert()
     {
 	// Use Exomizer to compress the program data. The first two bytes
 	// of m_programData are skipped as these contain the load address.
-	int load = 0x0801;
-	int start = 0x080d;
 	uint_least8_t* compressedData = new uint_least8_t[0x10000];
-	m_programSize = exomizer(m_programData + 2, m_programSize - 2, load, start, compressedData);
+	m_programSize = exomizer(m_programData + 2, m_programSize - 2,
+	                         load_addr, boot_addr, compressedData);
+	// set BASIC line number
+	compressedData[4] = (uint_least8_t) (lineNumber & 0xff);
+	compressedData[5] = (uint_least8_t) (lineNumber >> 8);
 	delete[] m_programData;
 	m_programData = compressedData;
     }
@@ -1063,8 +1169,6 @@ Psid64::initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n)
     int psid_size;
     uint_least16_t reloc_addr;
     uint_least16_t addr;
-    uint_least8_t vsa;	// video screen address
-    uint_least8_t cba;	// character memory base address
 
     *ptr = NULL;
     *n = 0;
@@ -1092,9 +1196,9 @@ Psid64::initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n)
 
     // undefined references in the driver code need to be added to globals
     globals_t globals;
+    setThemeGlobals(globals);
     int screen = m_screenPage << 8;
     globals["screen"] = screen;
-    globals["barsprptr"] = ((screen + BAR_SPRITE_SCREEN_OFFSET) & 0x3fc0) >> 6;
     int screen_songnum = 0;
     if (m_tuneInfo.songs > 1)
     {
@@ -1103,10 +1207,6 @@ Psid64::initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n)
 	if (m_tuneInfo.songs >= 10) ++screen_songnum;
     }
     globals["screen_songnum"] = screen_songnum;
-    globals["dd00"] = ((((m_screenPage & 0xc0) >> 6) ^ 3) | 0x04);
-    vsa = (uint_least8_t) ((m_screenPage & 0x3c) << 2);
-    cba = (uint_least8_t) (m_charPage ? (m_charPage >> 2) & 0x0e : 0x06);
-    globals["d018"] = vsa | cba;
     int sid2base;
     if (((m_tuneInfo.secondSIDAddress & 1) == 0)
         && (((0x42 <= m_tuneInfo.secondSIDAddress) && (m_tuneInfo.secondSIDAddress <= 0x7e))
