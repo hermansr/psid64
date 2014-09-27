@@ -33,6 +33,14 @@
 #include <getopt.h>
 #endif
 
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -47,6 +55,14 @@ using std::string;
 using std::istringstream;
 
 #define STR_GETOPT_OPTIONS		":bcghi:no:r:s:vV"
+#define ACCEPTED_PATH_SEPARATORS	"/\\"
+
+#ifdef _WIN32
+#define PATH_SEPARATOR			"\\"
+#else
+#define PATH_SEPARATOR			"/"
+#endif
+
 
 
 // constructor
@@ -54,7 +70,9 @@ using std::istringstream;
 ConsoleApp::ConsoleApp() :
     m_sidPostfix(".sid"),
     m_prgPostfix(".prg"),
-    m_verbose(false)
+    m_verbose(false),
+    m_outputPathName(),
+    m_outputPathIsDir(false)
 {
 }
 
@@ -81,7 +99,7 @@ void ConsoleApp::printHelp ()
     cout << "  -g, --global-comment   include the global comment STIL text" << endl;
     cout << "  -i, --initial-song=NUM override the initial song to play" << endl;
     cout << "  -n, --no-driver        convert SID to C64 program file without driver code" << endl;
-    cout << "  -o, --output=FILE      specify output file" << endl;
+    cout << "  -o, --output=PATH      specify output file or directory" << endl;
     cout << "  -r, --root             specify HVSC root directory" << endl;
     cout << "  -s, --songlengths=FILE specify HVSC song length database" << endl;
     cout << "  -v, --verbose          explain what is being done" << endl;
@@ -93,7 +111,7 @@ void ConsoleApp::printHelp ()
     cout << "  -g                     include the global comment STIL text" << endl;
     cout << "  -i                     override the initial song to play" << endl;
     cout << "  -n                     convert SID to C64 program file without driver code" << endl;
-    cout << "  -o                     specify output file" << endl;
+    cout << "  -o                     specify output file or directory" << endl;
     cout << "  -r                     specify HVSC root directory" << endl;
     cout << "  -s                     specify HVSC song length database" << endl;
     cout << "  -v                     explain what is being done" << endl;
@@ -104,22 +122,56 @@ void ConsoleApp::printHelp ()
 }
 
 
+bool
+ConsoleApp::isdir(const string& path)
+{
+    struct stat s;
+    return (lstat(path.c_str(), &s) == 0) && S_ISDIR(s.st_mode);
+}
+
+
 string
-ConsoleApp::buildOutputFileName (const string& sidFileName) const
+ConsoleApp::basename(const string& path)
+{
+    string filename(path);
+
+    const size_t index = filename.find_last_of(ACCEPTED_PATH_SEPARATORS);
+    if (index != std::string::npos)
+    {
+	filename.erase(0, index + 1);
+    }
+
+    return filename;
+}
+
+
+string
+ConsoleApp::buildOutputFileName(const string& sidFileName) const
 {
     string prgFileName;
+    bool replaceSuffix = false;
 
-    if (m_outputFileName.empty() == false)
+    if (m_outputPathName.empty())
     {
-	// use filename specified by --output option
-	prgFileName = m_outputFileName;
+	prgFileName = sidFileName;
+	replaceSuffix = true;
     }
     else
     {
+	// use filename or directory specified by --output option
+	prgFileName = m_outputPathName;
+	if (m_outputPathIsDir)
+	{
+	    prgFileName += PATH_SEPARATOR + basename(sidFileName);
+	    replaceSuffix = true;
+	}
+    }
+
+    if (replaceSuffix)
+    {
 	// replace the .sid extension by .prg extension
-	prgFileName = sidFileName;
-	unsigned int index = sidFileName.length() - m_sidPostfix.length();
-	if (sidFileName.substr(index) == m_sidPostfix)
+	unsigned int index = prgFileName.length() - m_sidPostfix.length();
+	if (prgFileName.substr(index) == m_sidPostfix)
 	{
 	    prgFileName.erase(index);
 	}
@@ -132,7 +184,7 @@ ConsoleApp::buildOutputFileName (const string& sidFileName) const
 
 bool ConsoleApp::convert(const string inputFileName)
 {
-    string outputFileName = buildOutputFileName (inputFileName);
+    string outputFileName = buildOutputFileName(inputFileName);
 
     // read the PSID file
     if (m_verbose)
@@ -221,7 +273,8 @@ bool ConsoleApp::main(int argc, char **argv)
 	string databaseFileName(hvscSongLengths);
 	m_psid64.setDatabaseFileName(databaseFileName);
     }
-    m_outputFileName = "";
+    m_outputPathName.clear();
+    m_outputPathIsDir = false;
 
 #ifdef HAVE_GETOPT_LONG
     c = getopt_long (argc, argv, STR_GETOPT_OPTIONS, long_options,
@@ -265,7 +318,8 @@ bool ConsoleApp::main(int argc, char **argv)
 	    m_psid64.setNoDriver(true);
 	    break;
 	case 'o':
-	    m_outputFileName = optarg;
+	    m_outputPathName = optarg;
+	    m_outputPathIsDir = isdir(m_outputPathName);
 	    break;
 	case 'r':
 	    {

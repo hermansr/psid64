@@ -43,14 +43,17 @@ private:
     const std::string m_prgPostfix;
 
     bool m_verbose;
-    std::string m_outputFileName;
+    std::string m_outputPathName;
+    bool m_outputPathIsDir;
 
     Psid64 m_psid64;
 
     static void printUsage ();
     static void printHelp ();
 
-    std::string buildOutputFileName (const std::string& sidFileName) const;
+    static bool isdir(const std::string& path);
+    static std::string basename(const std::string& path);
+    std::string buildOutputFileName(const std::string& sidFileName) const;
     bool convert(const std::string inputFileName);
 };
 
