@@ -18,13 +18,14 @@
 	.fopt 0, "psidboot.o65", 0
 	.fopt 3, "Roland Hermans <rolandh@users.sourceforge.net>", 0
 
+#define MAX_BLOCKS			5
+
 #ifdef SCREEN
 r1_org	= $00f7
 #else /* SCREEN */
 r1_org	= $00f8
 #endif /* SCREEN */
 
-#define MAX_BLOCKS			5
 
 	lda #<song
 	jmp start
@@ -180,7 +181,7 @@ prgcol	sta $d800+45,x
 	bpl prgcol
 	ldx #14
 l1	lda linecol,x
-	sta $d804,x
+	sta $d800+92,x
 	dex
 	bpl l1
 
@@ -248,7 +249,13 @@ vicdata	.byte $00,$92,$00,$00,$00,$00,$00,$00
 	.byte $02,$03,$04,$05,$06,$07
 
 linecol	.byte 9,11,8,12,10,15,7,1,13,7,3,12,14,4,6
+
+#ifndef SMOOTH_SCROLL
+scrollcol .byte 11,12,15
+#endif /* ! SMOOTH_SCROLL */
+
 #else /* SCREEN */
+
 vicdata	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $00,$6b,$37,$00,$00,$00,$08,$00
@@ -257,7 +264,4 @@ vicdata	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $02,$03,$04,$05,$06,$07
 #endif /* SCREEN */
 
-#ifndef SMOOTH_SCROLL
-scrollcol .byte 11,12,15
-#endif /* ! SMOOTH_SCROLL */
 	.)
