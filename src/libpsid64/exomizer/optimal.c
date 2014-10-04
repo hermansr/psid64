@@ -39,10 +39,10 @@ struct _interval_node {
     int start;
     int score;
     struct _interval_node *next;
-    signed char prefix;
-    signed char bits;
-    signed char depth;
-    signed char flags;
+    signed char prefix;  /* RH: signed */
+    signed char bits;  /* RH: signed */
+    signed char depth;  /* RH: signed */
+    signed char flags;  /* RH: signed */
 };
 
 typedef struct _interval_node interval_node[1];
@@ -95,10 +95,10 @@ void interval_node_delete(interval_nodep inp)
     }
 }
 
+#if 0 /* RH */
 static
 void interval_node_dump(interval_nodep inp)
 {
-#if 0 /* logging is diabled */
     int end;
 
     end = 0;
@@ -110,8 +110,8 @@ void interval_node_dump(interval_nodep inp)
         inp = inp->next;
     }
     LOG(LOG_NORMAL, ("[eol@%d]\n", end));
-#endif
 }
+#endif /* RH */
 
 float optimal_encode_int(int arg, void *priv, output_ctxp out)
 {
@@ -546,6 +546,7 @@ void optimal_optimize(encode_match_data emd,    /* IN/OUT */
     offset[7] = optimize(offset_arr[7], offset_parr[7], 1 << 4, 4);
 }
 
+#if 0 /* RH */
 static int optimal_fixup1(interval_nodep *npp,
                           int start, int depth, int flags, int max)
 {
@@ -601,16 +602,12 @@ static int optimal_fixup1(interval_nodep *npp,
 void optimal_fixup(encode_match_data emd, int max_len, int max_offset)
 {
     encode_match_privp data;
-/*
     interval_nodep *offset;
-*/
     interval_nodep len;
 
     data = emd->priv;
 
-/*
     offset = data->offset_f_priv;
-*/
     len = data->len_f_priv;
 
     optimal_fixup1(&len, 1, 0, -1, max_len);
@@ -656,6 +653,7 @@ void optimal_dump(encode_match_data emd)
     LOG(LOG_NORMAL, ("offsets (len =8): "));
     interval_node_dump(offset[7]);
 }
+#endif /* RH */
 
 static
 void interval_out(output_ctx out, interval_nodep inp1, int size)

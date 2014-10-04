@@ -51,6 +51,7 @@ void output_ctx_set_reverse(output_ctx ctx)     /* IN/OUT */
 }
 
 
+#if 0 /* RH */
 static void reverse(unsigned char *start, int len)
 {
     unsigned char *end = start + len - 1;
@@ -70,14 +71,10 @@ static void reverse(unsigned char *start, int len)
 unsigned int output_ctx_close(output_ctx ctx,   /* IN */
                               FILE * out)       /* OUT */
 {
-/*
     int rval;
-*/
     int len;
 
-/*
     rval = 0;
-*/
     /* flush the buffer */
     len = ctx->pos - ctx->start;
 
@@ -93,16 +90,10 @@ unsigned int output_ctx_close(output_ctx ctx,   /* IN */
         ctx->flags &= ~OUTPUT_FLAG_REVERSE;
     }
 
-    size_t len_written;
-    len_written = fwrite(ctx->buf + ctx->start, 1, len, out);
-    if (len_written != len)
-    {
-        LOG(LOG_ERROR, ("error: failed to write all output data in output_ctx_close()\n"));
-        exit(1);
-    }
-
+    fwrite(ctx->buf + ctx->start, 1, len, out);
     return len;
 }
+#endif /* RH */
 
 unsigned int output_get_pos(output_ctx ctx)     /* IN */
 {

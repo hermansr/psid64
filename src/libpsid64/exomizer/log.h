@@ -27,6 +27,11 @@
  *
  */
 
+#if 0 /* RH */
+#include <stdio.h>
+#include <stdarg.h>
+#endif /* RH */
+
 enum log_level {
     LOG_MIN = -99,
     LOG_FATAL = -40,
@@ -41,7 +46,93 @@ enum log_level {
     LOG_MAX = 99
 };
 
-/* disable all logging */
-#define LOG(L, M)
+#if 0 /* RH */
+typedef
+void log_formatter_f(FILE * out,        /* IN */
+                     enum log_level level,      /* IN */
+                     const char *context,       /* IN */
+                     const char *);     /* IN */
+
+/* 
+ * this log output function adds nothing
+ */
+void raw_log_formatter(FILE * out,      /* IN */
+                       enum log_level level,    /* IN */
+                       const char *context,     /* IN */
+                       const char *log);        /* IN */
+
+
+struct log_output;
+
+struct log_ctx;
+
+struct log_ctx *log_new(void);
+
+/* log_delete closes all added output streams
+ * and files except for stdout and stderr
+ */
+void log_delete(struct log_ctx *ctx);
+
+void log_set_level(struct log_ctx *ctx, /* IN/OUT */
+                   enum log_level level);       /* IN */
+
+void log_add_output_stream(struct log_ctx *ctx, /* IN/OUT */
+                           enum log_level min,  /* IN */
+                           enum log_level max,  /* IN */
+                           log_formatter_f * default_f, /* IN */
+                           FILE * out_stream);  /* IN */
+
+void log_vlog(struct log_ctx *ctx,      /* IN */
+              enum log_level level,     /* IN */
+              const char *context,      /* IN */
+              log_formatter_f * f,      /* IN */
+              const char *printf_str,   /* IN */
+              va_list argp);
+
+
+void log_log_default(const char *printf_str,    /* IN */
+                     ...);
+
+/* some helper macros */
+
+extern struct log_ctx *G_log_ctx;
+extern enum log_level G_log_level;
+extern enum log_level G_log_log_level;
+
+#define LOG_SET_LEVEL(L) \
+do { \
+    log_set_level(G_log_ctx, (L)); \
+    G_log_level = (L); \
+} while(0)
+
+#define LOG_INIT(L) \
+do { \
+    G_log_ctx = log_new(); \
+    log_set_level(G_log_ctx, (L)); \
+    G_log_level = (L); \
+} while(0)
+
+#define LOG_INIT_CONSOLE(X) \
+do { \
+    G_log_ctx = log_new(); \
+    log_set_level(G_log_ctx, (X)); \
+    G_log_level = (X); \
+    log_add_output_stream(G_log_ctx, LOG_WARNING, LOG_MAX, NULL, stdout); \
+    log_add_output_stream(G_log_ctx, LOG_MIN, LOG_WARNING - 1, NULL, stderr); \
+} while(0)
+
+#define LOG_FREE log_delete(G_log_ctx)
+
+#define LOG(L, M) \
+do { \
+    if(G_log_level >= (L)) { \
+        G_log_log_level = (L); \
+        log_log_default M; \
+    } \
+} while(0)
 
 #endif
+#endif /* RH */
+
+/* RH: disable all logging */
+#define LOG(L, M)
