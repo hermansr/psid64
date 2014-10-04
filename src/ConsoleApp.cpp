@@ -45,14 +45,21 @@
 #include <unistd.h>
 #endif
 
+#include <dirent.h>
+#include <errno.h>
+
+#include <algorithm>
 #include <cstdlib>
 #include <sstream>
+#include <vector>
 
 using std::cerr;
 using std::cout;
 using std::endl;
-using std::string;
 using std::istringstream;
+using std::sort;
+using std::string;
+using std::vector;
 
 #define STR_GETOPT_OPTIONS		":bcghi:no:r:s:vV"
 #define ACCEPTED_PATH_SEPARATORS	"/\\"
@@ -63,6 +70,25 @@ using std::istringstream;
 #define PATH_SEPARATOR			"/"
 #endif
 
+#ifndef HAVE_LSTAT
+#define lstat(path, buf)		stat(path, buf)
+#endif
+
+#ifndef ACCESSPERMS
+#define ACCESSPERMS			(S_IRWXU|S_IRWXG|S_IRWXO)
+#endif
+
+#ifdef HAVE_MKDIR
+#ifdef MKDIR_TAKES_ONE_ARG
+#define mkdir(path, mode)		mkdir(path)
+#endif
+#else
+#ifdef HAVE__MKDIR
+#define mkdir(path, mode)		_mkdir(path)
+#else
+#error "Don't know how to create a directory on this system."
+#endif
+#endif
 
 
 // constructor
@@ -71,8 +97,7 @@ ConsoleApp::ConsoleApp() :
     m_sidPostfix(".sid"),
     m_prgPostfix(".prg"),
     m_verbose(false),
-    m_outputPathName(),
-    m_outputPathIsDir(false)
+    m_outputPathName()
 {
 }
 
@@ -146,21 +171,21 @@ ConsoleApp::basename(const string& path)
 
 
 string
-ConsoleApp::buildOutputFileName(const string& sidFileName) const
+ConsoleApp::buildOutputFileName(const string& sidFileName, const string& outputPathName) const
 {
     string prgFileName;
     bool replaceSuffix = false;
 
-    if (m_outputPathName.empty())
+    if (outputPathName.empty())
     {
 	prgFileName = sidFileName;
 	replaceSuffix = true;
     }
     else
     {
-	// use filename or directory specified by --output option
-	prgFileName = m_outputPathName;
-	if (m_outputPathIsDir)
+	// use filename or directory, e.g. specified by --output option
+	prgFileName = outputPathName;
+	if (isdir(prgFileName))
 	{
 	    prgFileName += PATH_SEPARATOR + basename(sidFileName);
 	    replaceSuffix = true;
@@ -170,8 +195,8 @@ ConsoleApp::buildOutputFileName(const string& sidFileName) const
     if (replaceSuffix)
     {
 	// replace the .sid extension by .prg extension
-	unsigned int index = prgFileName.length() - m_sidPostfix.length();
-	if (prgFileName.substr(index) == m_sidPostfix)
+	int index = prgFileName.length() - m_sidPostfix.length();
+	if ((index >= 0) && (prgFileName.substr(index) == m_sidPostfix))
 	{
 	    prgFileName.erase(index);
 	}
@@ -182,10 +207,8 @@ ConsoleApp::buildOutputFileName(const string& sidFileName) const
 }
 
 
-bool ConsoleApp::convert(const string inputFileName)
+bool ConsoleApp::convertFile(const string& inputFileName, const string& outputFileName)
 {
-    string outputFileName = buildOutputFileName(inputFileName);
-
     // read the PSID file
     if (m_verbose)
     {
@@ -234,6 +257,109 @@ bool ConsoleApp::convert(const string inputFileName)
 }
 
 
+bool ConsoleApp::convertDir(const string& inputDirName, const string& outputDirName)
+{
+    bool retval = true;
+    const bool recursive = true;
+
+    if (!isdir(outputDirName))
+    {
+	if (mkdir(outputDirName.c_str(), ACCESSPERMS) != 0)
+	{
+	    cerr << PACKAGE << ": Cannot create directory `" << outputDirName << "': " << strerror(errno) << "\n";
+	    retval = false;
+	}
+    }
+
+    DIR *dp;
+    if ((dp = opendir(inputDirName.c_str())) == NULL)
+    {
+	cerr << PACKAGE << ": Cannot access `" << inputDirName << "': " << strerror(errno) << "\n";
+	retval = false;
+    }
+    else
+    {
+	vector<string> dirs;
+	vector<string> files;
+	struct dirent *dirp;
+	while ((dirp = readdir(dp)) != NULL)
+	{
+            if ((strcmp(dirp->d_name, ".") != 0)
+	        && (strcmp(dirp->d_name, "..") != 0))
+	    {
+                string path = inputDirName + PATH_SEPARATOR + dirp->d_name;
+                if (isdir(path))
+		{
+        	    if (recursive)
+        	    {
+                	dirs.push_back(dirp->d_name);
+                    }
+                }
+		else
+		{
+		    // ignore files with an unknown extension
+		    int index = path.length() - m_sidPostfix.length();
+		    if ((index >= 0) && (path.substr(index) == m_sidPostfix))
+		    {
+			files.push_back(dirp->d_name);
+		    }
+                }
+            }
+        }
+        closedir(dp);
+
+	// process the subdirectories
+        sort(dirs.begin(), dirs.end());
+	for (vector<string>::const_iterator it = dirs.begin();
+	     (it != dirs.end()) && retval; ++it)
+        {
+	    string newInputDirName = inputDirName + PATH_SEPARATOR + *it;
+	    string newOutputDirName = outputDirName + PATH_SEPARATOR + *it;
+            retval = retval && convertDir(newInputDirName, newOutputDirName);
+        }
+
+	// process files
+        sort(files.begin(), files.end());
+	for (vector<string>::const_iterator it = files.begin();
+	     (it != files.end()) && retval; ++it)
+        {
+	    string inputFileName = inputDirName + PATH_SEPARATOR + *it;
+ 	    string outputFileName = buildOutputFileName(*it, outputDirName);
+            retval = retval && convertFile(inputFileName, outputFileName);
+        }
+    }
+
+    return retval;
+}
+
+
+bool ConsoleApp::convert(const string& inputPathName)
+{
+    if (isdir(inputPathName))
+    {
+	string outputDirName;
+	if (m_outputPathName.empty())
+	{
+	    outputDirName = inputPathName;
+	}
+	else
+	{
+	    outputDirName = m_outputPathName;
+	    if (isdir(outputDirName))
+	    {
+		outputDirName += PATH_SEPARATOR + basename(inputPathName);
+	    }
+	}
+	return convertDir(inputPathName, outputDirName);
+    }
+    else
+    {
+	string outputFileName = buildOutputFileName(inputPathName, m_outputPathName);
+	return convertFile(inputPathName, outputFileName);
+    }
+}
+
+
 bool ConsoleApp::main(int argc, char **argv)
 {
     int                     c;
@@ -274,7 +400,6 @@ bool ConsoleApp::main(int argc, char **argv)
 	m_psid64.setDatabaseFileName(databaseFileName);
     }
     m_outputPathName.clear();
-    m_outputPathIsDir = false;
 
 #ifdef HAVE_GETOPT_LONG
     c = getopt_long (argc, argv, STR_GETOPT_OPTIONS, long_options,
@@ -319,7 +444,6 @@ bool ConsoleApp::main(int argc, char **argv)
 	    break;
 	case 'o':
 	    m_outputPathName = optarg;
-	    m_outputPathIsDir = isdir(m_outputPathName);
 	    break;
 	case 'r':
 	    {
@@ -388,9 +512,25 @@ bool ConsoleApp::main(int argc, char **argv)
 	return false;
     }
 
+    // check that output is an existing directory when having multiple inputs
+    if (((argc - optind) > 1) && (!m_outputPathName.empty()) && (!isdir(m_outputPathName)))
+    {
+	cerr << PACKAGE << ": target `" << m_outputPathName << "' is not a directory" << endl;
+	return false;
+    }
+
     while (optind < argc)
     {
-	if (!convert(argv[optind++]))
+	string inputPathName = argv[optind++];
+
+	// remove any trailing path separators
+	size_t index = inputPathName.find_last_not_of(ACCEPTED_PATH_SEPARATORS);
+	if (index != string::npos)
+	{
+	    inputPathName.erase(index + 1);
+	}
+
+	if (!convert(inputPathName))
 	{
 	    return false;
 	}

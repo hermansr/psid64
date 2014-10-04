@@ -18,15 +18,21 @@ dnl AC_SUBST(DEPS_LIBS)
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([getopt.h limits.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADER_STDBOOL
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT8_T
 
 dnl Checks for library functions.
 AC_FUNC_MEMCMP
-AC_CHECK_FUNCS([getopt_long memset strncasecmp strcasecmp strchr strndup strrchr strstr snprintf])
+AC_FUNC_ERROR_AT_LINE
+AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
+AC_CHECK_FUNCS([getopt_long lstat memmove memset mkdir snprintf strcasecmp strchr strdup strerror strncasecmp strrchr strstr])
+AX_FUNC_MKDIR
 
 dnl Enable compilation wth per-target flags
 AM_PROG_CC_C_O

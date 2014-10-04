@@ -4,7 +4,7 @@
 psid64-1.1 ():
 
 * Added song length and progress bar support.
-* Accept directory as output path. 
+* Accept directory as input and/or output path.
 
 psid64-1.0 (Sat Aug 30 14:48:41 CEST 2014 CET 2014):
 
