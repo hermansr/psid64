@@ -50,15 +50,6 @@ struct file65 {
 	globals_t       *globals;
 };
 
-struct glob {
-	char 	*name;
-	int	len;		/* length of labelname */
-	int	fl;		/* 0=ok, 1=multiply defined */
-	int	val;		/* address value */
-	int	seg;		/* segment */
-	file65	*file;		/* in which file is it? */
-};
-
 
 int read_options(unsigned char *f);
 int read_undef(unsigned char *f, file65 *fp);
@@ -263,7 +254,7 @@ unsigned char *reloc_seg(unsigned char *buf, int len, unsigned char *rtab, file6
 }
 
 unsigned char *reloc_globals(unsigned char *buf, file65 *fp) {
-	int n, old, n_new, seg;
+	int n, n_new;
 
 	n = buf[0] + 256*buf[1];
 	buf +=2;
@@ -271,8 +262,8 @@ unsigned char *reloc_globals(unsigned char *buf, file65 *fp) {
 	while(n) {
 /*printf("relocating %s, ", buf);*/
 	  while(*(buf++));
-	  seg = *buf;
-	  old = buf[1] + 256*buf[2];
+	  int seg = *buf;
+	  int old = buf[1] + 256*buf[2];
 
 	  if (seg) n_new = old + reldiff(seg);
 	  else n_new = old + find_global(buf+1, fp);

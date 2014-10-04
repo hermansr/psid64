@@ -967,7 +967,6 @@ Psid64::findFreeSpace()
     bool pages[MAX_PAGES];
     unsigned int startp = m_tuneInfo.relocStartPage;
     unsigned int maxp = m_tuneInfo.relocPages;
-    unsigned int endp;
     unsigned int i;
     unsigned int j;
     unsigned int k;
@@ -1015,7 +1014,7 @@ Psid64::findFreeSpace()
     else if ((startp != 0xff) && (maxp != 0))
     {
 	// the available pages have been specified in the PSID file
-	endp = min((startp + maxp), MAX_PAGES);
+	unsigned int endp = min((startp + maxp), MAX_PAGES);
 
 	// check that the relocation information does not use the following
 	// memory areas: 0x0000-0x03FF, 0xA000-0xBFFF and 0xD000-0xFFFF
