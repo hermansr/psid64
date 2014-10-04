@@ -381,6 +381,8 @@ bool ConsoleApp::main(int argc, char **argv)
 	{NULL, 0, NULL, 0}
     };
 #endif
+    string hvscRoot;
+    string databaseFileName;
 
     // set default configuration
     m_psid64.setVerbose(false);
@@ -390,14 +392,12 @@ bool ConsoleApp::main(int argc, char **argv)
     const char* hvscBase = getenv ("HVSC_BASE");
     if (hvscBase != NULL)
     {
-	string hvscRoot(hvscBase);
-	m_psid64.setHvscRoot(hvscRoot);
+	hvscRoot = hvscBase;
     }
     const char* hvscSongLengths = getenv ("HVSC_SONGLENGTHS");
     if (hvscSongLengths != NULL)
     {
-	string databaseFileName(hvscSongLengths);
-	m_psid64.setDatabaseFileName(databaseFileName);
+	databaseFileName = hvscSongLengths;
     }
     m_outputPathName.clear();
 
@@ -446,22 +446,10 @@ bool ConsoleApp::main(int argc, char **argv)
 	    m_outputPathName = optarg;
 	    break;
 	case 'r':
-	    {
-		string hvscRoot(optarg);
-		if (!m_psid64.setHvscRoot(hvscRoot))
-		{
-		    cerr << m_psid64.getStatus() << ": STILView will be disabled" << endl;
-		}
-	    }
+	    hvscRoot = optarg;
 	    break;
 	case 's':
-	    {
-		string databaseFileName(optarg);
-		if (!m_psid64.setDatabaseFileName(databaseFileName))
-		{
- 		    cerr << m_psid64.getStatus() << ": song lengths will be disabled" << endl;
- 		}
-	    }
+	    databaseFileName = optarg;
 	    break;
 	case 'v':
 	    m_verbose = true;
@@ -517,6 +505,29 @@ bool ConsoleApp::main(int argc, char **argv)
     {
 	cerr << PACKAGE << ": target `" << m_outputPathName << "' is not a directory" << endl;
 	return false;
+    }
+
+    if (!hvscRoot.empty())
+    {
+	if (!m_psid64.setHvscRoot(hvscRoot))
+	{
+	    cerr << m_psid64.getStatus() << ": STILView will be disabled" << endl;
+	}
+
+	if (databaseFileName.empty())
+	{
+	    // use song length database from HVSC if no database was specified
+	    databaseFileName = hvscRoot + PATH_SEPARATOR + "DOCUMENTS"
+	                       + PATH_SEPARATOR + "Songlengths.txt";
+	}
+    }
+
+    if (!databaseFileName.empty())
+    {
+	if (!m_psid64.setDatabaseFileName(databaseFileName))
+	{
+ 	    cerr << m_psid64.getStatus() << ": song lengths will be disabled" << endl;
+ 	}
     }
 
     while (optind < argc)
