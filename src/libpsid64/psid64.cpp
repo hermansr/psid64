@@ -65,6 +65,17 @@ typedef int             (*SORTFUNC) (const void*, const void*);
     typedef int openmode;
 #endif
 
+/**
+ * Structure to describe a memory block in the C64's memory map.
+ */
+struct block_t
+{
+    uint_least16_t load; /**< start address */
+    uint_least16_t size; /**< size of the memory block in bytes */
+    const uint_least8_t* data; /**< data to be stored */
+    std::string description; /**< a short description */
+};
+
 static inline unsigned int min(unsigned int a, unsigned int b);
 static int block_cmp(block_t* a, block_t* b);
 static void setThemeGlobals(globals_t& globals);

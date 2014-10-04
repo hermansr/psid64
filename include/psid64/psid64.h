@@ -46,18 +46,6 @@ class STIL;
 //////////////////////////////////////////////////////////////////////////////
 
 /**
- * Structure to describe a memory block in the C64's memory map.
- */
-typedef struct block_s
-{
-    uint_least16_t load; /**< start address */
-    uint_least16_t size; /**< size of the memory block in bytes */
-    const uint_least8_t* data; /**< data to be stored */
-    std::string description; /**< a short description */
-}
-block_t;
-
-/**
  * Class to generate a C64 self extracting executable from a PSID file.
  */
 class Psid64
@@ -265,8 +253,6 @@ private:
     bool m_verbose;
     std::string m_hvscRoot;
     std::string m_databaseFileName;
-//    std::string m_outputFileName;
-//    std::ostream m_logFile;
 
     // state data
     bool m_status;
@@ -320,9 +306,6 @@ private:
     std::string toHexWord(uint_least16_t value) const;
     std::string toNumStr(int value) const;
     void drawScreen();
-//    int block_cmp(block_t* a, block_t* b);
-//    char* build_output_filename(char* p_psid_file);
-//    std::string build_output_filename(const std::string &p_psid_file);
     bool compress();
 };
 
