@@ -1,5 +1,5 @@
 ;   psid64 - create a C64 executable from a PSID file
-;   Copyright (C) 2001-2003  Roland Hermans <rolandh@users.sourceforge.net>
+;   Copyright (C) 2001-2014  Roland Hermans <rolandh@users.sourceforge.net>
 ;
 ;   This program is free software; you can redistribute it and/or modify
 ;   it under the terms of the GNU General Public License as published by
@@ -90,7 +90,7 @@ irqjob	lda $d020			; save values
 	sta $dc00
 	lda $dc01
 	bmi noshift
-	lda #6				; show rastertime used by play
+	lda #<COL_RASTER_TIME		; show rastertime used by play
 	sta $d020
 #endif /* SCREEN */
 noshift	lda $01
@@ -336,16 +336,6 @@ brkjob	ldx #$ff
 	txs
 run	cli
 idle	jsr delay
-#ifdef SCREEN
-	lda d011
-	and #$10
-	beq noscr
-	jsr colorline
-	jsr colortext
-	jsr scroller
-noscr
-	jsr clock
-#endif /* SCREEN */
 	php
 	sei
 	jsr keyboard
@@ -369,6 +359,16 @@ noscr
 noreset
 #endif /* SCREEN */
 	plp
+#ifdef SCREEN
+	lda d011
+	and #$10
+	beq noscr
+	jsr colorline
+	jsr scroller
+	jsr colortext
+noscr
+	jsr clock
+#endif /* SCREEN */
 	jmp idle
 
 stop	.(
@@ -795,14 +795,16 @@ colortext .(				; flashing color text effect
 	lda txtcol,y
 	ldx #37
 l1	sta $d800+961,x
-	iny
 	dex
 	bpl l1
 	rts
 
 counter	.byte 0
 
-txtcol	.byte 9,2,4,10,7,13,1,13,7,10,4,2,9,0,0,0
+txtcol	.byte <COL_FOOTER_0,<COL_FOOTER_1,<COL_FOOTER_2,<COL_FOOTER_3
+	.byte <COL_FOOTER_4,<COL_FOOTER_5,<COL_FOOTER_6,<COL_FOOTER_7
+	.byte <COL_FOOTER_8,<COL_FOOTER_9,<COL_FOOTER_10,<COL_FOOTER_11
+	.byte <COL_FOOTER_12,<COL_FOOTER_13,<COL_FOOTER_14,<COL_FOOTER_15
 	.)
 
 scroller .(
@@ -860,7 +862,8 @@ exit	rts
 counter	.byte 0
 
 #ifdef SMOOTH_SCROLL
-scrcol	.byte 5,5,5,3,13,1,13,3
+scrcol	.byte <COL_SCROLLER_0,<COL_SCROLLER_1,<COL_SCROLLER_2,<COL_SCROLLER_3
+	.byte <COL_SCROLLER_4,<COL_SCROLLER_5,<COL_SCROLLER_6,<COL_SCROLLER_7
 #endif /* SMOOTH_SCROLL */
 	.)
 

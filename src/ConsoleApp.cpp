@@ -2,7 +2,7 @@
     $Id$
 
     psid64 - create a C64 executable from a PSID file
-    Copyright (C) 2001-2003  Roland Hermans <rolandh@users.sourceforge.net>
+    Copyright (C) 2001-2014  Roland Hermans <rolandh@users.sourceforge.net>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -50,6 +50,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <map>
 #include <sstream>
 #include <vector>
 
@@ -57,11 +58,12 @@ using std::cerr;
 using std::cout;
 using std::endl;
 using std::istringstream;
+using std::map;
 using std::sort;
 using std::string;
 using std::vector;
 
-#define STR_GETOPT_OPTIONS		":bcghi:no:r:s:vV"
+#define STR_GETOPT_OPTIONS		":bcghi:no:r:s:t:vV"
 #define ACCEPTED_PATH_SEPARATORS	"/\\"
 
 #ifdef _WIN32
@@ -89,6 +91,8 @@ using std::vector;
 #error "Don't know how to create a directory on this system."
 #endif
 #endif
+
+typedef map<string,Psid64::Theme> ThemesMap;
 
 
 // constructor
@@ -127,6 +131,8 @@ void ConsoleApp::printHelp ()
     cout << "  -o, --output=PATH      specify output file or directory" << endl;
     cout << "  -r, --root             specify HVSC root directory" << endl;
     cout << "  -s, --songlengths=FILE specify HVSC song length database" << endl;
+    cout << "  -t, --theme=THEME      specify a visual theme for the driver" << endl;
+    cout << "                         use `help' to show the list of available themes" << endl;
     cout << "  -v, --verbose          explain what is being done" << endl;
     cout << "  -h, --help             display this help and exit" << endl;
     cout << "  -V, --version          output version information and exit" << endl;
@@ -139,6 +145,8 @@ void ConsoleApp::printHelp ()
     cout << "  -o                     specify output file or directory" << endl;
     cout << "  -r                     specify HVSC root directory" << endl;
     cout << "  -s                     specify HVSC song length database" << endl;
+    cout << "  -t                     specify a visual theme for the driver" << endl;
+    cout << "                         use `help' to show the list of available themes" << endl;
     cout << "  -v                     explain what is being done" << endl;
     cout << "  -h                     display this help and exit" << endl;
     cout << "  -V                     output version information and exit" << endl;
@@ -376,11 +384,24 @@ bool ConsoleApp::main(int argc, char **argv)
 	{"output", 1, NULL, 'o'},
 	{"root", 1, NULL, 'r'},
 	{"songlengths", 1, NULL, 's'},
+	{"theme", 1, NULL, 't'},
 	{"verbose", 0, NULL, 'v'},
 	{"version", 0, NULL, 'V'},
 	{NULL, 0, NULL, 0}
     };
 #endif
+    ThemesMap themes;
+    themes["blue"] = Psid64::THEME_BLUE;
+    themes["c1541_ultimate"] = Psid64::THEME_C1541_ULTIMATE;
+    themes["coal"] = Psid64::THEME_COAL;
+    themes["default"] = Psid64::THEME_DEFAULT;
+    themes["dutch"] = Psid64::THEME_DUTCH;
+    themes["kernal"] = Psid64::THEME_KERNAL;
+    themes["light"] = Psid64::THEME_LIGHT;
+    themes["mondriaan"] = Psid64::THEME_MONDRIAAN;
+    themes["ocean"] = Psid64::THEME_OCEAN;
+    themes["pencil"] = Psid64::THEME_PENCIL;
+    themes["rainbow"] = Psid64::THEME_RAINBOW;
     string hvscRoot;
     string databaseFileName;
 
@@ -450,6 +471,33 @@ bool ConsoleApp::main(int argc, char **argv)
 	    break;
 	case 's':
 	    databaseFileName = optarg;
+	    break;
+	case 't':
+	    {
+	        if (strcmp(optarg, "help") == 0)
+		{
+		    for (ThemesMap::const_iterator it = themes.begin();
+		         it != themes.end(); ++it)
+		    {
+			cout << it->first << "\n";
+		    }
+		    return true;
+		}
+		else
+		{
+		    ThemesMap::const_iterator it = themes.find(optarg);
+		    if (it != themes.end())
+		    {
+			m_psid64.setTheme(it->second);
+		    }
+		    else
+		    {
+			cerr << PACKAGE << ": unknown theme `" << optarg
+		             << "'" << endl;
+			++errflg;
+		    }
+		}
+	    }
 	    break;
 	case 'v':
 	    m_verbose = true;

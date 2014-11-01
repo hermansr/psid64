@@ -2,7 +2,7 @@
     $Id$
 
     psid64 - create a C64 executable from a PSID file
-    Copyright (C) 2001-2007  Roland Hermans <rolandh@users.sourceforge.net>
+    Copyright (C) 2001-2014  Roland Hermans <rolandh@users.sourceforge.net>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 
 #include "reloc65.h"
 #include "screen.h"
+#include "theme.h"
 #include "stilview/stil.h"
 #include "exomizer/exomizer.h"
 
@@ -78,7 +79,7 @@ struct block_t
 
 static inline unsigned int min(unsigned int a, unsigned int b);
 static int block_cmp(block_t* a, block_t* b);
-static void setThemeGlobals(globals_t& globals);
+static void setThemeGlobals(globals_t& globals, Psid64::Theme theme);
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -113,18 +114,81 @@ block_cmp(block_t* a, block_t* b)
 
 
 static void
-setThemeGlobals(globals_t& globals)
+setThemeGlobals(globals_t& globals, Psid64::Theme theme)
 {
-    globals["COL_BORDER"] = 0x00;
-    globals["COL_BACKGROUND"] = 0x00;
-    globals["COL_TITLE"] = 0x0f;
-    globals["COL_PARAMETER"] = 0x0d;
-    globals["COL_COLON"] = 0x07;
-    globals["COL_VALUE"] = 0x01;
-    globals["COL_LEGEND"] = 0x0c;
-    globals["COL_BAR_FG"] = 0x06;
-    globals["COL_BAR_BG"] = 0x0e;
-    globals["COL_SCROLLER"] = 0x01;
+    DriverTheme *driverTheme;
+    switch (theme)
+    {
+    case Psid64::THEME_BLUE:
+        driverTheme = DriverTheme::createBlueTheme();
+	break;
+    case Psid64::THEME_C1541_ULTIMATE:
+        driverTheme = DriverTheme::createC1541UltimateTheme();
+	break;
+    case Psid64::THEME_COAL:
+        driverTheme = DriverTheme::createCoalTheme();
+	break;
+    case Psid64::THEME_DUTCH:
+        driverTheme = DriverTheme::createDutchTheme();
+	break;
+    case Psid64::THEME_KERNAL:
+        driverTheme = DriverTheme::createKernalTheme();
+	break;
+    case Psid64::THEME_LIGHT:
+        driverTheme = DriverTheme::createLightTheme();
+	break;
+    case Psid64::THEME_MONDRIAAN:
+        driverTheme = DriverTheme::createMondriaanTheme();
+	break;
+    case Psid64::THEME_OCEAN:
+        driverTheme = DriverTheme::createOceanTheme();
+	break;
+    case Psid64::THEME_PENCIL:
+        driverTheme = DriverTheme::createPencilTheme();
+	break;
+    case Psid64::THEME_RAINBOW:
+        driverTheme = DriverTheme::createRainbowTheme();
+	break;
+    case Psid64::THEME_DEFAULT:
+    default:
+        driverTheme = DriverTheme::createDefaultTheme();
+	break;
+    }
+
+    globals["COL_BORDER"] = driverTheme->getBorderColor();
+    globals["COL_BACKGROUND"] = driverTheme->getBackgroundColor();
+    globals["COL_RASTER_TIME"] = driverTheme->getRasterTimeColor();
+    globals["COL_TITLE"] = driverTheme->getTitleColor();
+    const int *lineColors = driverTheme->getLineColors();
+    for (int i = 0; i < NUM_LINE_COLORS; ++i)
+    {
+	ostringstream oss;
+	oss << "COL_LINE_" << i;
+	globals[oss.str()] = lineColors[i];
+    }
+    globals["COL_PARAMETER"] = driverTheme->getFieldNameColor();
+    globals["COL_COLON"] = driverTheme->getFieldColonColor();
+    globals["COL_VALUE"] = driverTheme->getFieldValueColor();
+    globals["COL_LEGEND"] = driverTheme->getLegendColor();
+    globals["COL_BAR_FG"] = driverTheme->getProgressBarFillColor();
+    globals["COL_BAR_BG"] = driverTheme->getProgressBarBackgroundColor();
+    globals["COL_SCROLLER"] = driverTheme->getScrollerColor();
+    const int *scrollerColors = driverTheme->getScrollerColors();
+    for (int i = 0; i < NUM_SCROLLER_COLORS; ++i)
+    {
+	ostringstream oss;
+	oss << "COL_SCROLLER_" << i;
+	globals[oss.str()] = scrollerColors[i];
+    }
+    const int *footerColors = driverTheme->getFooterColors();
+    for (int i = 0; i < NUM_FOOTER_COLORS; ++i)
+    {
+	ostringstream oss;
+	oss << "COL_FOOTER_" << i;
+	globals[oss.str()] = footerColors[i];
+    }
+
+    delete driverTheme;
 }
 
 
@@ -154,6 +218,7 @@ Psid64::Psid64() :
     m_verbose(false),
     m_hvscRoot(),
     m_databaseFileName(),
+    m_theme(THEME_DEFAULT),
     m_status(false),
     m_statusString(NULL),
     m_fileName(),
@@ -430,7 +495,7 @@ Psid64::convert()
     memcpy(boot_reloc, boot_obj, boot_size);
 
     globals_t globals;
-    setThemeGlobals(globals);
+    setThemeGlobals(globals, m_theme);
     globals["song"] = (initialSong - 1) & 0xff;
     uint_least16_t jmpAddr = m_driverPage << 8;
     // start address of driver
@@ -1206,7 +1271,7 @@ Psid64::initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n)
 
     // undefined references in the driver code need to be added to globals
     globals_t globals;
-    setThemeGlobals(globals);
+    setThemeGlobals(globals, m_theme);
     int screen = m_screenPage << 8;
     globals["screen"] = screen;
     int screen_songnum = 0;

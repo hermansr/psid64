@@ -51,6 +51,20 @@ class STIL;
 class Psid64
 {
 public:
+    enum Theme {
+        THEME_DEFAULT,
+	THEME_BLUE,
+	THEME_C1541_ULTIMATE,
+	THEME_COAL,
+	THEME_DUTCH,
+	THEME_KERNAL,
+	THEME_LIGHT,
+	THEME_MONDRIAAN,
+	THEME_OCEAN,
+	THEME_PENCIL,
+	THEME_RAINBOW
+    };
+
     /**
      * Constructor.
      */
@@ -194,6 +208,22 @@ public:
     }
 
     /**
+     * Set the theme.
+     */
+    inline void setTheme(Theme theme)
+    {
+	m_theme = theme;
+    }
+
+    /**
+     * Get the theme.
+     */
+    inline Theme getTheme()
+    {
+	return m_theme;
+    }
+
+    /**
      * Get the status string. After an error has occurred, the status string
      * contains a description of the error.
      */
@@ -253,6 +283,7 @@ private:
     bool m_verbose;
     std::string m_hvscRoot;
     std::string m_databaseFileName;
+    Theme m_theme;
 
     // state data
     bool m_status;

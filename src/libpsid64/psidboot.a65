@@ -248,7 +248,9 @@ vicdata	.byte $00,$92,$00,$00,$00,$00,$00,$00
 	.byte <COL_BORDER,<COL_BACKGROUND,$01,$02,$03,$04,$00,<COL_BAR_FG
 	.byte $02,$03,$04,$05,$06,$07
 
-linecol	.byte 9,11,8,12,10,15,7,1,13,7,3,12,14,4,6
+linecol	.byte <COL_LINE_0,<COL_LINE_1,<COL_LINE_2,<COL_LINE_3,<COL_LINE_4
+	.byte <COL_LINE_5,<COL_LINE_6,<COL_LINE_7,<COL_LINE_8,<COL_LINE_9
+	.byte <COL_LINE_10,<COL_LINE_11,<COL_LINE_12,<COL_LINE_13,<COL_LINE_14
 
 #ifndef SMOOTH_SCROLL
 scrollcol .byte 11,12,15
