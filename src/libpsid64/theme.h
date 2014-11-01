@@ -61,9 +61,9 @@ public:
     static DriverTheme* createKernalTheme();
     static DriverTheme* createLightTheme();
     static DriverTheme* createMondriaanTheme();
+    static DriverTheme* createOceanTheme();
     static DriverTheme* createPencilTheme();
     static DriverTheme* createRainbowTheme();
-    static DriverTheme* createOceanTheme();
 
     int getBorderColor() const
     {
