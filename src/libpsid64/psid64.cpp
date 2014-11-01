@@ -29,6 +29,7 @@
 
 #include <psid64/psid64.h>
 
+#include <algorithm>
 #include <cctype>
 #include <iomanip>
 #include <iostream>
@@ -48,6 +49,7 @@ using std::hex;
 using std::ofstream;
 using std::ostream;
 using std::ostringstream;
+using std::replace;
 using std::setfill;
 using std::setw;
 using std::string;
@@ -802,6 +804,9 @@ Psid64::formatStilText()
     {
 	hvscFileName.erase(0, index + m_hvscRoot.length());
     }
+
+    // convert backslashes to slashes (for DOS and Windows filenames)
+    replace(hvscFileName.begin(), hvscFileName.end(), '\\', '/');
 
     string str;
     if (!m_stil->hasCriticalError() && m_useGlobalComment)
