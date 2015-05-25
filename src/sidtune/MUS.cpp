@@ -643,7 +643,7 @@ SidTune::LoadStatus SidTune::MUS_load (Buffer_sidtt<const uint_least8_t>& musBuf
                 convertPetsciiToAscii(spPet,0);
         }
     }
-    spPet++;
+    ++spPet;
 
     // If we appear to have additional data at the end, check is it's
     // another mus file (but only if a second file isn't supplied)
