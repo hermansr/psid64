@@ -45,13 +45,13 @@ void output_ctx_set_start(output_ctx ctx,       /* IN/OUT */
     ctx->start = pos;
 }
 
+#if 0 /* RH */
 void output_ctx_set_reverse(output_ctx ctx)     /* IN/OUT */
 {
     ctx->flags |= OUTPUT_FLAG_REVERSE;
 }
 
 
-#if 0 /* RH */
 static void reverse(unsigned char *start, int len)
 {
     unsigned char *end = start + len - 1;
@@ -159,6 +159,7 @@ void output_bits_flush(output_ctx ctx)  /* IN/OUT */
     ctx->bitbuf = 1;
 }
 
+#if 0 /* RH */
 void bits_dump(int count, int val)
 {
     static char buf[1024];
@@ -175,6 +176,7 @@ void bits_dump(int count, int val)
     *(pek++) = '\0';
     LOG(LOG_NORMAL, ("%s\n", buf));
 }
+#endif /* RH */
 
 void output_bits(output_ctx ctx,        /* IN/OUT */
                  int count,     /* IN */

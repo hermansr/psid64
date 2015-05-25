@@ -36,7 +36,6 @@ void search_node_free(search_nodep snp) /* IN */
 {
     /* emty now since snp:s are stored in an array */
 }
-#endif /* RH */
 
 void search_node_dump(search_nodep snp) /* IN */
 {
@@ -58,6 +57,7 @@ void search_node_dump(search_nodep snp) /* IN */
         snp = snp->prev;
     }
 }
+#endif /* RH */
 
 search_nodep search_buffer(match_ctx ctx,       /* IN */
                            encode_match_f * f,  /* IN */
@@ -314,6 +314,7 @@ const_matchp matchp_snp_enum_get_next(void *matchp_snp_enum)
 }
 
 
+#if 0 /* RH */
 void matchp_snp_rle_get_enum(const_search_nodep snp,    /* IN */
                              matchp_snp_rle_enum snpe)  /* IN/OUT */
 {
@@ -360,3 +361,4 @@ const_matchp matchp_snp_rle_enum_get_next(void *matchp_snp_enum)
     LOG(LOG_DUMP, ("rle: len = %d\n", val ? val->len : -1));
     return val;
 }
+#endif /* RH */
