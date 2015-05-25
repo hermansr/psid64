@@ -18,6 +18,9 @@
  ***************************************************************************/
 /***************************************************************************
  * $Log$
+ * Revision 1.6  2015/05/25 10:42:12  rolandh
+ * Limits check before use of array index.
+ *
  * Revision 1.5  2015/05/25 10:33:09  rolandh
  * Reduced scope of variables.
  *
@@ -296,11 +299,11 @@ void __ini_strtrim (char *str)
         return;
 
     // Clip end first
-    while (isspace (str[last]) && last > 0)
+    while ((last > 0) && isspace (str[last]))
         last--;
 
     // Clip beginning
-    while (isspace (str[first]) && (first < last))
+    while ((first < last) && isspace (str[first]))
         first++;
     len = last + 1 - first;
     memmove (str, str + first, len);
