@@ -364,9 +364,9 @@ STIL::getEntry(const char *relPathToEntry, int tuneNo, STILField field)
         // Create the full path+filename
         size_t tempNameLength = baseDirLength+strlen(PATH_TO_STIL);
         char *tempName = new char [tempNameLength+1];
+        tempName[tempNameLength] = '\0';
         strncpy(tempName, baseDir, tempNameLength);
         strncat(tempName, PATH_TO_STIL, tempNameLength-baseDirLength);
-        tempName[tempNameLength] = '\0';
         convertSlashes(tempName);
 
         stilFile.clear();
@@ -481,9 +481,9 @@ STIL::getBug(const char *relPathToEntry, int tuneNo)
         // Create the full path+filename
         size_t tempNameLength = baseDirLength+strlen(PATH_TO_BUGLIST);
         char *tempName = new char [tempNameLength+1];
+        tempName[tempNameLength] = '\0';
         strncpy(tempName, baseDir, tempNameLength);
         strncat(tempName, PATH_TO_BUGLIST, tempNameLength-baseDirLength);
-        tempName[tempNameLength] = '\0';
         convertSlashes(tempName);
 
         bugFile.clear();
@@ -611,9 +611,9 @@ STIL::getGlobalComment(const char *relPathToEntry)
         // Create the full path+filename
         size_t tempNameLength = baseDirLength+strlen(PATH_TO_STIL);
         char *tempName = new char [tempNameLength+1];
+        tempName[tempNameLength] = '\0';
         strncpy(tempName, baseDir, tempNameLength);
         strncat(tempName, PATH_TO_STIL, tempNameLength-baseDirLength);
-        tempName[tempNameLength] = '\0';
         convertSlashes(tempName);
 
         stilFile.clear();
