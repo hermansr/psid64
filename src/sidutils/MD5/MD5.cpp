@@ -145,7 +145,8 @@ main()
 #define T63 0x2ad7d2bb
 #define T64 0xeb86d391
 
-MD5::MD5()
+MD5::MD5() :
+    X(NULL)
 {
     reset();
 }
@@ -160,6 +161,7 @@ MD5::reset()
     abcd[3] = 0x10325476;
     memset(digest,0,16);
     memset(buf,0,64);
+    memset(tmpBuf, 0, sizeof(md5_word_t) * 16);
 }
 
 void

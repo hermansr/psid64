@@ -47,7 +47,14 @@ const char _pp20_txt_na[] = "N/A";
 
 const char* PP20::PP_ID = "PP20";
 
-PP20::PP20()
+PP20::PP20() :
+    sourceBeg(NULL),
+    readPtr(NULL),
+    destBeg(NULL),
+    writePtr(NULL),
+    current(0),
+    bits(0),
+    globalError(false)
 {
     statusString = _pp20_txt_uncompressed;
 }

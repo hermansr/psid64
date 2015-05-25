@@ -107,15 +107,8 @@ template <class T> class Buffer_sidtt
 	}
 	
  private:	// prevent copying
-	// SAW - Need function body so code can be fully instatiated
-	// for exporting from dll.  Use asserts in debug mode as these
-	// should not be used.
-	Buffer_sidtt(const Buffer_sidtt&) : dummy (0) { assert(0); }
-	Buffer_sidtt& operator=(Buffer_sidtt& b)
-	{
-		assert(0);
-		return b;
-	}
+	Buffer_sidtt(const Buffer_sidtt&);
+	Buffer_sidtt& operator=(Buffer_sidtt& b);
 };
 
 #endif  /* BUFFER_H */

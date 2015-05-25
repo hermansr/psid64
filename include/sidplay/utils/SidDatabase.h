@@ -37,7 +37,7 @@ private:
     uint_least8_t timesFound     (char *str);
 
 public:
-    SidDatabase  () : database (0) {;}
+    SidDatabase  () : database (0), errorString(NULL) {;}
     ~SidDatabase ();
 
     int           open   (const char *filename);
