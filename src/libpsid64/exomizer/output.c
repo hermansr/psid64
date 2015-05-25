@@ -121,7 +121,7 @@ void output_copy_bytes(output_ctx ctx,  /* IN */
     int i;
     if(src_pos > ctx->pos)
     {
-        for (i = 0; i < len; ++i)
+        for (i = 0; (unsigned int)i < len; ++i)
         {
             ctx->buf[ctx->pos + i] = ctx->buf[src_pos + i];
         }

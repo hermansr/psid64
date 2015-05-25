@@ -154,14 +154,18 @@ do_compress(match_ctx ctx, encode_match_data emd, int max_passes)
         size = snp->total_score;
         if (size >= old_size)
         {
+#if 0 /* RH */
             search_node_free(snp);
+#endif /* RH */
             break;
         }
 
+#if 0 /* RH */
         if (best_snp != NULL)
         {
             search_node_free(best_snp);
         }
+#endif /* RH */
         best_snp = snp;
         old_size = size;
         ++pass;
@@ -205,7 +209,9 @@ int exomizer(unsigned char *srcbuf, int len, int load, int start, unsigned char 
                               load, len, start, destbuf);
     optimal_free(emd);
 
+#if 0 /* RH */
     search_node_free(snp);
+#endif /* RH */
     match_ctx_free(ctx);
 
     return destlen;

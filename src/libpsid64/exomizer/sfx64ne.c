@@ -138,7 +138,7 @@ static
 void stages(output_ctx out,     /* IN/OUT */
             unsigned short int start)   /* IN */
 {
-    int i;
+    unsigned int i;
     int stage2_begin;
     int stage3_begin = 0;
     int stage3_end = 0;

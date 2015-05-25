@@ -31,10 +31,12 @@
 #include "log.h"
 #include "search.h"
 
+#if 0 /* RH */
 void search_node_free(search_nodep snp) /* IN */
 {
     /* emty now since snp:s are stored in an array */
 }
+#endif /* RH */
 
 void search_node_dump(search_nodep snp) /* IN */
 {

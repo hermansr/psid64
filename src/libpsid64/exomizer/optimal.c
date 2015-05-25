@@ -246,7 +246,7 @@ typedef struct _optimize_arg optimize_arg[1];
 typedef struct _optimize_arg optimize_argp;
 
 static interval_nodep
-optimize1(optimize_arg arg, int start, int depth, int init)
+optimize1(optimize_arg arg, int start, int depth)
 {
     interval_node inp;
     interval_nodep best_inp;
@@ -302,7 +302,7 @@ optimize1(optimize_arg arg, int start, int depth, int init)
                 if (depth + 1 < arg->max_depth)
                 {
                     /* we can go deeper, let's try that */
-                    inp->next = optimize1(arg, end, depth + 1, i);
+                    inp->next = optimize1(arg, end, depth + 1);
                 }
                 /* get the penalty for skipping */
                 penalty = 1000000;
@@ -355,7 +355,7 @@ optimize(int stats[65536], int stats2[65536], int max_depth, int flags)
 
     radix_tree_init(arg->cache);
 
-    inp = optimize1(arg, 1, 0, 0);
+    inp = optimize1(arg, 1, 0);
 
     /* use normal malloc for the winner */
     inp = interval_node_clone(inp);
@@ -424,6 +424,7 @@ void optimal_free(encode_match_data emd)        /* IN */
     data->len_f_priv = NULL;
 }
 
+#if 0 /* RH */
 void freq_stats_dump(int arr[65536])
 {
     int i;
@@ -443,6 +444,7 @@ void freq_stats_dump_raw(int arr[65536])
     }
     LOG(LOG_NORMAL, ("\n"));
 }
+#endif /* RH */
 
 void optimal_optimize(encode_match_data emd,    /* IN/OUT */
                       matchp_enum_get_next_f * f,       /* IN */
