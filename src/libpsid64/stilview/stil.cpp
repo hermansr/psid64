@@ -508,7 +508,7 @@ STIL::getBug(const char *relPathToEntry, int tuneNo)
         if (positionToEntry(relPathToEntry, bugFile, bugDirs) == false) {
             // Copy the entry's name to the buffer.
             strncpy(bugbuf, relPathToEntry, STIL_MAX_ENTRY_SIZE-1);
-            strncat(bugbuf, "\n", 2);
+            strcat(bugbuf, "\n");
             bugbuf[STIL_MAX_ENTRY_SIZE-1] = '\0';
             CERR_STIL_DEBUG << "getBug() posToEntry() failed" << endl;
             lastError = NOT_IN_BUG;
@@ -639,7 +639,7 @@ STIL::getGlobalComment(const char *relPathToEntry)
         if (positionToEntry(dir, stilFile, stilDirs) == false) {
             // Copy the dirname to the buffer.
             strncpy(globalbuf, dir, STIL_MAX_ENTRY_SIZE-1);
-            strncat(globalbuf, "\n", 2);
+            strcat(globalbuf, "\n");
             globalbuf[STIL_MAX_ENTRY_SIZE-1] = '\0';
             CERR_STIL_DEBUG << "getGC() posToEntry() failed" << endl;
             lastError = NOT_IN_STIL;

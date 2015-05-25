@@ -18,6 +18,9 @@
  ***************************************************************************/
 /***************************************************************************
  * $Log$
+ * Revision 1.4  2015/05/25 09:56:39  rolandh
+ * Resolved various cppcheck warnings.
+ *
  * Revision 1.3  2005/05/05 11:05:28  rolandh
  * updated sidtune and sidutils
  *
@@ -674,7 +677,7 @@ int __ini_process (ini_t *ini, FILE *file, const char *comment)
         count   = fread (buffer, sizeof(char),
                          INI_BUFFER_SIZE, file);
 
-        if (count <= 0)
+        if (count == 0)
         {
             if (feof (file))
             {

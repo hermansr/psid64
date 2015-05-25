@@ -174,7 +174,7 @@ SidTune::LoadStatus SidTune::INFO_fileSupport(Buffer_sidtt<const uint_least8_t>&
     if (infoLength < minSize)
         return( LOAD_NOT_MINE );
 
-    const DiskObject *dobject = (const DiskObject *)infoBuf.get();
+    const DiskObject *dobject = reinterpret_cast<const DiskObject *>(infoBuf.get());
 
     // Require Magic_Id in the first two bytes of the file.
     if ( endian_16(dobject->Magic[0],dobject->Magic[1]) != WB_DISKMAGIC )
@@ -207,7 +207,7 @@ SidTune::LoadStatus SidTune::INFO_fileSupport(Buffer_sidtt<const uint_least8_t>&
             if (infoLength < minSize)
                 return( LOAD_NOT_MINE );
 
-            const Border *brd = (const Border *)icon;
+            const Border *brd = reinterpret_cast<const Border *>(icon);
             icon += sizeof(Border);
             icon += brd->Count * (2+2);           // pair of uint_least16_t
         }
@@ -222,7 +222,7 @@ SidTune::LoadStatus SidTune::INFO_fileSupport(Buffer_sidtt<const uint_least8_t>&
             if (infoLength < minSize)
                 return( LOAD_NOT_MINE );
 
-            const Border *brd = (const Border *)icon;
+            const Border *brd = reinterpret_cast<const Border *>(icon);
             icon += sizeof(Border);
             icon += brd->Count * (2+2);           // pair of uint_least16_t
         }
@@ -241,7 +241,7 @@ SidTune::LoadStatus SidTune::INFO_fileSupport(Buffer_sidtt<const uint_least8_t>&
             if (infoLength < minSize)
                 return( LOAD_NOT_MINE );
 
-            const Image *img = (const Image *)icon;
+            const Image *img = reinterpret_cast<const Image *>(icon);
             icon += sizeof(Image);
 
             uint_least32_t imgsize = 0;
@@ -272,7 +272,7 @@ SidTune::LoadStatus SidTune::INFO_fileSupport(Buffer_sidtt<const uint_least8_t>&
             if (infoLength < minSize)
                 return( LOAD_NOT_MINE );
 
-            const Image *img = (const Image *)icon;
+            const Image *img = reinterpret_cast<const Image *>(icon);
             icon += sizeof(Image);
 
             uint_least32_t imgsize = 0;

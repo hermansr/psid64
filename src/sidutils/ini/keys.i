@@ -415,7 +415,7 @@ int INI_LINKAGE ini_locateKey (ini_fd_t fd, const char *key)
 
         // Add new key
         _key->key = strdup (key);
-        if (!_key)
+        if (!_key->key)
             return -1;
         ini->selected->selected = _key;
     }

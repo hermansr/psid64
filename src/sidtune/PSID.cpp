@@ -111,7 +111,7 @@ SidTune::LoadStatus SidTune::PSID_fileSupport(Buffer_sidtt<const uint_least8_t>&
 
     // Require minimum size to allow access to the first few bytes.
     // Require a valid ID and version number.
-    const psidHeader* pHeader = (const psidHeader*)dataBuf.get();
+    const psidHeader* pHeader = reinterpret_cast<const psidHeader*>(dataBuf.get());
 
     // File format check
     if (bufLen<6)

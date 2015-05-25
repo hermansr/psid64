@@ -64,9 +64,11 @@ struct section_tag *__ini_addHeading (ini_t *ini, char *heading)
     section = __ini_faddHeading (ini, ini->ftmp, pos, length);
     fseek (ini->ftmp, 0, SEEK_END);
     fputs ("]\n", ini->ftmp);
-    ini->heading = section->heading;
     if (section)
+    {
+        ini->heading = section->heading;
         ini->flags |= INI_MODIFIED;
+    }
     return section;
 }
 
