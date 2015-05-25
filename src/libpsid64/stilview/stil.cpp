@@ -324,9 +324,6 @@ STIL::getAbsEntry(const char *absPathToEntry, int tuneNo, STILField field)
 char *
 STIL::getEntry(const char *relPathToEntry, int tuneNo, STILField field)
 {
-    char *tempName;
-    size_t tempNameLength;
-
     lastError = NO_STIL_ERROR;
 
     CERR_STIL_DEBUG << "getEntry() called, relPath=" << relPathToEntry << ", rest=" << tuneNo << "," << field << endl;
@@ -365,8 +362,8 @@ STIL::getEntry(const char *relPathToEntry, int tuneNo, STILField field)
         CERR_STIL_DEBUG << "getEntry(): entry not in buffer" << endl;
 
         // Create the full path+filename
-        tempNameLength = baseDirLength+strlen(PATH_TO_STIL);
-        tempName = new char [tempNameLength+1];
+        size_t tempNameLength = baseDirLength+strlen(PATH_TO_STIL);
+        char *tempName = new char [tempNameLength+1];
         strncpy(tempName, baseDir, tempNameLength);
         strncat(tempName, PATH_TO_STIL, tempNameLength-baseDirLength);
         tempName[tempNameLength] = '\0';
@@ -452,9 +449,6 @@ STIL::getAbsBug(const char *absPathToEntry, int tuneNo)
 char *
 STIL::getBug(const char *relPathToEntry, int tuneNo)
 {
-    char *tempName;
-    size_t tempNameLength;
-
     lastError = NO_STIL_ERROR;
 
     CERR_STIL_DEBUG << "getBug() called, relPath=" << relPathToEntry << ", rest=" << tuneNo << endl;
@@ -485,8 +479,8 @@ STIL::getBug(const char *relPathToEntry, int tuneNo)
         CERR_STIL_DEBUG << "getBug(): entry not in buffer" << endl;
 
         // Create the full path+filename
-        tempNameLength = baseDirLength+strlen(PATH_TO_BUGLIST);
-        tempName = new char [tempNameLength+1];
+        size_t tempNameLength = baseDirLength+strlen(PATH_TO_BUGLIST);
+        char *tempName = new char [tempNameLength+1];
         strncpy(tempName, baseDir, tempNameLength);
         strncat(tempName, PATH_TO_BUGLIST, tempNameLength-baseDirLength);
         tempName[tempNameLength] = '\0';
@@ -573,9 +567,7 @@ char *
 STIL::getGlobalComment(const char *relPathToEntry)
 {
     char *dir;
-    char *tempName;
     size_t pathLen;
-    size_t tempNameLength;
     char *temp;
     char *lastSlash;
 
@@ -617,8 +609,8 @@ STIL::getGlobalComment(const char *relPathToEntry)
         CERR_STIL_DEBUG << "getGC(): entry not in buffer" << endl;
 
         // Create the full path+filename
-        tempNameLength = baseDirLength+strlen(PATH_TO_STIL);
-        tempName = new char [tempNameLength+1];
+        size_t tempNameLength = baseDirLength+strlen(PATH_TO_STIL);
+        char *tempName = new char [tempNameLength+1];
         strncpy(tempName, baseDir, tempNameLength);
         strncat(tempName, PATH_TO_STIL, tempNameLength-baseDirLength);
         tempName[tempNameLength] = '\0';
@@ -976,8 +968,6 @@ STIL::readEntry(ifstream& inFile, char *buffer)
 bool
 STIL::getField(char *result, char *buffer, int tuneNo, STILField field)
 {
-    char *start, *firstTuneNo, *temp, *temp2 = NULL;
-
     CERR_STIL_DEBUG << "getField() called, buffer=" << buffer << ", rest=" << tuneNo << "," << field << endl;
 
     // Clean out the result buffer first.
@@ -985,7 +975,7 @@ STIL::getField(char *result, char *buffer, int tuneNo, STILField field)
 
     // Position pointer to the first char beyond the file designation.
 
-    start = strchr(buffer, '\n');
+    char *start = strchr(buffer, '\n');
     start++;
 
     // Check whether this is a NULL entry or not.
@@ -996,7 +986,7 @@ STIL::getField(char *result, char *buffer, int tuneNo, STILField field)
     }
 
     // Is this a multitune entry?
-    firstTuneNo = strstr(start, "(#");
+    char *firstTuneNo = strstr(start, "(#");
 
     // This is a tune designation only if the previous char was
     // a newline (ie. if the "(#" is on the beginning of a line).
@@ -1012,7 +1002,8 @@ STIL::getField(char *result, char *buffer, int tuneNo, STILField field)
 
         // Is the first thing in this STIL entry the COMMENT?
 
-        temp = strstr(start, _COMMENT_STR);
+        char *temp = strstr(start, _COMMENT_STR);
+	char *temp2 = NULL;
 
         // Search for other potential fields beyond the COMMENT.
         if (temp == start) {
@@ -1152,7 +1143,7 @@ STIL::getField(char *result, char *buffer, int tuneNo, STILField field)
             }
         }
 
-        char *myTuneNo, *nextTuneNo;
+        char *myTuneNo;
         char tuneNoStr[8];
 
         // Search for the requested tune number.
@@ -1173,7 +1164,7 @@ STIL::getField(char *result, char *buffer, int tuneNo, STILField field)
 
             // Where is the next one?
 
-            nextTuneNo = strstr(myTuneNo, "\n(#");
+            char *nextTuneNo = strstr(myTuneNo, "\n(#");
             if (nextTuneNo == NULL) {
                 // There is no next one - set pointer to end of entry.
                 nextTuneNo = start+strlen(start);
@@ -1337,13 +1328,11 @@ STIL::getOneField(char *result, char *start, char *end, STILField field)
 void
 STIL::getStilLine(ifstream& infile, char *line)
 {
-    char temp;
-
     if (STIL_EOL2 != '\0') {
 
         // If there was a remaining EOL char from the previous read, eat it up.
 
-        temp = infile.peek();
+        char temp = infile.peek();
 
         if ((temp == 0x0d) || (temp == 0x0a)) {
             infile.get(temp);

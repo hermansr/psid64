@@ -18,6 +18,9 @@
  ***************************************************************************/
 /***************************************************************************
  * $Log$
+ * Revision 1.5  2015/05/25 10:33:09  rolandh
+ * Reduced scope of variables.
+ *
  * Revision 1.4  2015/05/25 09:56:39  rolandh
  * Resolved various cppcheck warnings.
  *
@@ -420,7 +423,6 @@ ini_openError:
  ********************************************************************************************************************/
 int __ini_close (ini_t *ini, bool flush)
 {
-    FILE *file;
     int   ret = 0;
 
     // Open output file
@@ -438,7 +440,7 @@ int __ini_close (ini_t *ini, bool flush)
 #endif // INI_ADD_LIST_SUPPORT
 
             // Not point writing an unchanged file
-            file = fopen (ini->filename, "w");
+            FILE *file = fopen (ini->filename, "w");
             if (file)
             {   // Output all new headers and keys
                 ret = __ini_store (ini, file);

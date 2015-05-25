@@ -81,7 +81,7 @@ struct key_tag *__ini_addKey (ini_t *ini, char *key)
 size_t __ini_averageLengthKey (struct section_tag *current_h)
 {
 #ifdef INI_EQUALS_ALIGN
-    size_t equal_pos, equal_max, keylength;
+    size_t equal_pos, equal_max;
     size_t average = 0, count = 0;
     struct key_tag *current_k;
 
@@ -106,7 +106,7 @@ size_t __ini_averageLengthKey (struct section_tag *current_h)
     current_k = current_h->first;
     while (current_k)
     {
-        keylength = strlen (current_k->key);
+        size_t keylength = strlen (current_k->key);
         equal_max = average + INI_EQUALS_ALIGN;
 
         if ((equal_max > keylength) && (keylength > equal_pos))

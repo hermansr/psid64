@@ -86,10 +86,9 @@ interval_nodep interval_node_clone(interval_nodep inp)
 static
 void interval_node_delete(interval_nodep inp)
 {
-    interval_nodep inp2;
     while (inp != NULL)
     {
-        inp2 = inp;
+        interval_nodep inp2 = inp;
         inp = inp->next;
         free(inp2);
     }
@@ -250,7 +249,6 @@ optimize1(optimize_arg arg, int start, int depth)
 {
     interval_node inp;
     interval_nodep best_inp;
-    int key;
     int end, i;
     int start_count, end_count;
 
@@ -263,7 +261,7 @@ optimize1(optimize_arg arg, int start, int depth)
         {
             break;
         }
-        key = CACHE_KEY(start, depth, arg->max_depth);
+        int key = CACHE_KEY(start, depth, arg->max_depth);
         best_inp = radix_node_get(arg->cache, key);
         if (best_inp != NULL)
         {

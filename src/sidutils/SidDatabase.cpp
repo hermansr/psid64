@@ -124,7 +124,6 @@ int_least32_t SidDatabase::length (SidTuneMod &tune)
 int_least32_t SidDatabase::length (const char *md5, uint_least16_t song)
 {
     int_least32_t  time = 0;
-    char           timeStamp[10];
 
     if (!database)
     {
@@ -145,6 +144,8 @@ int_least32_t SidDatabase::length (const char *md5, uint_least16_t song)
     // If length return is -1 then no entry found in database
     if (ini_dataLength (database) != -1)
     {
+        char timeStamp[10];
+
         for (uint_least16_t i = 0; i < song; i++)
         {
             if (ini_readString (database, timeStamp, sizeof (timeStamp)) == -1)

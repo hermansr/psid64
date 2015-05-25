@@ -131,7 +131,6 @@ do_compress(match_ctx ctx, encode_match_data emd, int max_passes)
     search_nodep snp;
     search_nodep best_snp;
     int pass;
-    float size;
     float old_size;
 
     pass = 1;
@@ -151,7 +150,7 @@ do_compress(match_ctx ctx, encode_match_data emd, int max_passes)
             exit(-1);
         }
 
-        size = snp->total_score;
+        float size = snp->total_score;
         if (size >= old_size)
         {
 #if 0 /* RH */
