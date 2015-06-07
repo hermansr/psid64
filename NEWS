@@ -1,14 +1,14 @@
                                   PSID64 NEWS
                                   ===========
 
-psid64-1.1 ():
+psid64-1.1 (Sun Jun  7 15:16:29 CEST 2015):
 
 * Added song length and progress bar support.
 * Accept directory as input and/or output path.
 * Use song length database from HVSC directory if no database was specified.
 * Added -t option to specify a driver theme.
 
-psid64-1.0 (Sat Aug 30 14:48:41 CEST 2014 CET 2014):
+psid64-1.0 (Sat Aug 30 14:48:41 CEST 2014):
 
 * Added -n option to convert a SID without including driver code ("sid2prg").
 * Reduced footprint of extended driver in case character ROM must be copied.
