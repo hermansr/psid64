@@ -269,16 +269,24 @@ search_nodep search_buffer(match_ctx ctx,       /* IN */
         }
 
         /* slow way to get to the next node for cur */
+/* commented out do/while loop below to prevent the following llvm error:
+ * error: comparison of array 'snp_arr[len]->match' equal to a null pointer
+ *        is always false [-Werror,-Wtautological-pointer-compare]
+ */
+#if 0 /* RH */
         do
         {
+#endif /* RH */
             --len;
             ++best_copy_len;
             if (!(len & 0xFF))
             {
                 LOG(LOG_NORMAL, ("."));
             }
+#if 0 /* RH */
         }
         while (snp_arr[len]->match == NULL);
+#endif /* RH */
     }
     LOG(LOG_NORMAL, ("\n"));
 
