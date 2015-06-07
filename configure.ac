@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(psid64, 1.1)
 AC_CONFIG_SRCDIR(src/main.cpp)
 AM_CONFIG_HEADER(src/config.h)
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
 
 dnl Checks for programs.
 AC_PROG_CXX
