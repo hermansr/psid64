@@ -1035,6 +1035,7 @@ Psid64::findFreeSpace()
 		 m_screenPage		startpage of screen, 0 means no screen
 		 m_charPage		startpage of chars, 0 means no chars
 		 m_stilPage		startpage of stil, 0 means no stil
+		 m_songlengthsPage	startpage of song lengths, 0 means N/A
    Return value: -
    Description : Find free space in the C64 memory map for the screen and the
 		 driver code. Of course the driver code takes priority over
@@ -1064,6 +1065,7 @@ Psid64::findFreeSpace()
     m_driverPage = (uint_least8_t) (0x00);
     m_charPage = (uint_least8_t) (0x00);
     m_stilPage = (uint_least8_t) (0x00);
+    m_songlengthsPage = (uint_least8_t) (0x00);
 
     if (startp == 0x00)
     {
