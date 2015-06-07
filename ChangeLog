@@ -1,4 +1,100 @@
+2015-06-07  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* ChangeLog: update changelog for version 1.1
+
+	* src/libpsid64/psid64.cpp:
+	always initialize m_songlengthsPage to prevent reusing incorrect data from previous conversion
+
+	* configure.ac: Use subdir-objects option for automake
+
+2015-05-25  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/sidutils/ini/ini.cpp: Limits check before use of array index.
+
+	* src/sidtune/IconInfo.cpp: Commented out unused struct members.
+
+	* src/libpsid64/stilview/stil.cpp:
+	Changed order of statements to prevent false positive error reported by cppcheck.
+
+	* src/libpsid64/stilview/stil.cpp, src/sidutils/SidDatabase.cpp, src/sidutils/ini/ini.cpp, src/sidutils/ini/keys.i, src/libpsid64/exomizer/exomizer.c, src/libpsid64/exomizer/optimal.c:
+	Reduced scope of variables.
+
+	* src/libpsid64/exomizer/output.c, src/libpsid64/exomizer/search.c:
+	Commented out unused functions.
+
+	* src/sidtune/IconInfo.cpp: Commented out unused struct members.
+
+	* src/sidtune/MUS.cpp:
+	Prefer prefix ++/-- operators for non-primitive types.
+
+	* include/sidplay/Buffer.h, include/sidplay/utils/SidDatabase.h, include/sidplay/utils/SidTuneMod.h, src/sidtune/PP20.cpp, src/sidutils/MD5/MD5.cpp:
+	Initialize members in constructor.
+
+	* src/sidutils/ini/ini.cpp, src/sidutils/ini/keys.i, src/libpsid64/stilview/stil.cpp, src/sidtune/IconInfo.cpp, src/sidtune/PSID.cpp, src/sidtune/SidTune.cpp, src/sidutils/ini/headings.i:
+	Resolved various cppcheck warnings.
+
+	* TODO: Start sentences with uppercase letter.
+
+	* configure.ac: Updated version number to 1.1
+
+	* src/libpsid64/exomizer/exomizer.c, src/libpsid64/exomizer/optimal.c, src/libpsid64/exomizer/output.c, src/libpsid64/exomizer/search.c, src/libpsid64/exomizer/sfx64ne.c:
+	Resolved compiler warnings
+
+2014-11-01  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/psid64.cpp:
+	Convert backslashes to slashes in filenames before looking up STIL entries
+
+	* src/libpsid64/theme.h: Sort factory methods by name.
+
+	* include/psid64/psid64.h, src/ConsoleApp.cpp, src/libpsid64/Makefile.am, src/libpsid64/psid64.cpp, src/libpsid64/psidboot.a65, src/libpsid64/psiddrv.a65, src/libpsid64/psidextboot.h, src/libpsid64/psidextdrv.h, src/libpsid64/theme.cpp, src/libpsid64/theme.h, NEWS:
+	Added -t option to specify a driver theme.
+
+2014-10-04  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/ConsoleApp.cpp:
+	Use song length database from HVSC if no database was specified.
+
+	* include/psid64/psid64.h, src/libpsid64/psid64.cpp:
+	Refactoring to reduce scope of struct block_t. Removed member variables of class Psid64 that were commented out.
+
+	* NEWS, configure.ac, macros/ax_func_mkdir.m4, src/ConsoleApp.cpp, src/ConsoleApp.h:
+	Accept directory as input path.
+
+	* src/libpsid64/psid64.cpp, src/libpsid64/reloc65.cpp:
+	Reduced scope of variables. Removed definition of unused struct.
+
+	* src/libpsid64/exomizer/log.h, src/libpsid64/exomizer/optimal.c, src/libpsid64/exomizer/output.c, src/libpsid64/exomizer/search.c:
+	Minimized difference with original Exomizer 1.15 source files. Added comments to mark disabled code.
+
+2014-09-27  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* NEWS, src/ConsoleApp.cpp, src/ConsoleApp.h:
+	Accept directory as output path.
+
+	* src/libpsid64/psidboot.a65, src/libpsid64/psidextboot.h:
+	Adjusted start position of line effect to improve look in case the init function does not return (immediately).
+
+	* src/libpsid64/psid64.cpp, src/libpsid64/psidboot.a65, src/libpsid64/psidboot.h, src/libpsid64/psiddrv.a65, src/libpsid64/psidextboot.h, src/libpsid64/psidextdrv.h, include/psid64/psid64.h, src/libpsid64/Makefile.am:
+	Relocate boot code. Reduced size of extended driver by transferring code from driver to boot code. Prepare for theming by setting some colors from C++ code. Leave out BASIC code when compressing file. Added BASIC line number gimmick.
+
+2014-09-24  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* src/libpsid64/psid64.cpp:
+	Ignore stil area parameters when there is no stil data.
+
+	* src/libpsid64/reloc65.cpp: No need to use typedef struct in C++.
+
+2014-09-21  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* NEWS, include/psid64/psid64.h, src/libpsid64/psid64.cpp, src/libpsid64/psidboot.a65, src/libpsid64/psidboot.h, src/libpsid64/psiddrv.a65, src/libpsid64/psidextdrv.h, src/libpsid64/screen.cpp, src/libpsid64/screen.h:
+	Added song length and progress bar support
+
 2014-08-30  Roland Hermans  <rolandh@users.sourceforge.net>
+
+	* README: Added -i and -n options
+
+	* ChangeLog: update changelog for version 1.0
 
 	* NEWS: Updated NEWS text for psid64-1.0.
 
