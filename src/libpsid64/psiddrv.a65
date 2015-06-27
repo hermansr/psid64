@@ -386,18 +386,31 @@ stop	.(
 	sta $dd0e
 	sta $dc0f
 	sta $dd0f
+#ifdef SCREEN
+	ldy #14				; set test bit to shut down SID voices
+settest	sta $d404,y
+	sta sid2base+$04,y
+	sta sid3base+$04,y
+	dey
+	dey
+	dey
+	dey
+	dey
+	dey
+	dey
+	bpl settest
+#else /* SCREEN */
 	sta $d404			; set test bit to shut down SID voices
 	sta $d40b
 	sta $d412
-#ifdef SCREEN
-	sta sid2base+$04
-	sta sid2base+$0b
-	sta sid2base+$12
-#endif
+#endif /* SCREEN */
 	txa				; clear SID registers
 	ldx #$17
 clrsid	sta $d400,x
 	sta sid2base,x
+#ifdef SCREEN
+	sta sid3base,x
+#endif /* SCREEN */
 	dex
 	bpl clrsid
 #ifdef SCREEN
@@ -407,7 +420,8 @@ clrsid	sta $d400,x
 	sta $d418
 #ifdef SCREEN
 	sta sid2base+$18
-#endif
+	sta sid3base+$18
+#endif /* SCREEN */
 	rts
 	.)
 

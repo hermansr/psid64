@@ -1301,6 +1301,19 @@ Psid64::initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n)
 	sid2base = 0xd400;
     }
     globals["sid2base"] = sid2base;
+    int sid3base;
+    if (((m_tuneInfo.thirdSIDAddress & 1) == 0)
+        && (((0x42 <= m_tuneInfo.thirdSIDAddress) && (m_tuneInfo.thirdSIDAddress <= 0x7e))
+         || ((0xe0 <= m_tuneInfo.thirdSIDAddress) && (m_tuneInfo.thirdSIDAddress <= 0xfe)))
+        && (m_tuneInfo.thirdSIDAddress != m_tuneInfo.secondSIDAddress))
+    {
+	sid3base = (m_tuneInfo.thirdSIDAddress * 0x10) + 0xd000;
+    }
+    else
+    {
+	sid3base = 0xd400;
+    }
+    globals["sid3base"] = sid3base;
     globals["stil"] = m_stilPage * 0x100;
     if (m_songlengthsPage != 0x00)
     {
@@ -1490,13 +1503,54 @@ Psid64::drawScreen()
     default:
         break;
     }
+    int sid2base;
     if (((m_tuneInfo.secondSIDAddress & 1) == 0)
         && (((0x42 <= m_tuneInfo.secondSIDAddress) && (m_tuneInfo.secondSIDAddress <= 0x7e))
          || ((0xe0 <= m_tuneInfo.secondSIDAddress) && (m_tuneInfo.secondSIDAddress <= 0xfe))))
     {
+	sid2base = (m_tuneInfo.secondSIDAddress * 0x10) + 0xd000;
+    }
+    else
+    {
+	sid2base = 0;
+    }
+    int sid3base;
+    if (((m_tuneInfo.thirdSIDAddress & 1) == 0)
+        && (((0x42 <= m_tuneInfo.thirdSIDAddress) && (m_tuneInfo.thirdSIDAddress <= 0x7e))
+         || ((0xe0 <= m_tuneInfo.thirdSIDAddress) && (m_tuneInfo.thirdSIDAddress <= 0xfe)))
+        && (m_tuneInfo.thirdSIDAddress != m_tuneInfo.secondSIDAddress))
+    {
+	sid3base = (m_tuneInfo.thirdSIDAddress * 0x10) + 0xd000;
+    }
+    else
+    {
+	sid3base = 0;
+    }
+    if (sid2base != 0)
+    {
         ostringstream oss;
-	oss << " at $" << toHexWord((m_tuneInfo.secondSIDAddress * 0x10) + 0xd000);
+	oss << ((sid3base == 0) ? " at $" : "@") << toHexWord(sid2base);
 	switch (m_tuneInfo.sid2Model)
+	{
+	case SIDTUNE_SIDMODEL_6581:
+	    addFlag(hasFlags, "6581" + oss.str());
+	    break;
+	case SIDTUNE_SIDMODEL_8580:
+	    addFlag(hasFlags, "8580" + oss.str());
+	    break;
+	case SIDTUNE_SIDMODEL_ANY:
+	    addFlag(hasFlags, "6581/8580" + oss.str());
+	    break;
+	default:
+	    addFlag(hasFlags, "SID" + oss.str());
+            break;
+	}
+    }
+    if (sid3base != 0)
+    {
+        ostringstream oss;
+	oss << "@" << toHexWord(sid3base);
+	switch (m_tuneInfo.sid3Model)
 	{
 	case SIDTUNE_SIDMODEL_6581:
 	    addFlag(hasFlags, "6581" + oss.str());

@@ -94,6 +94,7 @@ struct SidTuneInfo
     // The SID chip base address(es) used by the sidtune.
     uint_least16_t sidChipBase1;    // 0xD400 (normal, 1st SID)
     uint_least16_t sidChipBase2;    // 0xD?00 (2nd SID) or 0 (no 2nd SID)
+    uint_least16_t sidChipBase3;    // 0xD?00 (3rd SID) or 0 (no 3rd SID)
 
     // Available after song initialization.
     //
@@ -103,9 +104,11 @@ struct SidTuneInfo
     uint_least8_t relocStartPage;  // First available page for relocation
     uint_least8_t relocPages;      // Number of pages available for relocation
     uint_least8_t secondSIDAddress;// Indicator for address of the second SID
+    uint_least8_t thirdSIDAddress; // Indicator for address of the third SID
     bool musPlayer;                // whether Sidplayer routine has been installed
     int  sidModel;                 // Sid Model required for this sid
     int  sid2Model;                // Sid Model required for 2nd sid of this sid
+    int  sid3Model;                // Sid Model required for 3rd sid of this sid
     int  compatibility;            // compatibility requirements
     bool fixLoad;                  // whether load address might be duplicate
     uint_least16_t songLength;     // --- not yet supported ---

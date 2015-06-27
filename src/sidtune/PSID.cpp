@@ -58,7 +58,7 @@ struct psidHeader           // all values big-endian
     uint8_t relocStartPage; // only version 0x0002B
     uint8_t relocPages;     // only version 0x0002B
     uint8_t secondSIDAddress; // only version 0x0003, reserved in version 0x0002
-    uint8_t reserved;       // only version 0x0002 and 0x0003
+    uint8_t thirdSIDAddress; // only version 0x0004, reserved in version 0x0002 and 0x003
 };
 
 enum
@@ -68,7 +68,8 @@ enum
     PSID_BASIC     = 1 << 1, 
     PSID_CLOCK     = 3 << 2,
     PSID_SIDMODEL  = 3 << 4,
-    PSID_SID2MODEL = 3 << 6
+    PSID_SID2MODEL = 3 << 6,
+    PSID_SID3MODEL = 3 << 8
 };
 
 enum
@@ -125,6 +126,7 @@ SidTune::LoadStatus SidTune::PSID_fileSupport(Buffer_sidtt<const uint_least8_t>&
            // Deliberate run on
        case 2:
        case 3:
+       case 4:
            break;
        default:
            info.formatString = _sidtune_unknown_psid;
@@ -138,6 +140,7 @@ SidTune::LoadStatus SidTune::PSID_fileSupport(Buffer_sidtt<const uint_least8_t>&
        {
        case 2:
        case 3:
+       case 4:
            break;
        default:
            info.formatString = _sidtune_unknown_rsid;
@@ -168,6 +171,7 @@ SidTune::LoadStatus SidTune::PSID_fileSupport(Buffer_sidtt<const uint_least8_t>&
     info.startSong     = endian_big16(pHeader->start);
     info.sidChipBase1  = 0xd400;
     info.sidChipBase2  = 0;
+    info.sidChipBase3  = 0;
     info.compatibility = compatibility;
     speed              = endian_big32(pHeader->speed);
 
@@ -179,9 +183,11 @@ SidTune::LoadStatus SidTune::PSID_fileSupport(Buffer_sidtt<const uint_least8_t>&
     info.musPlayer      = false;
     info.sidModel       = SIDTUNE_SIDMODEL_UNKNOWN;
     info.sid2Model      = SIDTUNE_SIDMODEL_UNKNOWN;
+    info.sid3Model      = SIDTUNE_SIDMODEL_UNKNOWN;
     info.relocPages     = 0;
     info.relocStartPage = 0;
     info.secondSIDAddress = 0;
+    info.thirdSIDAddress = 0;
     if ( endian_big16(pHeader->version) >= 2 )
     {
         uint_least16_t flags = endian_big16(pHeader->flags);
@@ -224,6 +230,12 @@ SidTune::LoadStatus SidTune::PSID_fileSupport(Buffer_sidtt<const uint_least8_t>&
         if ((flags >> 6) & PSID_SIDMODEL_8580)
             info.sid2Model |= SIDTUNE_SIDMODEL_8580;
 
+        info.sid3Model = SIDTUNE_SIDMODEL_UNKNOWN;
+        if ((flags >> 8) & PSID_SIDMODEL_6581)
+            info.sid3Model |= SIDTUNE_SIDMODEL_6581;
+        if ((flags >> 8) & PSID_SIDMODEL_8580)
+            info.sid3Model |= SIDTUNE_SIDMODEL_8580;
+
         info.relocStartPage = pHeader->relocStartPage;
         info.relocPages     = pHeader->relocPages;
 
@@ -233,6 +245,10 @@ SidTune::LoadStatus SidTune::PSID_fileSupport(Buffer_sidtt<const uint_least8_t>&
     if ( endian_big16(pHeader->version) >= 3 )
     {
         info.secondSIDAddress = pHeader->secondSIDAddress;
+    }
+    if ( endian_big16(pHeader->version) >= 4 )
+    {
+        info.thirdSIDAddress = pHeader->thirdSIDAddress;
     }
 
     // Check reserved fields to force real c64 compliance
@@ -341,9 +357,10 @@ bool SidTune::PSID_fileSupportSave(std::ofstream& fMyOut, const uint_least8_t* d
     tmpFlags |= (info.clockSpeed << 2);
     tmpFlags |= (info.sidModel << 4);
     tmpFlags |= (info.sid2Model << 6);
+    tmpFlags |= (info.sid3Model << 8);
     endian_big16(myHeader.flags,tmpFlags);
     myHeader.secondSIDAddress = info.secondSIDAddress;
-    myHeader.reserved = 0;
+    myHeader.thirdSIDAddress = info.thirdSIDAddress;
 
     fMyOut.write( (char*)&myHeader, sizeof(psidHeader) );
 

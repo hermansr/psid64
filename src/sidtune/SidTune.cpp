@@ -395,6 +395,7 @@ void SidTune::init()
     info.songs = ( info.startSong = ( info.currentSong = 0 ));
     info.sidChipBase1 = 0xd400;
     info.sidChipBase2 = 0;
+    info.sidChipBase3 = 0;
     info.musPlayer = false;
     info.fixLoad = false;
     info.songSpeed = SIDTUNE_SPEED_VBI;

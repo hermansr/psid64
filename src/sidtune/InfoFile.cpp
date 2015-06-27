@@ -87,6 +87,7 @@ SidTune::LoadStatus SidTune::SID_fileSupport(Buffer_sidtt<const uint_least8_t>& 
         fileOffset = 0;                // no header in separate data file
         info.sidChipBase1 = 0xd400;
         info.sidChipBase2 = 0;
+        info.sidChipBase3 = 0;
         info.musPlayer = false;
         info.numberOfInfoStrings = 0;
         uint_least32_t oldStyleSpeed = 0;
