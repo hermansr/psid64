@@ -224,14 +224,16 @@ bool ConsoleApp::convertFile(const string& inputFileName, const string& outputFi
     }
     if (!m_psid64.load(inputFileName.c_str()))
     {
-	cerr << m_psid64.getStatus() << endl;
+	cerr << "Error loading '" << inputFileName << "': "
+	     << m_psid64.getStatus() << endl;
 	return false;
     }
 
     // convert the PSID file
     if (!m_psid64.convert())
     {
-	cerr << m_psid64.getStatus() << endl;
+	cerr << "Error converting '" << inputFileName << "': "
+	     << m_psid64.getStatus() << endl;
 	return false;
     }
 
@@ -244,7 +246,8 @@ bool ConsoleApp::convertFile(const string& inputFileName, const string& outputFi
 	}
 	if (!m_psid64.write())
 	{
-	    cerr << m_psid64.getStatus() << endl;
+	    cerr << "Error writing to standard output: "
+	         << m_psid64.getStatus() << endl;
 	    return false;
 	}
     }
@@ -256,7 +259,8 @@ bool ConsoleApp::convertFile(const string& inputFileName, const string& outputFi
 	}
 	if (!m_psid64.save(outputFileName.c_str()))
 	{
-	    cerr << m_psid64.getStatus() << endl;
+	    cerr << "Error writing '" << outputFileName << "': "
+	         << m_psid64.getStatus() << endl;
 	    return false;
 	}
     }
