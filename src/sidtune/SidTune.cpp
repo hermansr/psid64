@@ -720,6 +720,8 @@ void SidTune::getFromFiles(const char* fileName)
         {
             if (ret == LOAD_OK)
                 status = acceptSidTune(fileName,0,fileBuf1);
+            else
+                info.statusString = info.formatString;
             return;
         }
 
