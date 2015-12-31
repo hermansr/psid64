@@ -35,6 +35,7 @@
 #include <iostream>
 #include <ostream>
 #include <sstream>
+#include <vector>
 
 #include "reloc65.h"
 #include "screen.h"
@@ -54,13 +55,12 @@ using std::setfill;
 using std::setw;
 using std::string;
 using std::uppercase;
+using std::vector;
 
 
 //////////////////////////////////////////////////////////////////////////////
 //                     L O C A L   D E F I N I T I O N S
 //////////////////////////////////////////////////////////////////////////////
-
-typedef int             (*SORTFUNC) (const void*, const void*);
 
 #if defined(HAVE_IOS_OPENMODE)
     typedef std::ios::openmode openmode;
@@ -76,11 +76,11 @@ struct block_t
     uint_least16_t load; /**< start address */
     uint_least16_t size; /**< size of the memory block in bytes */
     const uint_least8_t* data; /**< data to be stored */
-    std::string description; /**< a short description */
+    string description; /**< a short description */
 };
 
 static inline unsigned int min(unsigned int a, unsigned int b);
-static int block_cmp(block_t* a, block_t* b);
+static bool block_cmp(const block_t& a, const block_t& b);
 static void setThemeGlobals(globals_t& globals, Psid64::Theme theme);
 
 
@@ -99,19 +99,10 @@ min(unsigned int a, unsigned int b)
 }
 
 
-static int
-block_cmp(block_t* a, block_t* b)
+static bool
+block_cmp(const block_t& a, const block_t& b)
 {
-    if (a->load < b->load)
-    {
-	return -1;
-    }
-    if (a->load > b->load)
-    {
-	return 1;
-    }
-
-    return 0;
+    return a.load < b.load;
 }
 
 
@@ -251,7 +242,7 @@ Psid64::~Psid64()
 }
 
 
-bool Psid64::setHvscRoot(std::string &hvscRoot)
+bool Psid64::setHvscRoot(string &hvscRoot)
 {
     m_hvscRoot = hvscRoot;
     if (!m_hvscRoot.empty())
@@ -267,7 +258,7 @@ bool Psid64::setHvscRoot(std::string &hvscRoot)
 }
 
 
-bool Psid64::setDatabaseFileName(std::string &databaseFileName)
+bool Psid64::setDatabaseFileName(string &databaseFileName)
 {
     m_databaseFileName = databaseFileName;
     if (!m_databaseFileName.empty())
@@ -310,8 +301,6 @@ Psid64::convert()
     static const uint_least8_t psid_extboot_obj[] = {
 #include "psidextboot.h"
     };
-    block_t blocks[MAX_BLOCKS];
-    int numBlocks;
     uint_least8_t* psid_mem;
     uint_least8_t* psid_driver;
     int driver_size;
@@ -367,50 +356,56 @@ Psid64::convert()
     initDriver (&psid_mem, &psid_driver, &driver_size);
 
     // fill the blocks structure
-    numBlocks = 0;
-    blocks[numBlocks].load = m_driverPage << 8;
-    blocks[numBlocks].size = driver_size;
-    blocks[numBlocks].data = psid_driver;
-    blocks[numBlocks].description = "Driver code";
-    ++numBlocks;
+    vector<block_t> blocks;
+    blocks.reserve(MAX_BLOCKS);
+    block_t driver_block;
+    driver_block.load = m_driverPage << 8;
+    driver_block.size = driver_size;
+    driver_block.data = psid_driver;
+    driver_block.description = "Driver code";
+    blocks.push_back(driver_block);
 
-    blocks[numBlocks].load = m_tuneInfo.loadAddr;
-    blocks[numBlocks].size = m_tuneInfo.c64dataLen;
+    block_t music_data_block;
+    music_data_block.load = m_tuneInfo.loadAddr;
+    music_data_block.size = m_tuneInfo.c64dataLen;
     uint_least8_t c64buf[65536];
     m_tune.placeSidTuneInC64mem(c64buf);
-    blocks[numBlocks].data = &(c64buf[m_tuneInfo.loadAddr]);
-    blocks[numBlocks].description = "Music data";
-    ++numBlocks;
+    music_data_block.data = &(c64buf[m_tuneInfo.loadAddr]);
+    music_data_block.description = "Music data";
+    blocks.push_back(music_data_block);
 
     if (m_screenPage != 0x00)
     {
 	drawScreen();
-	blocks[numBlocks].load = m_screenPage << 8;
-	blocks[numBlocks].size = m_screen->getDataSize();
-	blocks[numBlocks].data = m_screen->getData();
-	blocks[numBlocks].description = "Screen";
-	++numBlocks;
+	block_t screen_block;
+	screen_block.load = m_screenPage << 8;
+	screen_block.size = m_screen->getDataSize();
+	screen_block.data = m_screen->getData();
+	screen_block.description = "Screen";
+	blocks.push_back(screen_block);
     }
 
     if (m_stilPage != 0x00)
     {
-	blocks[numBlocks].load = m_stilPage << 8;
-	blocks[numBlocks].size = m_stilText.length();
-	blocks[numBlocks].data = (uint_least8_t*) m_stilText.c_str();
-	blocks[numBlocks].description = "STIL text";
-	++numBlocks;
+	block_t stil_text_block;
+	stil_text_block.load = m_stilPage << 8;
+	stil_text_block.size = m_stilText.length();
+	stil_text_block.data = (uint_least8_t*) m_stilText.c_str();
+	stil_text_block.description = "STIL text";
+	blocks.push_back(stil_text_block);
     }
 
     if (m_songlengthsPage != 0x00)
     {
-	blocks[numBlocks].load = m_songlengthsPage << 8;
-	blocks[numBlocks].size = m_songlengthsSize;
-	blocks[numBlocks].data = m_songlengthsData;
-	blocks[numBlocks].description = "Song length data";
-	++numBlocks;
+	block_t song_length_data_block;
+	song_length_data_block.load = m_songlengthsPage << 8;
+	song_length_data_block.size = m_songlengthsSize;
+	song_length_data_block.data = m_songlengthsData;
+	song_length_data_block.description = "Song length data";
+	blocks.push_back(song_length_data_block);
     }
 
-    qsort(blocks, numBlocks, sizeof(block_t), (SORTFUNC) block_cmp);
+    std::sort(blocks.begin(), blocks.end(), block_cmp);
 
     // print memory map
     if (m_verbose)
@@ -418,18 +413,20 @@ Psid64::convert()
 	uint_least16_t charset = m_charPage << 8;
 
 	cerr << "C64 memory map:" << endl;
-	for (int i = 0; i < numBlocks; ++i)
+	for (vector<block_t>::const_iterator block_iter = blocks.begin();
+	     block_iter != blocks.end();
+	     ++block_iter)
 	{
-	    if ((charset != 0) && (blocks[i].load > charset))
+	    if ((charset != 0) && (block_iter->load > charset))
 	    {
 		cerr << "  $" << toHexWord(charset) << "-$"
 		     << toHexWord(charset + (256 * NUM_CHAR_PAGES))
 		     << "  Character set" << endl;
 		charset = 0;
 	    }
-	    cerr << "  $" << toHexWord(blocks[i].load) << "-$"
-	         << toHexWord(blocks[i].load + blocks[i].size) << "  "
-		 << blocks[i].description << endl;
+	    cerr << "  $" << toHexWord(block_iter->load) << "-$"
+	         << toHexWord(block_iter->load + block_iter->size) << "  "
+		 << block_iter->description << endl;
 	}
 	if (charset != 0)
 	{
@@ -441,9 +438,11 @@ Psid64::convert()
 
     // calculate total size of the blocks
     size = 0;
-    for (int i = 0; i < numBlocks; ++i)
+    for (vector<block_t>::const_iterator block_iter = blocks.begin();
+         block_iter != blocks.end();
+         ++block_iter)
     {
-	size = size + blocks[i].size;
+	size = size + block_iter->size;
     }
 
     // determine initial song number (passed in at boot time)
@@ -570,25 +569,30 @@ Psid64::convert()
     dest[addr++] = (uint_least8_t) ((size + 0xff) >> 8); // number of pages to copy
     dest[addr++] = (uint_least8_t) ((0x10000 - size) & 0xff); // start of blocks after moving
     dest[addr++] = (uint_least8_t) ((0x10000 - size) >> 8);
-    dest[addr++] = (uint_least8_t) (numBlocks - 1); // number of blocks - 1
+    dest[addr++] = (uint_least8_t) (blocks.size() - 1); // number of blocks - 1
 
     // copy block data to psidboot.a65 parameters
-    for (int i = 0; i < numBlocks; ++i)
+    for (vector<block_t>::const_iterator block_iter = blocks.begin();
+         block_iter != blocks.end();
+         ++block_iter)
     {
-	uint_least16_t offs = addr + numBlocks - 1 - i;
-	dest[offs] = (uint_least8_t) (blocks[i].load & 0xff);
-	dest[offs + MAX_BLOCKS] = (uint_least8_t) (blocks[i].load >> 8);
-	dest[offs + 2 * MAX_BLOCKS] = (uint_least8_t) (blocks[i].size & 0xff);
-	dest[offs + 3 * MAX_BLOCKS] = (uint_least8_t) (blocks[i].size >> 8);
+	int block_index = block_iter - blocks.begin();
+	uint_least16_t offs = addr + blocks.size() - 1 - block_index;
+	dest[offs] = (uint_least8_t) (block_iter->load & 0xff);
+	dest[offs + MAX_BLOCKS] = (uint_least8_t) (block_iter->load >> 8);
+	dest[offs + 2 * MAX_BLOCKS] = (uint_least8_t) (block_iter->size & 0xff);
+	dest[offs + 3 * MAX_BLOCKS] = (uint_least8_t) (block_iter->size >> 8);
     }
     addr = addr + 4 * MAX_BLOCKS;
     dest += boot_size;
 
     // copy blocks to c64 program file
-    for (int i = 0; i < numBlocks; ++i)
+    for (vector<block_t>::const_iterator block_iter = blocks.begin();
+         block_iter != blocks.end();
+         ++block_iter)
     {
-	memcpy(dest, blocks[i].data, blocks[i].size);
-	dest += blocks[i].size;
+	memcpy(dest, block_iter->data, block_iter->size);
+	dest += block_iter->size;
     }
 
     // free memory of relocated driver
