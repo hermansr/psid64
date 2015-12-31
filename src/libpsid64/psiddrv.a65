@@ -31,12 +31,12 @@
 	.align 256
 
 #ifdef SCREEN
-#define CLOCK_OFFSET			489
+#define CLOCK_OFFSET			529
 #define BAR_X				15
-#define BAR_OFFSET			(480 + BAR_X)
+#define BAR_OFFSET			(520 + BAR_X)
 #define BAR_WIDTH			19
 #define BAR_PIXELS			(BAR_WIDTH * 8)
-#define LENGTH_OFFSET			515
+#define LENGTH_OFFSET			555
 #define BAR_SPRITE_SCREEN_OFFSET	$0300
 #define SCROLLER_OFFSET			840
 #endif
@@ -434,8 +434,8 @@ l2
 #ifdef SMOOTH_SCROLL
 	ldx d016			; smooth scroll
 	sec
-	sbc #$c3
-	cmp #$20
+	sbc #$cb
+	cmp #$18
 	bcc l3
 	ldx #8
 l3	stx $d016

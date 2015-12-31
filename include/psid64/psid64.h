@@ -38,6 +38,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 class Screen;
+class SidId;
 class STIL;
 
 
@@ -100,6 +101,19 @@ public:
     inline const std::string getDatabaseFileName() const
     {
         return m_databaseFileName;
+    }
+
+    /**
+     * Set the path to the SID ID player identification configuration file.
+     */
+    bool setSidIdConfigFileName(std::string &sidIdConfigFileName);
+
+    /**
+     * Get the path to the SID ID player identification configuration file.
+     */
+    inline const std::string getSidIdConfigFileName() const
+    {
+        return m_sidIdConfigFileName;
     }
 
     /**
@@ -273,6 +287,7 @@ private:
     static const char* txt_fileIoError;
     static const char* txt_noSidTuneLoaded;
     static const char* txt_noSidTuneConverted;
+    static const char* txt_sidIdConfigError;
 
     // configuration options
     bool m_noDriver;
@@ -283,6 +298,7 @@ private:
     bool m_verbose;
     std::string m_hvscRoot;
     std::string m_databaseFileName;
+    std::string m_sidIdConfigFileName;
     Theme m_theme;
 
     // state data
@@ -295,6 +311,7 @@ private:
     SidTuneInfo m_tuneInfo;
     SidDatabase m_database;
     STIL *m_stil;
+    SidId *m_sidId;
 
     // conversion data
     Screen *m_screen;
@@ -306,6 +323,7 @@ private:
     uint_least8_t m_charPage; // startpage of chars, 0 means no chars
     uint_least8_t m_stilPage; // startpage of stil, 0 means no stil
     uint_least8_t m_songlengthsPage; // startpage of song length data, 0 means no song lengths
+    std::string m_playerId;
 
     // converted file
     uint_least8_t *m_programData;

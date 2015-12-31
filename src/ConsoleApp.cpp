@@ -63,7 +63,7 @@ using std::sort;
 using std::string;
 using std::vector;
 
-#define STR_GETOPT_OPTIONS		":bcghi:no:r:s:t:vV"
+#define STR_GETOPT_OPTIONS		":bcghi:no:p:r:s:t:vV"
 #define ACCEPTED_PATH_SEPARATORS	"/\\"
 
 #ifdef _WIN32
@@ -129,6 +129,7 @@ void ConsoleApp::printHelp ()
     cout << "  -i, --initial-song=NUM override the initial song to play" << endl;
     cout << "  -n, --no-driver        convert SID to C64 program file without driver code" << endl;
     cout << "  -o, --output=PATH      specify output file or directory" << endl;
+    cout << "  -p, --player-id=FILE   specify SID ID config file for player identification" << endl;
     cout << "  -r, --root             specify HVSC root directory" << endl;
     cout << "  -s, --songlengths=FILE specify HVSC song length database" << endl;
     cout << "  -t, --theme=THEME      specify a visual theme for the driver" << endl;
@@ -143,6 +144,7 @@ void ConsoleApp::printHelp ()
     cout << "  -i                     override the initial song to play" << endl;
     cout << "  -n                     convert SID to C64 program file without driver code" << endl;
     cout << "  -o                     specify output file or directory" << endl;
+    cout << "  -p                     specify SID ID config file for player identification" << endl;
     cout << "  -r                     specify HVSC root directory" << endl;
     cout << "  -s                     specify HVSC song length database" << endl;
     cout << "  -t                     specify a visual theme for the driver" << endl;
@@ -386,6 +388,7 @@ bool ConsoleApp::main(int argc, char **argv)
 	{"initial-song", 1, NULL, 'i'},
         {"no-driver", 0, NULL, 'n'},
 	{"output", 1, NULL, 'o'},
+	{"player-id", 1, NULL, 'p'},
 	{"root", 1, NULL, 'r'},
 	{"songlengths", 1, NULL, 's'},
 	{"theme", 1, NULL, 't'},
@@ -408,6 +411,7 @@ bool ConsoleApp::main(int argc, char **argv)
     themes["rainbow"] = Psid64::THEME_RAINBOW;
     string hvscRoot;
     string databaseFileName;
+    string sidIdConfigFileName;
 
     // set default configuration
     m_psid64.setVerbose(false);
@@ -423,6 +427,11 @@ bool ConsoleApp::main(int argc, char **argv)
     if (hvscSongLengths != NULL)
     {
 	databaseFileName = hvscSongLengths;
+    }
+    const char* sididcfg = getenv ("SIDIDCFG");
+    if (sididcfg != NULL)
+    {
+	sidIdConfigFileName = sididcfg;
     }
     m_outputPathName.clear();
 
@@ -469,6 +478,9 @@ bool ConsoleApp::main(int argc, char **argv)
 	    break;
 	case 'o':
 	    m_outputPathName = optarg;
+	    break;
+	case 'p':
+	    sidIdConfigFileName = optarg;
 	    break;
 	case 'r':
 	    hvscRoot = optarg;
@@ -580,6 +592,14 @@ bool ConsoleApp::main(int argc, char **argv)
 	{
  	    cerr << m_psid64.getStatus() << ": song lengths will be disabled" << endl;
  	}
+    }
+
+    if (!sidIdConfigFileName.empty())
+    {
+	if (!m_psid64.setSidIdConfigFileName(sidIdConfigFileName))
+	{
+	    cerr << m_psid64.getStatus() << ": player identification will be disabled" << endl;
+	}
     }
 
     while (optind < argc)

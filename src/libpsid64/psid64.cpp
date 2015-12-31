@@ -39,6 +39,7 @@
 
 #include "reloc65.h"
 #include "screen.h"
+#include "sidid.h"
 #include "theme.h"
 #include "stilview/stil.h"
 #include "exomizer/exomizer.h"
@@ -194,6 +195,7 @@ const char* Psid64::txt_notEnoughC64Memory = "PSID64: C64 memory has no space fo
 const char* Psid64::txt_fileIoError = "PSID64: File I/O error";
 const char* Psid64::txt_noSidTuneLoaded = "PSID64: No SID tune loaded";
 const char* Psid64::txt_noSidTuneConverted = "PSID64: No SID tune converted";
+const char* Psid64::txt_sidIdConfigError = "PSID64: Cannot read SID ID configuration file";
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -211,6 +213,7 @@ Psid64::Psid64() :
     m_verbose(false),
     m_hvscRoot(),
     m_databaseFileName(),
+    m_sidIdConfigFileName(),
     m_theme(THEME_DEFAULT),
     m_status(false),
     m_statusString(NULL),
@@ -219,6 +222,7 @@ Psid64::Psid64() :
     m_tuneInfo(),
     m_database(),
     m_stil(new STIL),
+    m_sidId(new SidId),
     m_screen(new Screen),
     m_stilText(),
     m_songlengthsSize(0),
@@ -227,6 +231,7 @@ Psid64::Psid64() :
     m_charPage(0),
     m_stilPage(0),
     m_songlengthsPage(0),
+    m_playerId(),
     m_programData(NULL),
     m_programSize(0)
 {
@@ -236,9 +241,10 @@ Psid64::Psid64() :
 
 Psid64::~Psid64()
 {
-   delete m_stil;
-   delete m_screen;
-   delete[] m_programData;
+    delete m_stil;
+    delete m_sidId;
+    delete m_screen;
+    delete[] m_programData;
 }
 
 
@@ -267,6 +273,22 @@ bool Psid64::setDatabaseFileName(string &databaseFileName)
         {
 	    m_statusString = m_database.error();
 	    return false;
+        }
+    }
+
+    return true;
+}
+
+
+bool Psid64::setSidIdConfigFileName(string &sidIdConfigFileName)
+{
+    m_sidIdConfigFileName = sidIdConfigFileName;
+    if (!m_sidIdConfigFileName.empty())
+    {
+	if (!m_sidId->readConfigFile(m_sidIdConfigFileName))
+        {
+            m_statusString = txt_sidIdConfigError;
+            return false;
         }
     }
 
@@ -355,6 +377,16 @@ Psid64::convert()
     // relocate and initialize the driver
     initDriver (&psid_mem, &psid_driver, &driver_size);
 
+    // copy SID data
+    uint_least8_t c64buf[65536];
+    m_tune.placeSidTuneInC64mem(c64buf);
+
+    // identify player routine
+    const uint_least8_t* p_start = c64buf + m_tuneInfo.loadAddr;
+    const uint_least8_t* p_end = p_start + m_tuneInfo.c64dataLen;
+    vector<uint_least8_t> buffer(p_start, p_end);
+    m_playerId = m_sidId->identify(buffer);
+
     // fill the blocks structure
     vector<block_t> blocks;
     blocks.reserve(MAX_BLOCKS);
@@ -368,8 +400,6 @@ Psid64::convert()
     block_t music_data_block;
     music_data_block.load = m_tuneInfo.loadAddr;
     music_data_block.size = m_tuneInfo.c64dataLen;
-    uint_least8_t c64buf[65536];
-    m_tune.placeSidTuneInC64mem(c64buf);
     music_data_block.data = &(c64buf[m_tuneInfo.loadAddr]);
     music_data_block.description = "Music data";
     blocks.push_back(music_data_block);
@@ -1574,15 +1604,28 @@ Psid64::drawScreen()
     {
 	m_screen->write("-");
     }
+
+    m_screen->write("\nPlayer : ");
+    string playerName = m_playerId;
+    if (playerName.empty())
+    {
+        playerName = "<?>";
+    }
+    else
+    {
+        std::replace(playerName.begin(), playerName.end(), '_', ' ');
+    }
+    m_screen->write(playerName);
+
     m_screen->write("\nClock  :   :");
     if (m_songlengthsPage != 0)
     {
 	uint_least8_t bar_char = (m_charPage == 0) ? 0xa0 : 0x7f;
  	for (unsigned int i = 0; i < BAR_WIDTH; ++i)
 	{
-	    m_screen->poke(BAR_X + i, 12, bar_char);
+	    m_screen->poke(BAR_X + i, 13, bar_char);
 	}
-	m_screen->poke(BAR_X + BAR_WIDTH + 3, 12, 0x3a);
+	m_screen->poke(BAR_X + BAR_WIDTH + 3, 13, 0x3a);
     }
 
     // some additional text

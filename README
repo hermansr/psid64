@@ -46,11 +46,22 @@ C64 executable(s) are written to the current directory. Options available:
   -i, --initial-song=NUM override the initial song to play
   -n, --no-driver        convert SID to C64 program file without driver code
   -o, --output=FILE      specify output file
+  -p, --player-id=FILE   specify SID ID config file for player identification
   -r, --root             specify HVSC root directory
   -s, --songlengths=FILE specify HVSC song length database
+  -t, --theme=THEME      specify a visual theme for the driver
+                         use `help' to show the list of available themes
   -v, --verbose          explain what is being done
   -h, --help             display this help and exit
   -V, --version          output version information and exit
+
+
+ENVIRONMENT VARIABLES
+---------------------
+
+HVSC_BASE                Default HVSC root directory
+HVSC_SONGLENGTHS         Default HVSC song length database
+SIDIDCFG                 Default SID ID configuration file
 
 
 KEYS PLAYER INSTRUCTIONS

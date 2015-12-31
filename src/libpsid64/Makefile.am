@@ -19,6 +19,8 @@ libpsid64_a_SOURCES = \
 	reloc65.h \
 	screen.cpp \
 	screen.h \
+	sidid.cpp \
+	sidid.h \
 	theme.cpp \
 	theme.h \
 	exomizer/chunkpool.c \

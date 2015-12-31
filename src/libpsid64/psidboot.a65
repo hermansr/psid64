@@ -185,7 +185,7 @@ l1	lda linecol,x
 	dex
 	bpl l1
 
-	ldy #200			; set color of information lines
+	ldy #240			; set color of information lines
 l2	ldx #39
 	lda #<COL_VALUE
 l3	cpx #7
@@ -203,7 +203,7 @@ l5	dey
 	bne l2
 
 	lda #<COL_LEGEND		; set color of area for instructions
-instcol	sta $d800+560,y
+instcol	sta $d800+600,y
 	iny
 	cpy #160
 	bne instcol
@@ -241,7 +241,7 @@ copyr1	lda r1_src-1,y
 
 
 #ifdef SCREEN
-vicdata	.byte $00,$92,$00,$00,$00,$00,$00,$00
+vicdata	.byte $00,$9a,$00,$00,$00,$00,$00,$00
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 	.byte $00,$6b,$37,$00,$00,$01,$08,$00
 	.byte <d018,$0f,$00,$00,$00,$00,$00,$00
