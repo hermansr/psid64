@@ -29,7 +29,7 @@ class SID_EXTERN SidTuneMod : public SidTune
 
  public:  // --------------------------------------------------------- public
 
-    SidTuneMod(const char* fileName) : SidTune(fileName)
+    explicit SidTuneMod(const char* fileName) : SidTune(fileName)
     { m_md5[0] = '\0'; }
 
     // Not providing an md5 buffer will cause the internal one to be used
