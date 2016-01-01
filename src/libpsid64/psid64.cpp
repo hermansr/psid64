@@ -614,7 +614,7 @@ Psid64::convert()
 	dest[offs + 2 * MAX_BLOCKS] = (uint_least8_t) (block_iter->size & 0xff);
 	dest[offs + 3 * MAX_BLOCKS] = (uint_least8_t) (block_iter->size >> 8);
     }
-    addr = addr + 4 * MAX_BLOCKS;
+    // addr = addr + 4 * MAX_BLOCKS;
     dest += boot_size;
 
     // copy blocks to c64 program file

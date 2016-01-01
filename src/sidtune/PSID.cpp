@@ -295,13 +295,12 @@ bool SidTune::PSID_fileSupportSave(std::ofstream& fMyOut, const uint_least8_t* d
     endian_big16(myHeader.songs,info.songs);
     endian_big16(myHeader.start,info.startSong);
 
-    uint_least32_t speed = 0, check = 0;
+    uint_least32_t speed = 0;
     uint_least32_t maxBugSongs = ((info.songs <= 32) ? info.songs : 32);
     for (uint_least32_t s = 0; s < maxBugSongs; s++)
     {
         if (songSpeed[s] == SIDTUNE_SPEED_CIA_1A)
             speed |= (1<<s);
-        check |= (1<<s);
     }
     endian_big32(myHeader.speed,speed);
 

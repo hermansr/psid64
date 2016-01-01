@@ -1204,9 +1204,9 @@ int SidTune::decompressPP20(Buffer_sidtt<const uint_least8_t>& buf)
 {
     // Check for PowerPacker compression: load and decompress, if PP20 file.
     PP20 myPP;
-    uint_least32_t fileLen;
     if ( myPP.isCompressed(buf.get(),buf.len()) )
     {
+        uint_least32_t fileLen;
         uint_least8_t* destBufRef = 0;
         if ( 0 == (fileLen = myPP.decompress(buf.get(),buf.len(),
                                              &destBufRef)) )

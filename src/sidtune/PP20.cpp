@@ -48,6 +48,7 @@ const char _pp20_txt_na[] = "N/A";
 const char* PP20::PP_ID = "PP20";
 
 PP20::PP20() :
+    efficiency(),
     sourceBeg(NULL),
     readPtr(NULL),
     destBeg(NULL),
@@ -181,7 +182,7 @@ inline void PP20::bytes()
 
 inline void PP20::sequence()
 {
-    udword_ppt offset, add;
+    udword_ppt offset;
     udword_ppt length = readBits(2);  // is length-2
     int offsetBitLen = (int)efficiency[length];
     length += 2;
@@ -192,7 +193,7 @@ inline void PP20::sequence()
         if ( readBits(1) == 0 )
             offsetBitLen = 7;
         offset = readBits( offsetBitLen );
-        add = readBits(3);
+        udword_ppt add = readBits(3);
         length += add;
         while ( add == 7 )
         {
