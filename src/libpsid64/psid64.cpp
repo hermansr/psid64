@@ -1087,7 +1087,6 @@ Psid64::findFreeSpace()
     unsigned int i;
     unsigned int j;
     unsigned int k;
-    uint_least8_t bank;
     uint_least8_t scr;
     uint_least8_t chars;
     uint_least8_t driver;
@@ -1164,7 +1163,7 @@ Psid64::findFreeSpace()
 	// require a copy the character rom in ram. The code below uses a
 	// little trick to swap bank 1 and 2 so that bank 0 and 2 are checked
 	// before 1 and 3.
-	bank = (((i & 1) ^ (i >> 1)) ? i ^ 3 : i) << 6;
+	uint_least8_t bank = (((i & 1) ^ (i >> 1)) ? i ^ 3 : i) << 6;
 
 	for (j = 0; j < 0x40; j += 4)
 	{
