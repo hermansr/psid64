@@ -225,6 +225,7 @@ Psid64::Psid64() :
     m_sidId(new SidId),
     m_screen(new Screen),
     m_stilText(),
+    m_songlengthsData(),
     m_songlengthsSize(0),
     m_driverPage(0),
     m_screenPage(0),
