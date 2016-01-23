@@ -35,9 +35,8 @@
  ********************************************************************************************************************/
 int __ini_listEval (ini_t *ini)
 {
-    int  length, count, i, ret;
+    int  length, count;
     int  ldelim;
-    char ch;
 
     // Remove old list
     if (ini->list)
@@ -72,7 +71,7 @@ int __ini_listEval (ini_t *ini)
     {   // Backup up delims to avoid causing problems with readString
         char *delims    = ini->listDelims;
         ini->listDelims = NULL;
-        ret = ini_readString ((ini_fd_t) ini, ini->list, length + 1);
+        int ret = ini_readString ((ini_fd_t) ini, ini->list, length + 1);
         ini->listDelims = delims;
         if (ret < 0)
             return -1;
@@ -85,8 +84,8 @@ int __ini_listEval (ini_t *ini)
         while (length)
         {
             length--;
-            ch = ini->list[length];
-            for (i = 0; i < ldelim; i++)
+            char ch = ini->list[length];
+            for (int i = 0; i < ldelim; i++)
             {
                 if ((char) ch == ini->listDelims[i])
                 {   // Prevent lots of NULL strings on multiple
