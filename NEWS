@@ -1,6 +1,13 @@
                                   PSID64 NEWS
                                   ===========
 
+psid64-1.2 (Sat Jan 23 15:30:25 CET 2016):
+
+* Added PSID/RSID v4 support (Triple SID).
+* Added support for player identification based on SID ID.
+* More verbose error messages in console application.
+* Fixed issue with non-bitwise moveable objects.
+
 psid64-1.1 (Sun Jun  7 15:16:29 CEST 2015):
 
 * Added song length and progress bar support.
