@@ -5,7 +5,7 @@
 #ifndef _STILDEFS_H
 #define _STILDEFS_H
 
-#if defined(__linux__) || defined(__FreeBSD__) || defined(solaris2) || defined(sun) || defined(sparc) || defined(sgi)
+#if defined(__linux__) || defined(__FreeBSD__) || defined(solaris2) || defined(sun) || defined(sparc) || defined(sgi) || defined(__APPLE__)
 #define UNIX
 #endif
 
