@@ -50,7 +50,7 @@ void radix_tree_free(radix_root rr,     /* IN */
 
 void radix_tree_init(radix_root rr);    /* IN */
 
-void radix_node_set(radix_root rr,      /* IN */
+void radix_node_set(radix_rootp rrp,    /* IN */
                     unsigned int index, /* IN */
                     void *data);        /* IN */
 
