@@ -55,7 +55,7 @@ AC_DEFUN([MY_CHECK_IOS_BIN],
     [
         AC_TRY_COMPILE(
             [#include <fstream>],
-            [std::ifstream myTest(0,std::ios::in|std::ios::binary);],
+            [std::ifstream myTest("",std::ios::in|std::ios::binary);],
             [test_cv_have_ios_binary=yes],
             [test_cv_have_ios_binary=no]
         )
