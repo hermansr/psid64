@@ -68,8 +68,8 @@ search_nodep search_buffer(match_ctx ctx,       /* IN */
     search_nodep snp;
 #if 0 /* RH */
     search_nodep best_copy_snp;
-#endif /* RH */
     int best_copy_len;
+#endif /* RH */
 
     search_nodep best_rle_snp;
 
@@ -87,8 +87,8 @@ search_nodep search_buffer(match_ctx ctx,       /* IN */
 
 #if 0 /* RH */
     best_copy_snp = snp;
-#endif /* RH */
     best_copy_len = 0.0;
+#endif /* RH */
 
     best_rle_snp = NULL;
 
@@ -278,7 +278,9 @@ search_nodep search_buffer(match_ctx ctx,       /* IN */
         {
 #endif /* RH */
             --len;
+#if 0 /* RH */
             ++best_copy_len;
+#endif /* RH */
             if (!(len & 0xFF))
             {
                 LOG(LOG_NORMAL, ("."));
