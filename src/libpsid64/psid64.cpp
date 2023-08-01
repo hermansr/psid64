@@ -929,7 +929,6 @@ Psid64::getSongLengths()
     char md5[SIDTUNE_MD5_LENGTH+1];
     /* calculate new style MD5 */
     m_tune.createNewMD5(md5);
-    cerr << "MD5 = " << md5 << endl;
 
     for (int i = 0; i < m_tuneInfo.songs; ++i)
     {
