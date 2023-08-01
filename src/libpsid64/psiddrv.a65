@@ -81,8 +81,11 @@ brkusr	.word brkjob
 nmiusr	.word nmijob
 
 	; IRQ handler
-irqjob	lda $d020			; save values
+irqjob
+#ifdef SCREEN
+	lda $d020			; save values
 	pha
+#endif /* SCREEN */
 	lda $dc00
 	pha
 #ifdef SCREEN
@@ -113,15 +116,18 @@ noshift	lda $01
 	lda $dc01
 	and #2
 	bne done
-ffwd	inc $d020			; flash $d020 during fast forward
+ffwd
 #ifdef SCREEN
+	inc $d020			; flash $d020 during fast forward
 	jsr clock
 #endif /* SCREEN */
 	jmp noshift
 done	pla
 	sta $dc00
+#ifdef SCREEN
 	pla
 	sta $d020
+#endif /* SCREEN */
 	lda $d019
 	sta $d019
 irqret	lda $dc0d
