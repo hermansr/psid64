@@ -67,14 +67,14 @@ SIDIDCFG                 Default SID ID configuration file
 KEYS PLAYER INSTRUCTIONS
 ------------------------
 
-1-0, A-Z		Select song 1-36
-+			Select next song (**)
--			Select previous song (**)
-INST/DEL		Toggle screen blanking on/off (**)
-RUN/STOP		Stop playback
-LEFT ARROW		Fast forward (*)
-SHIFT LEFT / LOCK	Show rastertime used by player (*)
-CONTROL + CBM + DEL	Reset computer (**)
+1-0, A-Z                 Select song 1-36
++                        Select next song (**)
+-                        Select previous song (**)
+INST/DEL                 Toggle screen blanking on/off (**)
+RUN/STOP                 Stop playback
+LEFT ARROW               Fast forward (*)
+SHIFT LEFT / LOCK        Show rastertime used by player (*)
+CONTROL + CBM + DEL      Reset computer (**)
 
 * not available for custom players (i.e. play address is $0000).
 ** not available in minimal driver (i.e. the driver that blanks the screen)
@@ -86,11 +86,11 @@ JOYSTICK CONTROL
 Except when using the minimal driver, a joystick connected to port two can be
 used to control some functions of the player.
 
-Up			Select next song
-Down			Select previous song
-Left			Stop playback
-Right			Restart current song
-Fire button		Fast forward (*)
+Up                       Select next song
+Down                     Select previous song
+Left                     Stop playback
+Right                    Restart current song
+Fire button              Fast forward (*)
 
 * not available for custom players (i.e. play address is $0000).
 
@@ -101,11 +101,11 @@ CREDITS
 PSID64 contains the following contributed or derived work. In the order they
 first supplied contributions or code was derived from their work:
 
-    Dag Lem           - PSID driver reference implementation
-    Simon White       - SidUtils library
-    Michael Schwendt  - SidTune library
-    LaLa              - STILView library
-    Magnus Lind       - Exomizer compressor
+    Dag Lem              PSID driver reference implementation
+    Simon White          SidUtils library
+    Michael Schwendt     SidTune library
+    LaLa                 STILView library
+    Magnus Lind          Exomizer compressor
 
 Credit where credit is due, so if I missed anyone please let me know.
 
