@@ -59,13 +59,13 @@ SUFFIXES = .a65
 	od -v -An -w8 -tx1 $(srcdir)/$*.o65 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@
 
 psidboot.h: psidboot.a65
-	xa -c -R -G $< -o - -DSMOOTH_SCROLL | od -v -An -w8 -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@
+	xa -c -R -G $< -o - -DSMOOTH_SCROLL | od -v -An -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' -e 's/[[:space:]]+//g' > $(srcdir)/$@
 
 psidextboot.h: psidboot.a65
-	xa -c -R -G $< -o - -DSCREEN -DSMOOTH_SCROLL | od -v -An -w8 -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@
+	xa -c -R -G $< -o - -DSCREEN -DSMOOTH_SCROLL | od -v -An -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' -e 's/[[:space:]]+//g' > $(srcdir)/$@
 
 psiddrv.h: psiddrv.a65
-	xa -c -R -G $< -o - | od -v -An -w8 -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@
+	xa -c -R -G $< -o - | od -v -An -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' -e 's/[[:space:]]+//g' > $(srcdir)/$@
 
 psidextdrv.h: psiddrv.a65
-	xa -c -R -G $< -o - -DSCREEN -DSMOOTH_SCROLL | od -v -An -w8 -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@
+	xa -c -R -G $< -o - -DSCREEN -DSMOOTH_SCROLL | od -v -An -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' -e 's/[[:space:]]+//g' > $(srcdir)/$@
