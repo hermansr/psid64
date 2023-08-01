@@ -130,7 +130,7 @@ void ConsoleApp::printHelp ()
     cout << "  -n, --no-driver        convert SID to C64 program file without driver code" << endl;
     cout << "  -o, --output=PATH      specify output file or directory" << endl;
     cout << "  -p, --player-id=FILE   specify SID ID config file for player identification" << endl;
-    cout << "  -r, --root             specify HVSC root directory" << endl;
+    cout << "  -r, --root=PATH        specify HVSC root directory" << endl;
     cout << "  -s, --songlengths=FILE specify HVSC song length database" << endl;
     cout << "  -t, --theme=THEME      specify a visual theme for the driver" << endl;
     cout << "                         use `help' to show the list of available themes" << endl;
