@@ -140,8 +140,8 @@ STIL::setBaseDir(const char *pathToHVSC)
     // Create the full path+filename
     tempNameLength = tempBaseDirLength+strlen(PATH_TO_STIL);
     tempName = new char [tempNameLength+1];
-    strncpy(tempName, tempBaseDir, tempNameLength);
-    strncat(tempName, PATH_TO_STIL, tempNameLength-tempBaseDirLength);
+    strncpy(tempName, tempBaseDir, tempNameLength+1);
+    strncat(tempName, PATH_TO_STIL, tempNameLength-tempBaseDirLength+1);
     tempName[tempNameLength] = '\0';
     convertSlashes(tempName);
 
@@ -163,8 +163,8 @@ STIL::setBaseDir(const char *pathToHVSC)
     delete[] tempName;
     tempNameLength = tempBaseDirLength+strlen(PATH_TO_BUGLIST);
     tempName = new char [tempNameLength+1];
-    strncpy(tempName, tempBaseDir, tempNameLength);
-    strncat(tempName, PATH_TO_BUGLIST, tempNameLength-tempBaseDirLength);
+    strncpy(tempName, tempBaseDir, tempNameLength+1);
+    strncat(tempName, PATH_TO_BUGLIST, tempNameLength-tempBaseDirLength+1);
     tempName[tempNameLength] = '\0';
     convertSlashes(tempName);
 
