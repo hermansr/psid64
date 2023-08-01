@@ -860,7 +860,11 @@ int __ini_store (ini_t *ini, FILE *file)
             {   // Output key
                 char format[10];
                 // Rev 1.1 Added - to support lining up of equals characters
+#ifdef HAVE_SNPRINTF
+                snprintf (format, 10, "%%-%lus=", (unsigned long) equal_pos);
+#else
                 sprintf (format, "%%-%lus=", (unsigned long) equal_pos);
+#endif
                 if (fprintf (file, format, current_k->key) < 0)
                     goto __ini_storeError;
             }

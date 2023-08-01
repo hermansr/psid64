@@ -69,7 +69,11 @@ const char *SidTuneMod::createMD5(char *md5)
         char *m = md5;
         for (int di = 0; di < 16; ++di)
         {
+#ifdef HAVE_SNPRINTF
+            snprintf (m, 3, "%02x", (int) myMD5.getDigest()[di]);
+#else
             sprintf (m, "%02x", (int) myMD5.getDigest()[di]);
+#endif
             m += 2;
         }
     }
