@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(psid64, 1.2)
+AC_INIT(psid64, 1.3)
 AC_CONFIG_SRCDIR(src/main.cpp)
 AM_CONFIG_HEADER(src/config.h)
 AM_INIT_AUTOMAKE([subdir-objects])
