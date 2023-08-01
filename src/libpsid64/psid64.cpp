@@ -925,11 +925,16 @@ bool
 Psid64::getSongLengths()
 {
     bool have_songlengths = false;
+
+    char md5[SIDTUNE_MD5_LENGTH+1];
+    /* calculate new style MD5 */
+    m_tune.createNewMD5(md5);
+    cerr << "MD5 = " << md5 << endl;
+
     for (int i = 0; i < m_tuneInfo.songs; ++i)
     {
 	// retrieve song length database information
-	m_tune.selectSong(i + 1);
-        int_least32_t length = m_database.length (m_tune);
+        int_least32_t length = m_database.length(md5, i + 1);
 	if (length > 0)
 	{
 	    // maximum representable length is 99:59

@@ -582,7 +582,7 @@ bool ConsoleApp::main(int argc, char **argv)
 	{
 	    // use song length database from HVSC if no database was specified
 	    databaseFileName = hvscRoot + PATH_SEPARATOR + "DOCUMENTS"
-	                       + PATH_SEPARATOR + "Songlengths.txt";
+	                       + PATH_SEPARATOR + "Songlengths.md5";
 	}
     }
 

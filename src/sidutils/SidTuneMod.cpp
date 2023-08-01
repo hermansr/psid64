@@ -79,3 +79,29 @@ const char *SidTuneMod::createMD5(char *md5)
     }
     return md5;
 }
+
+const char *SidTuneMod::createNewMD5(char *md5)
+{
+    if (!md5)
+        md5 = m_md5;
+    *md5 = '\0';
+
+    if (status)
+    {
+        MD5 myMD5;
+        myMD5.append (cache.get(),cache.len());
+        myMD5.finish();
+        // Construct fingerprint.
+        char *m = md5;
+        for (int di = 0; di < 16; ++di)
+        {
+#ifdef HAVE_SNPRINTF
+            snprintf (m, 3, "%02x", (int) myMD5.getDigest()[di]);
+#else
+            sprintf (m, "%02x", (int) myMD5.getDigest()[di]);
+#endif
+            m += 2;
+        }
+    }
+    return md5;
+}

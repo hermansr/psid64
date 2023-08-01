@@ -34,6 +34,8 @@ class SID_EXTERN SidTuneMod : public SidTune
 
     // Not providing an md5 buffer will cause the internal one to be used
     const char *createMD5(char *md5 = 0); // Buffer must be SIDTUNE_MD5_LENGTH + 1
+    // Not providing an md5 buffer will cause the internal one to be used
+    const char *createNewMD5(char *md5 = 0); // Buffer must be SIDTUNE_MD5_LENGTH + 1
 };
 
 #endif  /* SIDTUNEMOD_H */
