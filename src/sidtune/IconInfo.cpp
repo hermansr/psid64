@@ -70,21 +70,21 @@ struct Image
 
 struct Gadget
 {
-    // uint8_t pNextGadget[4];       // Gadget *NextGadget; next gadget in the list 
-    // uint8_t LeftEdge[2];          // uint_least16_t; "hit box" of gadget 
-    // uint8_t TopEdge[2];           // uint_least16_t
+    uint8_t pNextGadget[4];       // Gadget *NextGadget; next gadget in the list 
+    uint8_t LeftEdge[2];          // uint_least16_t; "hit box" of gadget 
+    uint8_t TopEdge[2];           // uint_least16_t
     uint8_t Width[2];             // uint_least16_t; "hit box" of gadget 
     uint8_t Height[2];            // uint_least16_t
     uint8_t Flags[2];             // uint_least16_t; see below for list of defines 
-    // uint8_t Activation[2];        // uint_least16_t
-    // uint8_t GadgetType[2];        // uint_least16_t; see below for defines 
+    uint8_t Activation[2];        // uint_least16_t
+    uint8_t GadgetType[2];        // uint_least16_t; see below for defines 
     uint8_t pGadgetRender[4];     // Image *GadgetRender;
     uint8_t pSelectRender[4];     // Image *SelectRender;
-    // uint8_t pGadgetText[4];       // void *GadgetText;
-    // uint8_t MutualExclude[4];     // udword
-    // uint8_t pSpecialInfo[4];      // void *SpecialInfo;
-    // uint8_t GadgetID[2];          // uint_least16_t
-    // uint8_t UserData[4];          // udword; ptr to general purpose User data 
+    uint8_t pGadgetText[4];       // void *GadgetText;
+    uint8_t MutualExclude[4];     // udword
+    uint8_t pSpecialInfo[4];      // void *SpecialInfo;
+    uint8_t GadgetID[2];          // uint_least16_t
+    uint8_t UserData[4];          // udword; ptr to general purpose User data 
 };
 
 struct DiskObject
