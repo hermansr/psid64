@@ -1661,8 +1661,8 @@ Psid64::drawScreen()
     m_screen->write("  [RUN/STOP] Stop [CTRL+CBM+DEL] Reset\n");
 
     // flashing bottom line (should be exactly 38 characters)
-    m_screen->move(1,24);
-    m_screen->write("Website: https://psid64.sourceforge.io");
+    m_screen->move(4,24);
+    m_screen->write("Website: https://www.psid64.org/");
 
     // initialize lookup table for progress bar sprite graphics
     for (unsigned int i = 0; i < 8; ++i)

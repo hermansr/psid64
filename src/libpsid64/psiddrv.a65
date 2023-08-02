@@ -814,8 +814,8 @@ colortext .(				; flashing color text effect
 	and #15
 	tay
 	lda txtcol,y
-	ldx #37
-l1	sta $d800+961,x
+	ldx #31
+l1	sta $d800+964,x
 	dex
 	bpl l1
 	rts
