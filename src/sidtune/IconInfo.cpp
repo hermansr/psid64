@@ -140,7 +140,6 @@ struct DiskObject
 
 static const char _sidtune_txt_format[] = "Raw plus PlaySID icon tooltype file (INFO)";
 
-static const char _sidtune_keyword_id[] = "SID:PLAYSID";
 static const char _sidtune_keyword_address[] = "ADDRESS=";
 static const char _sidtune_keyword_songs[] = "SONGS=";
 static const char _sidtune_keyword_speed[] = "SPEED=";

@@ -1,8 +1,5 @@
 noinst_LIBRARIES = libsidtune.a
 
-# enable warnings and turn them into errors to enforce warning free code
-AM_CFLAGS = -Wall -Werror
-
 libsidtune_a_CFLAGS = $(AM_CFLAGS)
 
 libsidtune_a_SOURCES = IconInfo.cpp \

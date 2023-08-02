@@ -43,7 +43,6 @@ const char _pp20_txt_mediocre[] = "PowerPacker: mediocre compression";
 const char _pp20_txt_good[] = "PowerPacker: good compression";
 const char _pp20_txt_verygood[] = "PowerPacker: very good compression";
 const char _pp20_txt_best[] = "PowerPacker: best compression";
-const char _pp20_txt_na[] = "N/A";
 
 const char* PP20::PP_ID = "PP20";
 
