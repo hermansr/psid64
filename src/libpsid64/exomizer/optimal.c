@@ -68,16 +68,16 @@ interval_nodep interval_node_clone(interval_nodep inp)
 
     if(inp != NULL)
     {
-	inp2 = malloc(sizeof(interval_node));
-	if (inp2 == NULL)
-	{
-	    LOG(LOG_ERROR, ("out of memory error in file %s, line %d\n",
-			    __FILE__, __LINE__));
-	    exit(0);
-	}
-	/* copy contents */
-	*inp2 = *inp;
-	inp2->next = interval_node_clone(inp->next);
+        inp2 = malloc(sizeof(interval_node));
+        if (inp2 == NULL)
+        {
+            LOG(LOG_ERROR, ("out of memory error in file %s, line %d\n",
+                            __FILE__, __LINE__));
+            exit(0);
+        }
+        /* copy contents */
+        *inp2 = *inp;
+        inp2->next = interval_node_clone(inp->next);
     }
 
     return inp2;

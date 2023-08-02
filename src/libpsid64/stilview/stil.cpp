@@ -1003,7 +1003,7 @@ STIL::getField(char *result, char *buffer, int tuneNo, STILField field)
         // Is the first thing in this STIL entry the COMMENT?
 
         char *temp = strstr(start, _COMMENT_STR);
-	char *temp2 = NULL;
+        char *temp2 = NULL;
 
         // Search for other potential fields beyond the COMMENT.
         if (temp == start) {

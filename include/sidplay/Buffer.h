@@ -27,88 +27,88 @@
 template <class T> class Buffer_sidtt
 {
  public:
-	Buffer_sidtt(void) : dummy(0)
-	{
-		kill();
-	}
+        Buffer_sidtt(void) : dummy(0)
+        {
+                kill();
+        }
 
-	Buffer_sidtt(T* inBuf, uint_least32_t inLen) : dummy(0)
-	{
-		kill();
-		if (inBuf!=0 && inLen!=0)
-		{
-			buf = inBuf;
-			bufLen = inLen;
-		}
-	}
+        Buffer_sidtt(T* inBuf, uint_least32_t inLen) : dummy(0)
+        {
+                kill();
+                if (inBuf!=0 && inLen!=0)
+                {
+                        buf = inBuf;
+                        bufLen = inLen;
+                }
+        }
 
-	bool assign(T* newBuf, uint_least32_t newLen)
-	{
-		erase();
-		buf = newBuf;
-		bufLen = newLen;
-		return (buf!=0);
-	}
+        bool assign(T* newBuf, uint_least32_t newLen)
+        {
+                erase();
+                buf = newBuf;
+                bufLen = newLen;
+                return (buf!=0);
+        }
 
-	T* get(void) const  { return buf; }
-	uint_least32_t len(void) const  { return bufLen; }
+        T* get(void) const  { return buf; }
+        uint_least32_t len(void) const  { return bufLen; }
 
-	T* xferPtr(void)
-	{
-		T* tmpBuf = buf;
-		buf = 0;
-		return tmpBuf;
-	}
+        T* xferPtr(void)
+        {
+                T* tmpBuf = buf;
+                buf = 0;
+                return tmpBuf;
+        }
 
-	uint_least32_t xferLen(void)
-	{
-		uint_least32_t tmpBufLen = bufLen;
-		bufLen = 0;
-		return tmpBufLen;
-	}
+        uint_least32_t xferLen(void)
+        {
+                uint_least32_t tmpBufLen = bufLen;
+                bufLen = 0;
+                return tmpBufLen;
+        }
 
-	T& operator[](uint_least32_t index)
-	{
-		if (index < bufLen)
-			return buf[index];
-		else
-			return dummy;
-	}
+        T& operator[](uint_least32_t index)
+        {
+                if (index < bufLen)
+                        return buf[index];
+                else
+                        return dummy;
+        }
 
-	bool isEmpty(void) const  { return (buf==0); }
+        bool isEmpty(void) const  { return (buf==0); }
 
-	void erase(void)
-	{
-		if (buf!=0 && bufLen!=0)
-		{
+        void erase(void)
+        {
+                if (buf!=0 && bufLen!=0)
+                {
 #ifndef SID_HAVE_BAD_COMPILER
-			delete[] buf;
+                        delete[] buf;
 #else
-			delete[] (void *) buf;
+                        delete[] (void *) buf;
 #endif
-		}
-		kill();
-	}
+                }
+                kill();
+        }
 
-	~Buffer_sidtt(void)
-	{
-		erase();
-	}
+        ~Buffer_sidtt(void)
+        {
+                erase();
+        }
 
  private:
-	T* buf;
-	uint_least32_t bufLen;
-	T dummy;
+        T* buf;
+        uint_least32_t bufLen;
+        T dummy;
 
-	void kill(void)
-	{
-		buf = 0;
-		bufLen = 0;
-	}
+        void kill(void)
+        {
+                buf = 0;
+                bufLen = 0;
+        }
 
- private:	// prevent copying
-	Buffer_sidtt(const Buffer_sidtt&);
-	Buffer_sidtt& operator=(Buffer_sidtt& b);
+ private:       // prevent copying
+        Buffer_sidtt(const Buffer_sidtt&);
+        Buffer_sidtt& operator=(Buffer_sidtt& b);
 };
 
 #endif  /* BUFFER_H */

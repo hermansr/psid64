@@ -174,7 +174,7 @@ inline void endian_16 (uint8_t ptr[2], uint_least16_t word)
 
 inline void endian_16 (char ptr[2], uint_least16_t word)
 {
-	endian_16 ((uint8_t *) ptr, word);
+        endian_16 ((uint8_t *) ptr, word);
 }
 
 // Convert high-byte and low-byte to 16-bit little endian word.

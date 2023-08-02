@@ -67,7 +67,7 @@ main (int argc, char **argv)
 
     if (app.main(argc, argv) == false)
     {
-	retval = 1;
+        retval = 1;
     }
 
     return retval;

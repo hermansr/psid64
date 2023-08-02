@@ -54,16 +54,16 @@ class Psid64
 public:
     enum Theme {
         THEME_DEFAULT,
-	THEME_BLUE,
-	THEME_C1541_ULTIMATE,
-	THEME_COAL,
-	THEME_DUTCH,
-	THEME_KERNAL,
-	THEME_LIGHT,
-	THEME_MONDRIAAN,
-	THEME_OCEAN,
-	THEME_PENCIL,
-	THEME_RAINBOW
+        THEME_BLUE,
+        THEME_C1541_ULTIMATE,
+        THEME_COAL,
+        THEME_DUTCH,
+        THEME_KERNAL,
+        THEME_LIGHT,
+        THEME_MONDRIAAN,
+        THEME_OCEAN,
+        THEME_PENCIL,
+        THEME_RAINBOW
     };
 
     /**
@@ -176,7 +176,7 @@ public:
      */
     inline void setInitialSong(int initialSong)
     {
-	m_initialSong = initialSong;
+        m_initialSong = initialSong;
     }
 
     /**
@@ -184,7 +184,7 @@ public:
      */
     inline int getInitialSong()
     {
-	return m_initialSong;
+        return m_initialSong;
     }
 
     /**
@@ -226,7 +226,7 @@ public:
      */
     inline void setTheme(Theme theme)
     {
-	m_theme = theme;
+        m_theme = theme;
     }
 
     /**
@@ -234,7 +234,7 @@ public:
      */
     inline Theme getTheme()
     {
-	return m_theme;
+        return m_theme;
     }
 
     /**
@@ -243,7 +243,7 @@ public:
      */
     inline const char* getStatus() const
     {
-	return m_statusString;
+        return m_statusString;
     }
 
     /**
@@ -336,18 +336,18 @@ private:
     bool formatStilText();
     bool getSongLengths();
     uint_least8_t findSonglengthsSpace(const bool* pages, uint_least8_t scr,
-				       uint_least8_t chars,
-				       uint_least8_t driver,
-				       uint_least8_t stil,
-				       uint_least8_t stil_pages,
-				       uint_least8_t size) const;
+                                       uint_least8_t chars,
+                                       uint_least8_t driver,
+                                       uint_least8_t stil,
+                                       uint_least8_t stil_pages,
+                                       uint_least8_t size) const;
     uint_least8_t findStilSpace(const bool* pages, uint_least8_t scr,
-				uint_least8_t chars,
-				uint_least8_t driver,
-				uint_least8_t size) const;
+                                uint_least8_t chars,
+                                uint_least8_t driver,
+                                uint_least8_t size) const;
     uint_least8_t findDriverSpace(const bool* pages, uint_least8_t scr,
-			          uint_least8_t chars,
-				  uint_least8_t size) const;
+                                  uint_least8_t chars,
+                                  uint_least8_t size) const;
     void findFreeSpace();
     uint8_t iomap(uint_least16_t addr);
     void initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n);

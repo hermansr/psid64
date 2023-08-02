@@ -143,7 +143,7 @@ int INI_LINKAGE ini_readString (ini_fd_t fd, char *str, size_t size)
         const char  *data = __ini_readList (ini);
         if (!data)
             return -1;
-		strncpy (str, data, size);
+                strncpy (str, data, size);
     }
     else
 #endif // INI_ADD_LIST_SUPPORT

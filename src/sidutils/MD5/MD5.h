@@ -58,9 +58,9 @@ class MD5
  private:
 
     /* Define the state of the MD5 Algorithm. */
-    md5_word_t count[2];	/* message length in bits, lsw first */
-    md5_word_t abcd[4];		/* digest buffer */
-    md5_byte_t buf[64];		/* accumulate block */
+    md5_word_t count[2];        /* message length in bits, lsw first */
+    md5_word_t abcd[4];         /* digest buffer */
+    md5_byte_t buf[64];         /* accumulate block */
 
     md5_byte_t digest[16];
 

@@ -109,8 +109,8 @@ void load(output_ctx out,       /* IN/OUT */
     if (load < DECOMP_MIN_ADDR)
     {
         LOG(LOG_ERROR,
-	    ("error: cant handle load address < $%04X\n",
-	     DECOMP_MIN_ADDR));
+            ("error: cant handle load address < $%04X\n",
+             DECOMP_MIN_ADDR));
         exit(1);
     }
 

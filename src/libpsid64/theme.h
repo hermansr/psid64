@@ -36,20 +36,20 @@
 //                     D A T A   D E C L A R A T O R S
 //////////////////////////////////////////////////////////////////////////////
 
-#define NUM_LINE_COLORS			15
-#define NUM_SCROLLER_COLORS		8
-#define NUM_FOOTER_COLORS		16
+#define NUM_LINE_COLORS                 15
+#define NUM_SCROLLER_COLORS             8
+#define NUM_FOOTER_COLORS               16
 
 class DriverTheme
 {
 public:
     DriverTheme(int borderColor, int backgroundColor, int rasterTimeColor,
                 int titleColor, const int* lineColors,
-		int fieldNameColor, int fieldColonColor, int fieldValueColor,
-		int legendColor,
-		int progressBarFillColor, int progressBarBackgroundColor,
-		int scrollerColor, const int* scrollerColors,
-		const int* footerColors);
+                int fieldNameColor, int fieldColonColor, int fieldValueColor,
+                int legendColor,
+                int progressBarFillColor, int progressBarBackgroundColor,
+                int scrollerColor, const int* scrollerColors,
+                const int* footerColors);
     virtual ~DriverTheme();
 
     // factory methods
@@ -67,72 +67,72 @@ public:
 
     int getBorderColor() const
     {
-	return m_borderColor;
+        return m_borderColor;
     }
 
     int getBackgroundColor() const
     {
-	return m_backgroundColor;
+        return m_backgroundColor;
     }
 
     int getRasterTimeColor() const
     {
-	return m_rasterTimeColor;
+        return m_rasterTimeColor;
     }
 
     int getTitleColor() const
     {
-	return m_titleColor;
+        return m_titleColor;
     }
 
     const int* getLineColors() const
     {
-	return m_lineColors;
+        return m_lineColors;
     }
 
     int getFieldNameColor() const
     {
-	return m_fieldNameColor;
+        return m_fieldNameColor;
     }
 
     int getFieldColonColor() const
     {
-	return m_fieldColonColor;
+        return m_fieldColonColor;
     }
 
     int getFieldValueColor() const
     {
-	return m_fieldValueColor;
+        return m_fieldValueColor;
     }
 
     int getLegendColor() const
     {
-	return m_legendColor;
+        return m_legendColor;
     }
 
     int getProgressBarFillColor() const
     {
-	return m_progressBarFillColor;
+        return m_progressBarFillColor;
     }
 
     int getProgressBarBackgroundColor() const
     {
-	return m_progressBarBackgroundColor;
+        return m_progressBarBackgroundColor;
     }
 
     int getScrollerColor() const
     {
-	return m_scrollerColor;
+        return m_scrollerColor;
     }
 
     const int* getScrollerColors() const
     {
-	return m_scrollerColors;
+        return m_scrollerColors;
     }
 
     const int* getFooterColors() const
     {
-	return m_footerColors;
+        return m_footerColors;
     }
 
 private:
