@@ -142,7 +142,7 @@ int_least32_t SidDatabase::length (const char *md5, uint_least16_t song)
     (void) ini_locateHeading (database, "Database");
     (void) ini_locateKey     (database, md5);
     // If length return is -1 then no entry found in database
-    if (ini_dataLength (database) != -1)
+    if ((song > 0) && (ini_dataLength (database) != -1))
     {
         char timeStamp[10];
 
