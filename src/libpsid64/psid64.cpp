@@ -421,7 +421,7 @@ Psid64::convert()
         block_t stil_text_block;
         stil_text_block.load = m_stilPage << 8;
         stil_text_block.size = m_stilText.length();
-        stil_text_block.data = (uint_least8_t*) m_stilText.c_str();
+        stil_text_block.data = reinterpret_cast<const uint_least8_t*>(m_stilText.c_str());
         stil_text_block.description = "STIL text";
         blocks.push_back(stil_text_block);
     }
@@ -548,7 +548,7 @@ Psid64::convert()
     // the additional BASIC starter code is not needed when compressing file
     uint_least16_t basic_size = (m_compress ? 0 : 12);
     uint_least16_t boot_addr = load_addr + basic_size;
-    if (!reloc65 ((char **) &boot_reloc, &boot_size, boot_addr, &globals))
+    if (!reloc65 (reinterpret_cast<char **>(&boot_reloc), &boot_size, boot_addr, &globals))
     {
         cerr << PACKAGE << ": Relocation error." << endl;
         return false;
@@ -1368,7 +1368,7 @@ Psid64::initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n)
         globals["songtpi_hi"] = 0x0000;
     }
 
-    if (!reloc65 ((char **) &psid_reloc, &psid_size, reloc_addr, &globals))
+    if (!reloc65 (reinterpret_cast<char **>(&psid_reloc), &psid_size, reloc_addr, &globals))
     {
         cerr << PACKAGE << ": Relocation error." << endl;
         return;

@@ -536,11 +536,11 @@ bool ConsoleApp::main(int argc, char **argv)
             break;
         case ':':
             cerr << PACKAGE << ": option requires an argument -- "
-                 << (char) optopt << endl;
+                 << static_cast<char>(optopt) << endl;
             ++errflg;
             break;
         case '?':
-            cerr << PACKAGE << ": invalid option -- " << (char) optopt << endl;
+            cerr << PACKAGE << ": invalid option -- " << static_cast<char>(optopt) << endl;
             ++errflg;
             break;
         default:
