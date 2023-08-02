@@ -89,7 +89,8 @@ void match_ctx_init(match_ctx ctx,      /* IN/OUT */
         if (buf[i] == val)
         {
             ctx->rle[i] = ctx->rle[i - 1] + 1;
-        } else
+        }
+        else
         {
             ctx->rle[i] = 0;
         }
@@ -102,7 +103,8 @@ void match_ctx_init(match_ctx ctx,      /* IN/OUT */
         if (buf[i] == val)
         {
             ctx->rle_r[i] = ctx->rle_r[i + 1] + 1;
-        } else
+        }
+        else
         {
             ctx->rle_r[i] = 0;
         }
@@ -223,7 +225,8 @@ void dump_matches(matchp mp)
     if (mp == NULL)
     {
         LOG(LOG_DEBUG, (" (NULL)\n"));
-    } else
+    }
+    else
     {
         if(mp->offset > 0)
         {

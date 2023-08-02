@@ -170,7 +170,8 @@ void stages(output_ctx out,     /* IN/OUT */
             {
                 output_byte(out, stage3l[i]);
             }
-        } else
+        }
+        else
         {
             for (i = 0; i < sizeof(stage3s); ++i)
             {
@@ -236,7 +237,8 @@ void stages(output_ctx out,     /* IN/OUT */
                     (unsigned short int) (STAGE1_END -
                                           (L_copy_len & 0x00ff)));
 
-    } else if (L_copy_len > 0)
+    }
+    else if (L_copy_len > 0)
     {
         int adjust = (L_copy_len != 256);
         /* fixup additional stage 3 stuff */

@@ -45,7 +45,8 @@ void search_node_dump(search_nodep snp) /* IN */
         if (snp->match == NULL)
         {
             LOG(LOG_DEBUG, ("(NULL)"));
-        } else
+        }
+        else
         {
             LOG(LOG_DEBUG,
                 ("(of %d, le %d)", snp->match->offset, snp->match->len));
@@ -344,7 +345,8 @@ const_matchp matchp_snp_rle_enum_get_next(void *matchp_snp_enum)
     if (snpe->currp == NULL)
     {
         snpe->currp = snpe->startp;
-    } else
+    }
+    else
     {
         val = snpe->m;
         val->len = 1;

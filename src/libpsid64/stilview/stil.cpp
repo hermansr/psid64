@@ -389,8 +389,7 @@ STIL::getEntry(const char *relPathToEntry, int tuneNo, STILField field)
             entrybuf[STIL_MAX_ENTRY_SIZE-1] = '\0';
             CERR_STIL_DEBUG << "getEntry() posToEntry() failed" << endl;
             lastError = NOT_IN_STIL;
-        }
-        else {
+        } else {
             *entrybuf= '\0';
             readEntry(stilFile, entrybuf);
             CERR_STIL_DEBUG << "getEntry() entry read" << endl;
@@ -404,8 +403,7 @@ STIL::getEntry(const char *relPathToEntry, int tuneNo, STILField field)
 
     if (getField(resultEntry, entrybuf, tuneNo, field) != true) {
         return NULL;
-    }
-    else {
+    } else {
         return resultEntry;
     }
 }
@@ -506,8 +504,7 @@ STIL::getBug(const char *relPathToEntry, int tuneNo)
             bugbuf[STIL_MAX_ENTRY_SIZE-1] = '\0';
             CERR_STIL_DEBUG << "getBug() posToEntry() failed" << endl;
             lastError = NOT_IN_BUG;
-        }
-        else {
+        } else {
             *bugbuf = '\0';
             readEntry(bugFile, bugbuf);
             CERR_STIL_DEBUG << "getBug() entry read" << endl;
@@ -521,8 +518,7 @@ STIL::getBug(const char *relPathToEntry, int tuneNo)
 
     if (getField(resultBug, bugbuf, tuneNo) != true) {
         return NULL;
-    }
-    else {
+    } else {
         return resultBug;
     }
 }
@@ -635,8 +631,7 @@ STIL::getGlobalComment(const char *relPathToEntry)
             globalbuf[STIL_MAX_ENTRY_SIZE-1] = '\0';
             CERR_STIL_DEBUG << "getGC() posToEntry() failed" << endl;
             lastError = NOT_IN_STIL;
-        }
-        else {
+        } else {
             *globalbuf = '\0';
             readEntry(stilFile, globalbuf);
             CERR_STIL_DEBUG << "getGC() entry read" << endl;
@@ -660,8 +655,7 @@ STIL::getGlobalComment(const char *relPathToEntry)
 
     if (*temp == '\0') {
         return NULL;
-    }
-    else {
+    } else {
         return temp;
     }
 }
@@ -700,8 +694,7 @@ STIL::determineEOL()
         if ((line[i] == 0x0d) || (line[i] == 0x0a)) {
             if (STIL_EOL == '\0') {
                 STIL_EOL = line[i];
-            }
-            else {
+            } else {
                 if (line[i] != STIL_EOL) {
                     STIL_EOL2 = line[i];
                 }
@@ -732,8 +725,7 @@ STIL::getDirs(ifstream& inFile, dirList *dirs, bool isSTILFile)
 
     if (isSTILFile) {
         newDir = false;
-    }
-    else {
+    } else {
         newDir = true;
     }
 
@@ -790,11 +782,9 @@ STIL::getDirs(ifstream& inFile, dirList *dirs, bool isSTILFile)
                 // Compare it to the last stored dirname
                 if (i==0) {
                     newDir = true;
-                }
-                else if (MYSTRNICMP(prevDir->dirName, line, j) != 0) {
+                } else if (MYSTRNICMP(prevDir->dirName, line, j) != 0) {
                     newDir = true;
-                }
-                else {
+                } else {
                     newDir = false;
                 }
             }
@@ -822,8 +812,7 @@ STIL::getDirs(ifstream& inFile, dirList *dirs, bool isSTILFile)
 
             if (isSTILFile) {
                 newDir = false;
-            }
-            else {
+            } else {
                 newDir = true;
             }
         }
@@ -921,8 +910,7 @@ STIL::positionToEntry(const char *entryStr, ifstream& inFile, dirList *dirs)
 
             if (globComm || (STILVersion > 2.59)) {
                 temp = MYSTRICMP(line, entryStr);
-            }
-            else {
+            } else {
                 // To be compatible with older versions of STIL, which may have
                 // the tune designation on the first line of a STIL entry
                 // together with the pathname.
@@ -944,8 +932,7 @@ STIL::positionToEntry(const char *entryStr, ifstream& inFile, dirList *dirs)
         inFile.seekg(inFile.tellg()-(streampos)strlen(line)-1L);
         CERR_STIL_DEBUG << "pos2Entry() entry found" << endl;
         return true;
-    }
-    else {
+    } else {
         CERR_STIL_DEBUG << "pos2Entry() entry not found" << endl;
         return false;
     }
@@ -1033,9 +1020,7 @@ STIL::getField(char *result, char *buffer, int tuneNo, STILField field)
                 result[STIL_MAX_ENTRY_SIZE-1] = '\0';
                 CERR_STIL_DEBUG << "getField() copied to resultbuf" << endl;
                 return true;
-            }
-
-            else if ((tuneNo == 0) && (field == comment)) {
+            } else if ((tuneNo == 0) && (field == comment)) {
 
                 // Copy just the comment.
 
@@ -1043,25 +1028,20 @@ STIL::getField(char *result, char *buffer, int tuneNo, STILField field)
                 *(result+(temp2-start)) = '\0';
                 CERR_STIL_DEBUG << "getField() copied to just the COMMENT to resultbuf" << endl;
                 return true;
-            }
-
-            else if ((tuneNo == 1) && (temp2 != NULL)) {
+            } else if ((tuneNo == 1) && (temp2 != NULL)) {
 
                // A specific field was asked for.
 
                 CERR_STIL_DEBUG << "getField() copying COMMENT to resultbuf" << endl;
                 return getOneField(result, temp2, temp2+strlen(temp2), field);
-            }
-
-            else {
+            } else {
 
                 // Anything else is invalid as of v2.00.
 
                 CERR_STIL_DEBUG << "getField() invalid parameter combo: single tune, tuneNo=" << tuneNo << ", field=" << field << endl;
                 return false;
             }
-        }
-        else {
+        } else {
 
             // No. Handle it as a regular entry.
 
@@ -1075,17 +1055,13 @@ STIL::getField(char *result, char *buffer, int tuneNo, STILField field)
                 result[STIL_MAX_ENTRY_SIZE-1] = '\0';
                 CERR_STIL_DEBUG << "getField() copied to resultbuf" << endl;
                 return true;
-            }
-
-            else if (tuneNo == 1) {
+            } else if (tuneNo == 1) {
 
                // A specific field was asked for.
 
                 CERR_STIL_DEBUG << "getField() copying COMMENT to resultbuf" << endl;
                 return getOneField(result, start, start+strlen(start), field);
-            }
-
-            else {
+            } else {
 
                 // Anything else is invalid as of v2.00.
 
@@ -1093,8 +1069,7 @@ STIL::getField(char *result, char *buffer, int tuneNo, STILField field)
                 return false;
             }
         }
-    }
-    else {
+    } else {
 
         //-------------------//
         // MULTITUNE ENTRY
@@ -1125,8 +1100,7 @@ STIL::getField(char *result, char *buffer, int tuneNo, STILField field)
                     if (firstTuneNo != start) {
                         CERR_STIL_DEBUG << "getField() copying file-global comment to resultbuf" << endl;
                         return getOneField(result, start, firstTuneNo, comment);
-                    }
-                    else {
+                    } else {
                         CERR_STIL_DEBUG << "getField() no file-global comment" << endl;
                         return false;
                     }
@@ -1168,8 +1142,7 @@ STIL::getField(char *result, char *buffer, int tuneNo, STILField field)
             if (nextTuneNo == NULL) {
                 // There is no next one - set pointer to end of entry.
                 nextTuneNo = start+strlen(start);
-            }
-            else {
+            } else {
                 // The search included the \n - go beyond it.
                 nextTuneNo++;
             }
@@ -1178,9 +1151,7 @@ STIL::getField(char *result, char *buffer, int tuneNo, STILField field)
 
             CERR_STIL_DEBUG << "getField() myTuneNo=" << myTuneNo << ", nextTuneNo=" << nextTuneNo << endl;
             return getOneField(result+strlen(result), myTuneNo, nextTuneNo, field);
-        }
-
-        else {
+        } else {
             CERR_STIL_DEBUG << "getField() nothing found" << endl;
             return false;
         }
@@ -1288,29 +1259,25 @@ STIL::getOneField(char *result, char *start, char *end, STILField field)
 
     if (nextField == NULL) {
         nextField = nextAuthor;
-    }
-    else if ((nextAuthor != NULL) && (nextAuthor < nextField)) {
+    } else if ((nextAuthor != NULL) && (nextAuthor < nextField)) {
         nextField = nextAuthor;
     }
 
     if (nextField == NULL) {
         nextField = nextTitle;
-    }
-    else if ((nextTitle != NULL) && (nextTitle < nextField)) {
+    } else if ((nextTitle != NULL) && (nextTitle < nextField)) {
         nextField = nextTitle;
     }
 
     if (nextField == NULL) {
         nextField = nextArtist;
-    }
-    else if ((nextArtist != NULL) && (nextArtist < nextField)) {
+    } else if ((nextArtist != NULL) && (nextArtist < nextField)) {
         nextField = nextArtist;
     }
 
     if (nextField == NULL) {
         nextField = nextComment;
-    }
-    else if ((nextComment != NULL) && (nextComment < nextField)) {
+    } else if ((nextComment != NULL) && (nextComment < nextField)) {
         nextField = nextComment;
     }
 
@@ -1366,15 +1333,13 @@ STIL::copyDirList(dirList *toPtr, dirList *fromPtr)
         if (fromPtr->dirName) {
             toPtr->dirName = new char [strlen(fromPtr->dirName)+1];
             strcpy(toPtr->dirName, fromPtr->dirName);
-        }
-        else {
+        } else {
             toPtr->dirName = NULL;
         }
 
         if (fromPtr->next) {
             toPtr->next = createOneDir();
-        }
-        else {
+        } else {
             toPtr->next = NULL;
         }
 

@@ -143,7 +143,8 @@ float optimal_encode_int(int arg, void *priv, output_ctxp out)
         {
             /*LOG(LOG_DUMP, ("gamma prefix code = %d", inp->depth)); */
             output_gamma_code(out, inp->depth);
-        } else
+        }
+        else
         {
             /*LOG(LOG_DUMP, ("flat prefix %d bits ", inp->depth)); */
             output_bits(out, inp->prefix, inp->depth);
@@ -169,7 +170,8 @@ float optimal_encode(const_matchp mp, encode_match_data emd)
         bits += 9.0f * mp->len;
         data->lit_num += mp->len;
         data->lit_bits += bits;
-    } else
+    } 
+    else
     {
         bits += 1.0;
         switch (mp->len)
@@ -214,13 +216,15 @@ float optimal_encode(const_matchp mp, encode_match_data emd)
             /* lets make literals out of it */
             data->lit_num += 1;
             data->lit_bits += bits;
-        } else
+        }
+        else
         {
             if (mp->offset == 1)
             {
                 data->rle_num += 1;
                 data->rle_bits += bits;
-            } else
+            }
+            else
             {
                 data->seq_num += 1;
                 data->seq_bits += bits;

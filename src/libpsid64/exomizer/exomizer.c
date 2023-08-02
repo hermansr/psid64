@@ -85,7 +85,8 @@ generate_output(match_ctx ctx,
                 /* literal */
                 output_byte(out, ctx->buf[snp->index]);
                 output_bits(out, 1, 1);
-            } else
+            }
+            else
             {
                 f(mp, emd);
                 output_bits(out, 1, 0);
