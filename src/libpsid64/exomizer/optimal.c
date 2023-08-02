@@ -105,7 +105,7 @@ void interval_node_dump(interval_nodep inp)
     {
         end = inp->start + (1 << inp->bits);
         LOG(LOG_NORMAL, ("%X", inp->bits));
-        /*LOG(LOG_NORMAL, ("%d[1«%d], ", inp->start, inp->bits));*/
+        /*LOG(LOG_NORMAL, ("%d[1Â«%d], ", inp->start, inp->bits));*/
         inp = inp->next;
     }
     LOG(LOG_NORMAL, ("[eol@%d]\n", end));
@@ -288,7 +288,7 @@ optimize1(optimize_arg arg, int start, int depth)
                 (inp->prefix + inp->bits);
 
             /* one index below */
-            /*LOG(LOG_DUMP, ("interval score: [%d«%d[%d\n",
+            /*LOG(LOG_DUMP, ("interval score: [%dÂ«%d[%d\n",
                start, i, inp->score)); */
             if (end_count > 0)
             {
