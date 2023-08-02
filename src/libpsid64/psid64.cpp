@@ -702,8 +702,8 @@ Psid64::roundDiv(int_least32_t dividend, int_least32_t divisor)
 bool
 Psid64::convertNoDriver()
 {
-    const uint_least16_t load = m_tuneInfo.loadAddr;
-    const uint_least16_t end = load + m_tuneInfo.c64dataLen;
+    const uint_least16_t load_addr = m_tuneInfo.loadAddr;
+    const uint_least16_t end = load_addr + m_tuneInfo.c64dataLen;
 
     // allocate space for C64 program
     m_programSize = 2 + m_tuneInfo.c64dataLen;
@@ -711,19 +711,19 @@ Psid64::convertNoDriver()
     m_programData = new uint_least8_t[m_programSize];
 
     // first the load address
-    m_programData[0] = (uint_least8_t) (load & 0xff);
-    m_programData[1] = (uint_least8_t) (load >> 8);
+    m_programData[0] = (uint_least8_t) (load_addr & 0xff);
+    m_programData[1] = (uint_least8_t) (load_addr >> 8);
 
     // then copy the music data
     uint_least8_t c64buf[65536];
     m_tune.placeSidTuneInC64mem(c64buf);
-    memcpy(m_programData + 2, &(c64buf[load]), m_tuneInfo.c64dataLen);
+    memcpy(m_programData + 2, &(c64buf[load_addr]), m_tuneInfo.c64dataLen);
 
     // print memory map
     if (m_verbose)
     {
 	cerr << "C64 memory map:" << endl;
-	cerr << "  $" << toHexWord(load) << "-$" << toHexWord(end)
+	cerr << "  $" << toHexWord(load_addr) << "-$" << toHexWord(end)
 	     << "  Music data" << endl;
     }
 
@@ -734,8 +734,8 @@ Psid64::convertNoDriver()
 bool
 Psid64::convertBASIC()
 {
-    const uint_least16_t load = m_tuneInfo.loadAddr;
-    const uint_least16_t end = load + m_tuneInfo.c64dataLen;
+    const uint_least16_t load_addr = m_tuneInfo.loadAddr;
+    const uint_least16_t end = load_addr + m_tuneInfo.c64dataLen;
     uint_least16_t bootCodeSize = m_compress ? 27 : 0;
 
     // allocate space for BASIC program and boot code (optional)
@@ -744,13 +744,13 @@ Psid64::convertBASIC()
     m_programData = new uint_least8_t[m_programSize];
 
     // first the load address
-    m_programData[0] = (uint_least8_t) (load & 0xff);
-    m_programData[1] = (uint_least8_t) (load >> 8);
+    m_programData[0] = (uint_least8_t) (load_addr & 0xff);
+    m_programData[1] = (uint_least8_t) (load_addr >> 8);
 
     // then copy the BASIC program
     uint_least8_t c64buf[65536];
     m_tune.placeSidTuneInC64mem(c64buf);
-    memcpy(m_programData + 2, &(c64buf[load]), m_tuneInfo.c64dataLen);
+    memcpy(m_programData + 2, &(c64buf[load_addr]), m_tuneInfo.c64dataLen);
 
     if (m_compress)
     {
@@ -760,17 +760,17 @@ Psid64::convertBASIC()
 	m_programData[offs++] = 0x00;
 	// sta load-1
 	m_programData[offs++] = 0x8d;
-	m_programData[offs++] = (uint_least8_t) ((load - 1) & 0xff);
-	m_programData[offs++] = (uint_least8_t) ((load - 1) >> 8);
+	m_programData[offs++] = (uint_least8_t) ((load_addr - 1) & 0xff);
+	m_programData[offs++] = (uint_least8_t) ((load_addr - 1) >> 8);
 	// lda #<load
 	m_programData[offs++] = 0xa9;
-	m_programData[offs++] = (uint_least8_t) (load & 0xff);
+	m_programData[offs++] = (uint_least8_t) (load_addr & 0xff);
 	// sta $2b
 	m_programData[offs++] = 0x85;
 	m_programData[offs++] = 0x2b;
 	// lda #>load
 	m_programData[offs++] = 0xa9;
-	m_programData[offs++] = (uint_least8_t) (load >> 8);
+	m_programData[offs++] = (uint_least8_t) (load_addr >> 8);
 	// sta $2c
 	m_programData[offs++] = 0x85;
 	m_programData[offs++] = 0x2c;
@@ -799,7 +799,7 @@ Psid64::convertBASIC()
 	// of m_programData are skipped as these contain the load address.
 	int start = end;
 	uint_least8_t* compressedData = new uint_least8_t[0x10000];
-	m_programSize = exomizer(m_programData + 2, m_programSize - 2, load, start, compressedData);
+	m_programSize = exomizer(m_programData + 2, m_programSize - 2, load_addr, start, compressedData);
 	delete[] m_programData;
 	m_programData = compressedData;
     }
@@ -808,7 +808,7 @@ Psid64::convertBASIC()
     if (m_verbose)
     {
 	cerr << "C64 memory map:" << endl;
-	cerr << "  $" << toHexWord(load) << "-$" << toHexWord(end)
+	cerr << "  $" << toHexWord(load_addr) << "-$" << toHexWord(end)
 	     << "  BASIC program" << endl;
 	if (m_compress)
 	{
@@ -943,15 +943,15 @@ Psid64::getSongLengths()
 	    }
 
 	    // store song length as binary-coded decimal minutes and seconds
-	    uint_least8_t min = length / 60;
+	    uint_least8_t minutes = length / 60;
 	    uint_least8_t sec = length % 60;
-	    m_songlengthsData[i] = ((min / 10) << 4) | (min % 10);
+	    m_songlengthsData[i] = ((minutes / 10) << 4) | (minutes % 10);
 	    m_songlengthsData[i + m_tuneInfo.songs] = ((sec / 10) << 4) | (sec % 10);
 #if 0
 	    if (m_verbose)
 	    {
 		cerr << "Length of song " << i + 1 << ": "
-		     << setfill('0') << setw(2) << static_cast<int>(min) << ":"
+		     << setfill('0') << setw(2) << static_cast<int>(minutes) << ":"
 		     << setfill('0') << setw(2) << static_cast<int>(sec) << endl;
 	    }
 #endif

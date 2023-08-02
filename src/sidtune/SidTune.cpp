@@ -784,10 +784,10 @@ void SidTune::getFromFiles(const char* fileName)
                         return;
 
                     // Try to find second file.
-                    int n = 0;
-                    while (fileNameExtensions[n] != 0)
+                    int n2 = 0;
+                    while (fileNameExtensions[n2] != 0)
                     {
-                        if ( !createNewFileName(fileName2,fileName,fileNameExtensions[n]) )
+                        if ( !createNewFileName(fileName2,fileName,fileNameExtensions[n2]) )
                             return;
                         // 1st data file was loaded into ``fileBuf1'',
                         // so we load the 2nd one into ``fileBuf2''.
@@ -796,7 +796,7 @@ void SidTune::getFromFiles(const char* fileName)
                             loadFile(fileName2.get(),fileBuf2) )
                         {
                             // Check if tunes in wrong order and therefore swap them here
-                            if ( MYSTRICMP (fileNameExtensions[n], ".mus")==0 )
+                            if ( MYSTRICMP (fileNameExtensions[n2], ".mus")==0 )
                             {
                                 if ( MUS_fileSupport(fileBuf2,fileBuf1) == LOAD_OK )
                                 {
@@ -819,7 +819,7 @@ void SidTune::getFromFiles(const char* fileName)
                             // The first tune loaded ok, so ignore errors on the
                             // second tune, may find an ok one later
                         }
-                        n++;
+                        n2++;
                     };
                     // No (suitable) second file, so reload first without second
                     fileBuf2.erase();
