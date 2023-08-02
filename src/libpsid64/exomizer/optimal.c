@@ -115,16 +115,14 @@ void interval_node_dump(interval_nodep inp)
 float optimal_encode_int(int arg, void *priv, output_ctxp out)
 {
     interval_nodep inp;
-    int end;
 
     float val;
 
     inp = (interval_nodep) priv;
     val = 1000000.0;
-    end = 0;
     while (inp != NULL)
     {
-        end = inp->start + (1 << inp->bits);
+        int end = inp->start + (1 << inp->bits);
         if (arg >= inp->start && arg < end)
         {
             break;
