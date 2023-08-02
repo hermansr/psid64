@@ -272,12 +272,15 @@ SidTune::LoadStatus SidTune::PSID_fileSupport(Buffer_sidtt<const uint_least8_t>&
     info.numberOfInfoStrings = 3;
     // Name
     strncpy(&infoString[0][0],pHeader->name,_sidtune_psid_maxStrLen);
+    infoString[0][_sidtune_psid_maxStrLen] = '\0';
     info.infoString[0] = &infoString[0][0];
     // Author
     strncpy(&infoString[1][0],pHeader->author,_sidtune_psid_maxStrLen);
+    infoString[1][_sidtune_psid_maxStrLen] = '\0';
     info.infoString[1] = &infoString[1][0];
     // Released
     strncpy(&infoString[2][0],pHeader->released,_sidtune_psid_maxStrLen);
+    infoString[2][_sidtune_psid_maxStrLen] = '\0';
     info.infoString[2] = &infoString[2][0];
 
     if ( info.musPlayer )

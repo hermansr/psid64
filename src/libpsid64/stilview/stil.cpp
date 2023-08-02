@@ -125,7 +125,7 @@ STIL::setBaseDir(const char *pathToHVSC)
     }
 
     tempBaseDir = new char [pathToHVSCLength+1];
-    strncpy(tempBaseDir, pathToHVSC, pathToHVSCLength);
+    strncpy(tempBaseDir, pathToHVSC, pathToHVSCLength+1);
     tempBaseDir[pathToHVSCLength] = '\0';
 
     // Chop the trailing slash
