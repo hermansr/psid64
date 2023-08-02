@@ -9,9 +9,9 @@ template <class T>
 class SmartPtrBase_sidtt
 {
  public:
-	
+
 	/* --- constructors --- */
-	
+
 	SmartPtrBase_sidtt(T* buffer, ulint_smartpt bufferLen, bool bufOwner = false) : dummy(0)
 	{
 		doFree = bufOwner;
@@ -29,9 +29,9 @@ class SmartPtrBase_sidtt
 			status = false;
 		}
 	}
-	
+
 	/* --- destructor --- */
-	
+
 	virtual ~SmartPtrBase_sidtt()
 	{
 		if ( doFree && (bufBegin != 0) )
@@ -43,9 +43,9 @@ class SmartPtrBase_sidtt
 #endif
 		}
 	}
-	
+
 	/* --- public member functions --- */
-	
+
 	virtual T* tellBegin()  { return bufBegin; }
 	virtual ulint_smartpt tellLength()  { return bufLen; }
 	virtual ulint_smartpt tellPos()  { return (ulint_smartpt)(pBufCurrent-bufBegin); }
@@ -54,7 +54,7 @@ class SmartPtrBase_sidtt
 	{
 		return ((pBufCurrent+index)<bufEnd);
 	}
-	
+
 	virtual bool reset()
 	{
 		if ( bufLen >= 1 )
@@ -72,12 +72,12 @@ class SmartPtrBase_sidtt
 	{
 		return (pBufCurrent<bufEnd);
 	}
-	
-	virtual bool fail()  
+
+	virtual bool fail()
 	{
 		return (pBufCurrent==bufEnd);
 	}
-	
+
 	virtual void operator ++()
 	{
 		if ( good() )
@@ -89,7 +89,7 @@ class SmartPtrBase_sidtt
 			status = false;
 		}
 	}
-	
+
 	virtual void operator ++(int)
 	{
 		if ( good() )
@@ -101,7 +101,7 @@ class SmartPtrBase_sidtt
 			status = false;
 		}
 	}
-	
+
 	virtual void operator --()
 	{
 		if ( !fail() )
@@ -113,7 +113,7 @@ class SmartPtrBase_sidtt
 			status = false;
 		}
 	}
-	
+
 	virtual void operator --(int)
 	{
 		if ( !fail() )
@@ -125,7 +125,7 @@ class SmartPtrBase_sidtt
 			status = false;
 		}
 	}
-	
+
 	virtual void operator +=(ulint_smartpt offset)
 	{
 		if (checkIndex(offset))
@@ -137,7 +137,7 @@ class SmartPtrBase_sidtt
 			status = false;
 		}
 	}
-	
+
 	virtual void operator -=(ulint_smartpt offset)
 	{
 		if ((pBufCurrent-offset) >= bufBegin)
@@ -149,7 +149,7 @@ class SmartPtrBase_sidtt
 			status = false;
 		}
 	}
-	
+
 	virtual T operator*()
 	{
 		if ( good() )
@@ -177,9 +177,9 @@ class SmartPtrBase_sidtt
 	}
 
 	virtual operator bool()  { return status; }
-	
+
  protected:
-	
+
 	T* bufBegin;
 	T* bufEnd;
 	T* pBufCurrent;
@@ -194,14 +194,14 @@ template <class T>
 class SmartPtr_sidtt : public SmartPtrBase_sidtt<T>
 {
  public:
-	
+
 	/* --- constructors --- */
-	
+
 	SmartPtr_sidtt(T* buffer, ulint_smartpt bufferLen, bool bufOwner = false)
 		: SmartPtrBase_sidtt<T>(buffer, bufferLen, bufOwner)
 	{
 	}
-	
+
 	SmartPtr_sidtt()
 		: SmartPtrBase_sidtt<T>(0,0)
 	{

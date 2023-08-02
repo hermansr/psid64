@@ -73,11 +73,11 @@ class SidTuneTools
     // Searching backwards until first dot is found.
     static char* fileExtOfPath(char* s);
 
-    // Parse input string stream. Read and convert a hexa-decimal number up 
+    // Parse input string stream. Read and convert a hexa-decimal number up
     // to a ``,'' or ``:'' or ``\0'' or end of stream.
     static uint_least32_t readHex(std::istringstream& parseStream);
 
-    // Parse input string stream. Read and convert a decimal number up 
+    // Parse input string stream. Read and convert a decimal number up
     // to a ``,'' or ``:'' or ``\0'' or end of stream.
     static uint_least32_t readDec(std::istringstream& parseStream);
 

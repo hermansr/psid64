@@ -353,7 +353,7 @@ ini_t *__ini_open (const char *name, ini_mode_t mode, const char *comment, int f
     file = fopen (ini->filename, "rb");
     if (!file)
     {   // File doesn't exist so check if allowed
-        // to create new one 
+        // to create new one
         if (mode != INI_NEW)
             goto ini_openError;
 
@@ -724,7 +724,7 @@ int __ini_process (ini_t *ini, FILE *file, const char *comment)
                 // If we get this we are processing a binary or corrupt file.
                 // Drop out here, else we may do something nasty
                 goto __ini_processError;
- 
+
             default:
                 switch (parser.state & ~INI_ALLOW_COMMENT)
                 {

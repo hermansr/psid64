@@ -365,7 +365,7 @@ int INI_LINKAGE ini_deleteKey (ini_fd_t fd)
         return -1;
     // Is file read only?
     if (ini->mode == INI_READ)
-        return -1;   
+        return -1;
     __ini_deleteKey (ini);
     ini->flags |= INI_MODIFIED;
     return 0;

@@ -194,7 +194,7 @@ void output_bits(output_ctx ctx,        /* IN/OUT */
         {
             /* full byte, flush it */
             output_byte(ctx, (unsigned char) (ctx->bitbuf & 0xFF));
-            /*LOG(LOG_DUMP, 
+            /*LOG(LOG_DUMP,
                ("bitstream byte 0x%02X\n", ctx->bitbuf & 0xFF)); */
             ctx->bitbuf = 1;
         }

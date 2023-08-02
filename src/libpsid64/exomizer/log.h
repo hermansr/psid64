@@ -53,7 +53,7 @@ void log_formatter_f(FILE * out,        /* IN */
                      const char *context,       /* IN */
                      const char *);     /* IN */
 
-/* 
+/*
  * this log output function adds nothing
  */
 void raw_log_formatter(FILE * out,      /* IN */

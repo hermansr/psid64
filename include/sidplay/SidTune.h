@@ -73,7 +73,7 @@ struct SidTuneInfo
     //        const SidTuneInfo& tuneInfo = SidTune[songNumber];
     //        const SidTuneInfo& tuneInfo = SidTune.getInfo();
     //        void SidTune.getInfo(tuneInfo&);
-    
+
     // Consider the following fields as read-only, because the SidTune class
     // does not provide an implementation of: bool setInfo(const SidTuneInfo&).
     // Currently, the only way to get the class to accept values which
@@ -81,16 +81,16 @@ struct SidTuneInfo
 
     const char* formatString;   // the name of the identified file format
     const char* statusString;   // error/status message of last operation
-    
+
     const char* speedString;    // describing the speed a song is running at
-    
+
     uint_least16_t loadAddr;
     uint_least16_t initAddr;
     uint_least16_t playAddr;
-    
+
     uint_least16_t songs;
     uint_least16_t startSong;
-    
+
     // The SID chip base address(es) used by the sidtune.
     uint_least16_t sidChipBase1;    // 0xD400 (normal, 1st SID)
     uint_least16_t sidChipBase2;    // 0xD?00 (2nd SID) or 0 (no 2nd SID)
@@ -134,13 +134,13 @@ struct SidTuneInfo
 class SID_EXTERN SidTune
 {
  private:
-    typedef enum 
+    typedef enum
     {
         LOAD_NOT_MINE = 0,
         LOAD_OK,
         LOAD_ERROR
     } LoadStatus;
-    
+
  public:  // ----------------------------------------------------------------
 
     // If your opendir() and readdir()->d_name return path names
@@ -176,11 +176,11 @@ class SID_EXTERN SidTune
     // default list will be activated. This is a static list which
     // is used by all SidTune objects.
     void setFileNameExtensions(const char **fileNameExt);
-    
+
     // Load a sidtune into an existing object.
     // From a file.
     bool load(const char* fileName, const bool separatorIsSlash = false);
-    
+
     // From a buffer.
     bool read(const uint_least8_t* sourceBuffer, const uint_least32_t bufferLen);
 
@@ -191,11 +191,11 @@ class SID_EXTERN SidTune
     // Select sub-song (0 = default starting song)
     // and return active song number out of [1,2,..,SIDTUNE_MAX_SONGS].
     uint_least16_t selectSong(const uint_least16_t songNum);
-    
+
     // Retrieve sub-song specific information.
     // Beware! Still member-wise copy!
     const SidTuneInfo& getInfo();
-    
+
     // Get a copy of sub-song specific information.
     // Beware! Still member-wise copy!
     void getInfo(SidTuneInfo&);
@@ -211,7 +211,7 @@ class SID_EXTERN SidTune
     {
         return (info.sidChipBase1!=0 && info.sidChipBase2!=0);
     }
-    
+
     // Copy sidtune into C64 memory (64 KB).
     bool placeSidTuneInC64mem(uint_least8_t* c64buf);
 
@@ -246,9 +246,9 @@ class SID_EXTERN SidTune
     // Does not affect status of object, and therefore can be used
     // to load files. Error string is put into info.statusString, though.
     bool loadFile(const char* fileName, Buffer_sidtt<const uint_least8_t>& bufferRef);
-    
+
     bool saveToOpenFile( std::ofstream& toFile, const uint_least8_t* buffer, uint_least32_t bufLen );
-    
+
  protected:  // -------------------------------------------------------------
 
     SidTuneInfo info;
@@ -341,19 +341,19 @@ class SID_EXTERN SidTune
     static const char* txt_corrupt;
 
  private:  // ---------------------------------------------------------------
-    
+
     void init();
     void cleanup();
 #if !defined(SIDTUNE_NO_STDIN_LOADER)
     void getFromStdIn();
 #endif
     void getFromFiles(const char* name);
-    
+
     void deleteFileNameCopies();
-    
+
     // Try to retrieve single-file sidtune from specified buffer.
     void getFromBuffer(const uint_least8_t* const buffer, const uint_least32_t bufferLen);
-    
+
     // Cache the data of a single-file or two-file sidtune and its
     // corresponding file names.
     bool acceptSidTune(const char* dataFileName, const char* infoFileName,

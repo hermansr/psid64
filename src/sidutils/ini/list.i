@@ -62,7 +62,7 @@ int __ini_listEval (ini_t *ini)
     if (!ini->listDelims)
         return -1;
     ldelim = (int) strlen (ini->listDelims);
-        
+
     // Buffer string for faster access
     ini->list = (char *) malloc (length + 1);
     if (!ini->list)
@@ -76,7 +76,7 @@ int __ini_listEval (ini_t *ini)
         if (ret < 0)
             return -1;
     }
-    
+
     // Process buffer string to find number of sub strings
     {
         char lastch = '\0';
@@ -98,7 +98,7 @@ int __ini_listEval (ini_t *ini)
                             break;
                         }
                     }
- 
+
                     // Seperate strings
                     ini->list[length] = (ch = '\0');
                     count++;
@@ -243,7 +243,7 @@ int INI_LINKAGE ini_listDelims (ini_fd_t fd, const char *delims)
 /********************************************************************************************************************
  * Function          : ini_listIndex
  * Parameters        : ini - pointer to ini file database.  delims - string of delimitor chars
- * Returns           : 
+ * Returns           :
  * Globals Used      :
  * Globals Modified  :
  * Description       : Sets the index that the next call to any of the read function will obtain (default 0)
@@ -287,7 +287,7 @@ int INI_LINKAGE ini_listIndex (ini_fd_t fd, unsigned long index)
         count = 0;
         p     = ini->list;
     }
-    
+
     while (count != index)
     {
         count++;
@@ -306,7 +306,7 @@ int INI_LINKAGE ini_listIndex (ini_fd_t fd, unsigned long index)
 /********************************************************************************************************************
  * Function          : __ini_listIndexLength
  * Parameters        : ini - pointer to ini file database
- * Returns           : 
+ * Returns           :
  * Globals Used      :
  * Globals Modified  :
  * Description       : Returns the length the indexed sub string

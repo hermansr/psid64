@@ -36,12 +36,12 @@ template <class T> class Buffer_sidtt
 	{
 		kill();
 		if (inBuf!=0 && inLen!=0)
-		{	
+		{
 			buf = inBuf;
 			bufLen = inLen;
 		}
 	}
-	
+
 	bool assign(T* newBuf, uint_least32_t newLen)
 	{
 		erase();
@@ -49,18 +49,18 @@ template <class T> class Buffer_sidtt
 		bufLen = newLen;
 		return (buf!=0);
 	}
-	
+
 	T* get(void) const  { return buf; }
 	uint_least32_t len(void) const  { return bufLen; }
-	
-	T* xferPtr(void)  
+
+	T* xferPtr(void)
 	{
 		T* tmpBuf = buf;
 		buf = 0;
 		return tmpBuf;
 	}
 
-	uint_least32_t xferLen(void)  
+	uint_least32_t xferLen(void)
 	{
 		uint_least32_t tmpBufLen = bufLen;
 		bufLen = 0;
@@ -74,7 +74,7 @@ template <class T> class Buffer_sidtt
 		else
 			return dummy;
 	}
-	
+
 	bool isEmpty(void) const  { return (buf==0); }
 
 	void erase(void)
@@ -89,7 +89,7 @@ template <class T> class Buffer_sidtt
 		}
 		kill();
 	}
-	
+
 	~Buffer_sidtt(void)
 	{
 		erase();
@@ -99,13 +99,13 @@ template <class T> class Buffer_sidtt
 	T* buf;
 	uint_least32_t bufLen;
 	T dummy;
-        
+
 	void kill(void)
 	{
 		buf = 0;
 		bufLen = 0;
 	}
-	
+
  private:	// prevent copying
 	Buffer_sidtt(const Buffer_sidtt&);
 	Buffer_sidtt& operator=(Buffer_sidtt& b);
