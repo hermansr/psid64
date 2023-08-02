@@ -1664,6 +1664,21 @@ Psid64::drawScreen()
     m_screen->move(1,24);
     m_screen->write("Website: http://psid64.sourceforge.net");
 
+    // initialize lookup table for progress bar sprite graphics
+    for (unsigned int i = 0; i < 8; ++i)
+    {
+	uint8_t value;
+	if (m_songlengthsPage != 0)
+	{
+	    value = (0xff00 >> i) & 0xff;
+	}
+	else
+	{
+	    value = 0x00;
+	}
+	m_screen->poke(BAR_SPRITE_SCREEN_OFFSET - 8 + i, value);
+    }
+
     // initialize sprite for progress bar
     for (unsigned int i = 0; i < 63; ++i)
     {

@@ -126,7 +126,10 @@ done	pla
 	sta $dc00
 #ifdef SCREEN
 	pla
-	sta $d020
+	cmp $d020
+	beq skipd020			; avoid grey dots on 8565 VIC-II
+	sta $d020			; by only setting $d020 if changed
+skipd020
 #endif /* SCREEN */
 	lda $d019
 	sta $d019
@@ -756,7 +759,7 @@ drawbar	.(				; draw playback progress bar
 	txa
 	and #7				; draw sprite
 	tay
-	lda dbspr,y
+	lda screen+BAR_SPRITE_SCREEN_OFFSET-8,y	; table initialized in C++ code
 	ldy #24
 db3	sta screen+BAR_SPRITE_SCREEN_OFFSET-3,y
 	dey
@@ -777,8 +780,6 @@ db2	sta $d800+BAR_OFFSET,y
 	cpy #BAR_WIDTH
 	bne db1
 	rts
-
-dbspr	.byte $00,$80,$c0,$e0,$f0,$f8,$fc,$fe
 	.)
 
 
