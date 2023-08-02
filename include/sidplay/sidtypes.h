@@ -41,7 +41,7 @@
 #       define  true  1
 #       define  false 0
 #   endif /* SID_HAVE_STDBOOL_H */
-#endif /* HAVE_BOOL */
+#endif /* SID_HAVE_BOOL */
 
 /* Custom types */
 typedef int sid_fc_t[2];
