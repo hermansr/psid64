@@ -1360,9 +1360,7 @@ STIL::deleteDirList(dirList *dirs)
 void
 STIL::copyDirList(dirList *toPtr, dirList *fromPtr)
 {
-    // Big assumption: the first element exists on both linked lists!
-
-    do {
+    while ((fromPtr != NULL) && (toPtr !=NULL)) {
         toPtr->position = fromPtr->position;
 
         if (fromPtr->dirName) {
@@ -1382,8 +1380,7 @@ STIL::copyDirList(dirList *toPtr, dirList *fromPtr)
 
         fromPtr = fromPtr->next;
         toPtr = toPtr->next;
-
-    } while (fromPtr);
+    }
 }
 
 STIL::dirList *
