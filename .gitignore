@@ -13,6 +13,7 @@ Makefile.in
 /config.status
 /config.sub
 /configure
+/configure~
 /depcomp
 /install-sh
 /ltmain.sh
