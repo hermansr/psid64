@@ -32,7 +32,7 @@ extern "C" {
 #endif
 
 
-int exomizer(unsigned char *srcbuf, int len, int load, int start, unsigned char *destbuf);
+int exomizer(const unsigned char *srcbuf, int len, int load, int start, unsigned char *destbuf);
 
 #ifdef __cplusplus
 }

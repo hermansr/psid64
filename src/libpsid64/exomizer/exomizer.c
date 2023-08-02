@@ -185,7 +185,7 @@ do_compress(match_ctx ctx, encode_match_data emd, int max_passes)
 }
 
 
-int exomizer(unsigned char *srcbuf, int len, int load, int start, unsigned char *destbuf)
+int exomizer(const unsigned char *srcbuf, int len, int load, int start, unsigned char *destbuf)
 {
     int destlen;
     int max_offset = 65536;
