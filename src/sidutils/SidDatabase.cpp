@@ -52,11 +52,11 @@ int_least32_t SidDatabase::parseTimeStamp(const char* arg)
             seconds += t;
             gotDigits = true;
         }
-        while ( *arg && isdigit(*arg) )
+        while ( isdigit(*arg) )
         {
             ++arg;
         }
-        if ( *arg && *arg==':' )
+        if ( *arg==':' )
         {
             seconds *= 60;
             ++arg;
