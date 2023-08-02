@@ -36,6 +36,8 @@
 #include "output.h"
 #include "sfx.h"
 
+#include "exomizer.h"
+
 static
 int
 generate_output(match_ctx ctx,

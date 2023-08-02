@@ -33,6 +33,8 @@
 #include "radix.h"
 #include "chunkpool.h"
 
+#include "optimal.h"
+
 #define DOUBLE_OFFSET_TABLES
 
 struct _interval_node {

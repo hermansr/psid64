@@ -13,6 +13,8 @@
 #include "stildefs.h"
 #include "stil.h"
 
+#include "stilcomm.h"
+
 const char *STIL::STIL_ERROR_STR[] = {
     "No error.",
     "Failed to open BUGlist.txt.",
