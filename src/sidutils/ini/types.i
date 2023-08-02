@@ -134,7 +134,7 @@ int INI_LINKAGE ini_readString (ini_fd_t fd, char *str, size_t size)
     ini_t *ini = (ini_t *) fd;
 
     // Check size and reserve space for NULL
-    if (!ini || (size-- <= 0))
+    if (!ini || (size-- == 0))
         return -1;
 
 #ifdef INI_ADD_LIST_SUPPORT
