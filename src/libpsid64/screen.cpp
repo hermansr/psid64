@@ -84,7 +84,7 @@ void Screen::clear()
 }
 
 
-void Screen::move(unsigned int x, unsigned int y)
+void Screen::moveTo(unsigned int x, unsigned int y)
 {
     if ((x < m_width) && (y < m_height))
     {

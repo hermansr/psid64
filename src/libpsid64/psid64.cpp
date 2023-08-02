@@ -1454,7 +1454,7 @@ Psid64::drawScreen()
     m_screen->clear();
 
     // set title
-    m_screen->move(5,1);
+    m_screen->moveTo(5,1);
     m_screen->write("PSID64 v" VERSION " by Roland Hermans!");
 
     // characters for color line effect
@@ -1471,7 +1471,7 @@ Psid64::drawScreen()
     }
 
     // information lines
-    m_screen->move(0, 4);
+    m_screen->moveTo(0, 4);
     m_screen->write("Name   : ");
     m_screen->write(string(m_tuneInfo.infoString[0]).substr(0,31));
 
@@ -1661,7 +1661,7 @@ Psid64::drawScreen()
     m_screen->write("  [RUN/STOP] Stop [CTRL+CBM+DEL] Reset\n");
 
     // flashing bottom line (should be exactly 38 characters)
-    m_screen->move(4,24);
+    m_screen->moveTo(4,24);
     m_screen->write("Website: https://www.psid64.org/");
 
     // initialize lookup table for progress bar sprite graphics
