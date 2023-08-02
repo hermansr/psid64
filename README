@@ -37,8 +37,21 @@ PSID64 is invoked from the command line as follows:
 
     psid64 [OPTION]... PSID_FILE...
 
-where PSID_FILE is the names of one or more the PSID files. The resulting
-C64 executable(s) are written to the current directory. Options available:
+where PSID_FILE is the names of one or more the PSID files or directories.
+
+If a name designates a file, the resulting C64 executable is written to the
+current directory, or to the file or directory specified by the -o option.
+
+If a name designates a directory, PSID64 processes all the .sid files in that
+directory and all of its subdirectories. Without using the -o option, each
+resulting C64 executable is written to the same location as its source .sid
+file. With the -o option, the basename of the PSID_FILE name is created in the
+specified output directory. If the PSID_FILE name ends in a slash or backslash,
+or if the specified output directory does not yet exist, this changes the
+behavior and the basename directory is not created. The subdirectories of
+PSID_FILE that contain .sid files are created in the output location.
+
+Options available:
 
   -b, --blank-screen     use a minimal driver that blanks the screen
   -c, --compress         compress output file with Exomizer
@@ -54,6 +67,41 @@ C64 executable(s) are written to the current directory. Options available:
   -v, --verbose          explain what is being done
   -h, --help             display this help and exit
   -V, --version          output version information and exit
+
+The HVSC path recognition is a bit rudimentary. For this to work properly it is
+required to include the HVSC path in the filename of the files or directories
+to be converted. If the path strings don't match, the STIL info will not be
+included in the generated .prg files.
+
+
+EXAMPLE USAGE
+-------------
+
+Convert a single file and write the output to the current directory:
+
+    psid64 input.sid
+
+Convert a single file and write the output to output.prg:
+
+    psid64 -o output.prg input.sid
+
+Convert multiple files, write all the outputs to the current directory:
+
+    psid64 input1.sid a/input2.sid b/input3.sid
+
+Convert all files in current directory and all subdirectories:
+
+    psid64 .
+
+On a UNIX-like system, convert the complete HVSC collection with STIL, song
+length, and player ID information to the directory hvsc_as_prg:
+
+    psid64 -v -c -p sidid.cfg -r ~/C64Music -o hvsc_as_prg ~/C64Music/
+
+On a Windows-like system, convert the complete HVSC collection with STIL, song
+length, and player ID information to the directory hvsc_as_prg:
+
+    psid64 -v -c -p sidid.cfg -r C:\C64Music -o hvsc_as_prg C:\C64Music\
 
 
 ENVIRONMENT VARIABLES
@@ -152,3 +200,9 @@ Windows 32-bit and 64-bit executables.
 
     https://fedoraproject.org/wiki/MinGW
     https://www.mingw-w64.org/
+
+
+WEBSITE
+-------
+
+https://www.psid64.org/ or https://psid64.sourceforge.io/
