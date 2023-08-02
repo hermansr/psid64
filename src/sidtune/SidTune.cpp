@@ -1051,7 +1051,7 @@ bool SidTune::savePSIDfile( const char* fileName, bool overWriteFlag )
 #else
         createAttr |= std::ios::binary;
 #endif
-      if ( overWriteFlag )
+        if ( overWriteFlag )
             createAttr |= std::ios::trunc;
         else
             createAttr |= std::ios::app;
