@@ -55,7 +55,7 @@ private:
     std::string buildOutputFileName(const std::string& sidFileName, const std::string& outputPathName) const;
     bool convertFile(const std::string& inputFileName, const std::string& outputFileName);
     bool convertDir(const std::string& inputDirName, const std::string& outputDirName);
-    bool convert(const std::string& inputPathName);
+    bool convert(const std::string& pathName);
 };
 
 #endif // CONSOLEAPP_H

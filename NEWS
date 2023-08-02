@@ -5,6 +5,8 @@ psid64-1.3:
 
 * Added support for new song length file format.
 * Use Songlengths.md5 default filename when HVSC root directory is specified.
+* When converting a directory to a specified output directory, use a trailing
+  slash or backslash to never append the basename to the output directory.
 * Avoid grey dot artifacts on 8565 VIC-II.
 * Fixed missing argument in --root command line option description.
 

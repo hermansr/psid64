@@ -347,8 +347,19 @@ bool ConsoleApp::convertDir(const string& inputDirName, const string& outputDirN
 }
 
 
-bool ConsoleApp::convert(const string& inputPathName)
+bool ConsoleApp::convert(const string& pathName)
 {
+    bool useBaseName = true;
+    string inputPathName(pathName);
+
+    // remove any trailing path separators
+    size_t index = inputPathName.find_last_not_of(ACCEPTED_PATH_SEPARATORS);
+    if ((index != string::npos) && ((index + 1) < inputPathName.length()))
+    {
+	inputPathName.erase(index + 1);
+	useBaseName = false;
+    }
+
     if (isdir(inputPathName))
     {
 	string outputDirName;
@@ -359,7 +370,7 @@ bool ConsoleApp::convert(const string& inputPathName)
 	else
 	{
 	    outputDirName = m_outputPathName;
-	    if (isdir(outputDirName))
+	    if (isdir(outputDirName) && useBaseName)
 	    {
 		outputDirName += PATH_SEPARATOR + basename(inputPathName);
 	    }
@@ -604,16 +615,7 @@ bool ConsoleApp::main(int argc, char **argv)
 
     while (optind < argc)
     {
-	string inputPathName = argv[optind++];
-
-	// remove any trailing path separators
-	size_t index = inputPathName.find_last_not_of(ACCEPTED_PATH_SEPARATORS);
-	if (index != string::npos)
-	{
-	    inputPathName.erase(index + 1);
-	}
-
-	if (!convert(inputPathName))
+	if (!convert(argv[optind++]))
 	{
 	    return false;
 	}
