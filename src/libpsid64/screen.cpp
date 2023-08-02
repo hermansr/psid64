@@ -62,7 +62,6 @@ Screen::Screen() :
     m_y(0)
 {
     clear();
-    home();
 }
 
 
@@ -82,13 +81,6 @@ void Screen::clear()
     {
         m_screen[i] = c;
     }
-}
-
-
-void Screen::home()
-{
-    m_x = 0;
-    m_y = 0;
 }
 
 

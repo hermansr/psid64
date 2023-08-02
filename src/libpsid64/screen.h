@@ -47,7 +47,6 @@ public:
     ~Screen();
 
     void clear();
-    void home();
     void move(unsigned int x, unsigned int y);
     void putchar(char c);
     void write(const char *str);
