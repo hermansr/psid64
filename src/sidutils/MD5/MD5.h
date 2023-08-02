@@ -88,8 +88,8 @@ class MD5
     typedef md5_word_t (MD5::*md5func)(const md5_word_t x, const md5_word_t y, const md5_word_t z);
         
     void
-    SET(md5func func, md5_word_t& a, md5_word_t& b, md5_word_t& c,
-        md5_word_t& d, const int k, const int s,
+    SET(md5func func, md5_word_t& a, const md5_word_t& b, const md5_word_t& c,
+        const md5_word_t& d, const int k, const int s,
         const md5_word_t Ti);
 };
 
@@ -124,8 +124,8 @@ MD5::I(const md5_word_t x, const md5_word_t y, const md5_word_t z)
 }
 
 inline void
-MD5::SET(md5func func, md5_word_t& a, md5_word_t& b, md5_word_t& c,
-          md5_word_t& d, const int k, const int s,
+MD5::SET(md5func func, md5_word_t& a, const md5_word_t& b, const md5_word_t& c,
+          const md5_word_t& d, const int k, const int s,
           const md5_word_t Ti)
 {
     md5_word_t t = a + (this->*func)(b,c,d) + X[k] + Ti;

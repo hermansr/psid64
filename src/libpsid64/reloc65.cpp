@@ -51,8 +51,8 @@ struct file65 {
 };
 
 
-int read_options(unsigned char *f);
-int read_undef(unsigned char *f, file65 *fp);
+int read_options(const unsigned char *f);
+int read_undef(const unsigned char *f, file65 *fp);
 unsigned char *reloc_seg(unsigned char *f, int len, unsigned char *rtab, file65 *fp);
 unsigned char *reloc_globals(unsigned char *, file65 *fp);
 
@@ -150,7 +150,7 @@ int reloc65(char** buf, int* fsize, int addr, globals_t* globals)
 }
 
 
-int read_options(unsigned char *buf) {
+int read_options(const unsigned char *buf) {
 	int c, l=0;
 
 	c=buf[0];
@@ -162,7 +162,7 @@ int read_options(unsigned char *buf) {
 	return ++l;
 }
 
-int read_undef(unsigned char *buf, file65 *fp) {
+int read_undef(const unsigned char *buf, file65 *fp) {
 	int i, n, l = 2;
 
 	n = buf[0] + 256*buf[1];
@@ -181,8 +181,8 @@ int read_undef(unsigned char *buf, file65 *fp) {
 	return l;
 }
 
-static int find_global(unsigned char *bp, file65 *fp) {
-	char *name;
+static int find_global(const unsigned char *bp, const file65 *fp) {
+	const char *name;
 	int nl = bp[0]+256*bp[1];
 
 	name = fp->ud[nl];

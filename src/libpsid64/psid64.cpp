@@ -249,7 +249,7 @@ Psid64::~Psid64()
 }
 
 
-bool Psid64::setHvscRoot(string &hvscRoot)
+bool Psid64::setHvscRoot(const string &hvscRoot)
 {
     m_hvscRoot = hvscRoot;
     if (!m_hvscRoot.empty())
@@ -265,7 +265,7 @@ bool Psid64::setHvscRoot(string &hvscRoot)
 }
 
 
-bool Psid64::setDatabaseFileName(string &databaseFileName)
+bool Psid64::setDatabaseFileName(const string &databaseFileName)
 {
     m_databaseFileName = databaseFileName;
     if (!m_databaseFileName.empty())
@@ -281,7 +281,7 @@ bool Psid64::setDatabaseFileName(string &databaseFileName)
 }
 
 
-bool Psid64::setSidIdConfigFileName(string &sidIdConfigFileName)
+bool Psid64::setSidIdConfigFileName(const string &sidIdConfigFileName)
 {
     m_sidIdConfigFileName = sidIdConfigFileName;
     if (!m_sidIdConfigFileName.empty())
@@ -994,7 +994,7 @@ Psid64::getSongLengths()
 
 
 uint_least8_t
-Psid64::findSonglengthsSpace(bool* pages, uint_least8_t scr,
+Psid64::findSonglengthsSpace(const bool* pages, uint_least8_t scr,
                              uint_least8_t chars, uint_least8_t driver,
                              uint_least8_t stil, uint_least8_t stil_pages,
 		             uint_least8_t size) const
@@ -1021,7 +1021,7 @@ Psid64::findSonglengthsSpace(bool* pages, uint_least8_t scr,
 
 
 uint_least8_t
-Psid64::findStilSpace(bool* pages, uint_least8_t scr,
+Psid64::findStilSpace(const bool* pages, uint_least8_t scr,
                       uint_least8_t chars, uint_least8_t driver,
 		      uint_least8_t size) const
 {
@@ -1045,7 +1045,7 @@ Psid64::findStilSpace(bool* pages, uint_least8_t scr,
 
 
 uint_least8_t
-Psid64::findDriverSpace(bool* pages, uint_least8_t scr,
+Psid64::findDriverSpace(const bool* pages, uint_least8_t scr,
                         uint_least8_t chars, uint_least8_t size) const
 {
     uint_least8_t firstPage = 0;

@@ -80,7 +80,7 @@ public:
      * Set the path to the HVSC. This path is e.g. used to retrieve the STIL
      * information for a PSID file.
      */
-    bool setHvscRoot(std::string &hvscRoot);
+    bool setHvscRoot(const std::string &hvscRoot);
 
     /**
      * Get the path to the HVSC.
@@ -93,7 +93,7 @@ public:
     /**
      * Set the path to the HVSC song length database.
      */
-    bool setDatabaseFileName(std::string &databaseFileName);
+    bool setDatabaseFileName(const std::string &databaseFileName);
 
     /**
      * Get the path to the HVSC song length database.
@@ -106,7 +106,7 @@ public:
     /**
      * Set the path to the SID ID player identification configuration file.
      */
-    bool setSidIdConfigFileName(std::string &sidIdConfigFileName);
+    bool setSidIdConfigFileName(const std::string &sidIdConfigFileName);
 
     /**
      * Get the path to the SID ID player identification configuration file.
@@ -335,17 +335,17 @@ private:
     bool convertBASIC();
     bool formatStilText();
     bool getSongLengths();
-    uint_least8_t findSonglengthsSpace(bool* pages, uint_least8_t scr,
+    uint_least8_t findSonglengthsSpace(const bool* pages, uint_least8_t scr,
 				       uint_least8_t chars,
 				       uint_least8_t driver,
 				       uint_least8_t stil,
 				       uint_least8_t stil_pages,
 				       uint_least8_t size) const;
-    uint_least8_t findStilSpace(bool* pages, uint_least8_t scr,
+    uint_least8_t findStilSpace(const bool* pages, uint_least8_t scr,
 				uint_least8_t chars,
 				uint_least8_t driver,
 				uint_least8_t size) const;
-    uint_least8_t findDriverSpace(bool* pages, uint_least8_t scr,
+    uint_least8_t findDriverSpace(const bool* pages, uint_least8_t scr,
 			          uint_least8_t chars,
 				  uint_least8_t size) const;
     void findFreeSpace();
