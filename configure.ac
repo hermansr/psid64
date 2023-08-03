@@ -48,7 +48,7 @@ if test "$ac_cv_header_stdbool_h" = yes; then
 else
     MY_SUBST_UNDEF(SID_HAVE_STDBOOL_H)
 fi
-AC_CREATE_STDINT_H(include/sidplay/sidint.h)
+AX_CREATE_STDINT_H(include/sidplay/sidint.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_BIGENDIAN

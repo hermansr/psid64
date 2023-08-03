@@ -20,10 +20,13 @@ noinst_HEADERS = \
 	include/sidplay/utils/SidDatabase.h \
 	include/sidplay/utils/SidTuneMod.h
 
+DISTCLEANFILES = \
+	include/sidplay/sidint.h
+
 EXTRA_DIST = \
 	Doxyfile \
 	psid64.spec \
-	macros/ac_compile_check_sizeof.m4 \
-	macros/ac_create_stdint_h.m4 \
+	macros/ax_create_stdint_h.m4 \
+	macros/ax_func_mkdir.m4 \
 	macros/sidtune.m4
 # AUTHORS COPYING INSTALL NEWS.md README.md TODO
