@@ -1,6 +1,4 @@
 /*
-    $Id$
-
     psid64 - create a C64 executable from a PSID file
     Copyright (C) 2001-2003  Roland Hermans <rolandh@users.sourceforge.net>
 
