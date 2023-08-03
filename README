@@ -1,7 +1,7 @@
-                                 PSID64 README
-                                 =============
+PSID64 README
+=============
 
-INTRODUCTION
+Introduction
 ------------
 
 PSID64 is a program that automatically generates a C64 self extracting
@@ -30,7 +30,7 @@ C64 environment that uses this relocation information stored in the PSID
 header.
 
 
-USAGE
+Usage
 -----
 
 PSID64 is invoked from the command line as follows:
@@ -53,20 +53,20 @@ PSID_FILE that contain .sid files are created in the output location.
 
 Options available:
 
-  -b, --blank-screen     use a minimal driver that blanks the screen
-  -c, --compress         compress output file with Exomizer
-  -g, --global-comment   include the global comment STIL text
-  -i, --initial-song=NUM override the initial song to play
-  -n, --no-driver        convert SID to C64 program file without driver code
-  -o, --output=PATH      specify output file or directory
-  -p, --player-id=FILE   specify SID ID config file for player identification
-  -r, --root=PATH        specify HVSC root directory
-  -s, --songlengths=FILE specify HVSC song length database
-  -t, --theme=THEME      specify a visual theme for the driver
-                         use `help' to show the list of available themes
-  -v, --verbose          explain what is being done
-  -h, --help             display this help and exit
-  -V, --version          output version information and exit
+    -b, --blank-screen     use a minimal driver that blanks the screen
+    -c, --compress         compress output file with Exomizer
+    -g, --global-comment   include the global comment STIL text
+    -i, --initial-song=NUM override the initial song to play
+    -n, --no-driver        convert SID to C64 program file without driver code
+    -o, --output=PATH      specify output file or directory
+    -p, --player-id=FILE   specify SID ID config file for player identification
+    -r, --root=PATH        specify HVSC root directory
+    -s, --songlengths=FILE specify HVSC song length database
+    -t, --theme=THEME      specify a visual theme for the driver
+                           use `help' to show the list of available themes
+    -v, --verbose          explain what is being done
+    -h, --help             display this help and exit
+    -V, --version          output version information and exit
 
 The HVSC path recognition is a bit rudimentary. For this to work properly it is
 required to include the HVSC path in the filename of the files or directories
@@ -74,7 +74,7 @@ to be converted. If the path strings don't match, the STIL info will not be
 included in the generated .prg files.
 
 
-EXAMPLE USAGE
+Example usage
 -------------
 
 Convert a single file and write the output to the current directory:
@@ -104,61 +104,62 @@ length, and player ID information to the directory hvsc_as_prg:
     psid64 -v -c -p sidid.cfg -r C:\C64Music -o hvsc_as_prg C:\C64Music\
 
 
-ENVIRONMENT VARIABLES
+Environment variables
 ---------------------
 
-HVSC_BASE                Default HVSC root directory
-HVSC_SONGLENGTHS         Default HVSC song length database
-SIDIDCFG                 Default SID ID configuration file
+    HVSC_BASE                Default HVSC root directory
+    HVSC_SONGLENGTHS         Default HVSC song length database
+    SIDIDCFG                 Default SID ID configuration file
 
 
-KEYS PLAYER INSTRUCTIONS
-------------------------
+Keyboard control
+----------------
 
-1-0, A-Z                 Select song 1-36
-+                        Select next song (**)
--                        Select previous song (**)
-INST/DEL                 Toggle screen blanking on/off (**)
-RUN/STOP                 Stop playback
-LEFT ARROW               Fast forward (*)
-SHIFT LEFT / LOCK        Show rastertime used by player (*)
-CONTROL + CBM + DEL      Reset computer (**)
+    1-0, A-Z                 Select song 1-36
+    +                        Select next song (2)
+    -                        Select previous song (2)
+    INST/DEL                 Toggle screen blanking on/off (2)
+    RUN/STOP                 Stop playback
+    LEFT ARROW               Fast forward (1)
+    SHIFT LEFT / LOCK        Show rastertime used by player (1)
+    CONTROL + CBM + DEL      Reset computer (2)
 
-* not available for custom players (i.e. play address is $0000).
-** not available in minimal driver (i.e. the driver that blanks the screen)
+(1) not available for custom players (i.e. play address is $0000).
+
+(2) not available in minimal driver (i.e. the driver that blanks the screen)
 
 
-JOYSTICK CONTROL
+Joystick control
 ----------------
 
 Except when using the minimal driver, a joystick connected to port two can be
 used to control some functions of the player.
 
-Up                       Select next song
-Down                     Select previous song
-Left                     Stop playback
-Right                    Restart current song
-Fire button              Fast forward (*)
+    Up                       Select next song
+    Down                     Select previous song
+    Left                     Stop playback
+    Right                    Restart current song
+    Fire button              Fast forward (1)
 
-* not available for custom players (i.e. play address is $0000).
+(1) not available for custom players (i.e. play address is $0000).
 
 
-CREDITS
+Credits
 -------
 
 PSID64 contains the following contributed or derived work. In the order they
 first supplied contributions or code was derived from their work:
 
-    Dag Lem              PSID driver reference implementation
-    Simon White          SidUtils library
-    Michael Schwendt     SidTune library
-    LaLa                 STILView library
-    Magnus Lind          Exomizer compressor
+    Dag Lem                  PSID driver reference implementation
+    Simon White              SidUtils library
+    Michael Schwendt         SidTune library
+    LaLa                     STILView library
+    Magnus Lind              Exomizer compressor
 
 Credit where credit is due, so if I missed anyone please let me know.
 
 
-KNOWN PROBLEMS AND LIMITATIONS
+Known problems and limitations
 ------------------------------
 
 At least two free 256 byte pages are required for the minimal driver and at
@@ -175,13 +176,13 @@ neither feasible nor desired to program a scroller based on code that generates
 interrupts. Any ideas on how to improve the scroller code are welcome.
 
 
-OTHER TOOLS
+Other tools
 -----------
 
 Andre Fachat's relocating 6502 cross assembler XA is used to create the
 relocatable driver code. XA can be found at:
 
-    https://www.floodgap.com/retrotech/xa/
+https://www.floodgap.com/retrotech/xa/
 
 The DJGPP cross-compiler djcross-gcc-12.2.0 has been used to build the MS-DOS
 executable. It is available at:
@@ -202,7 +203,7 @@ Windows 32-bit and 64-bit executables.
     https://www.mingw-w64.org/
 
 
-COPYRIGHT AND LICENSING
+Copyright and licensing
 -----------------------
 
 SPDX-License-Identifier: GPL-2.0-or-later
@@ -224,7 +225,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
-WEBSITE
+Website
 -------
 
 https://www.psid64.org/ or https://psid64.sourceforge.io/
