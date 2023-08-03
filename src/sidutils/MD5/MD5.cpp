@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Zlib
 /*
  * This code has been derived by Michael Schwendt <mschwendt@yahoo.com>
  * from original work by L. Peter Deutsch <ghost@aladdin.com>.

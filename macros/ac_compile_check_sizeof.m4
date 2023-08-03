@@ -1,3 +1,5 @@
+dnl SPDX-License-Identifier: GPL-2.0-or-later
+dnl
 dnl @synopsis AC_COMPILE_CHECK_SIZEOF(TYPE [, HEADERS [, EXTRA_SIZES...]])
 dnl
 dnl This macro checks for the size of TYPE using compile checks, not

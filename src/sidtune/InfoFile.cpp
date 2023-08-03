@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * /home/ms/files/source/libsidtune/RCS/InfoFile.cpp,v
  *

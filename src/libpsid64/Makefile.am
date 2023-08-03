@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 EXTRA_DIST = stilview/README.txt stilview/STILView-config.patch
 
 lib_LIBRARIES = libpsid64.a

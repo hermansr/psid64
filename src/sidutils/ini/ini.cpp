@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 /***************************************************************************
                           ini.cpp  -  Reads and writes keys to a
                                       ini file.

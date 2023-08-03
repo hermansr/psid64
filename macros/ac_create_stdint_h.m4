@@ -1,3 +1,5 @@
+dnl SPDX-License-Identifier: GPL-2.0-or-later
+dnl
 dnl AC_CREATE_STDINT_H [( HEADER-TO-GENERATE [, HEDERS-TO-CHECK])] -*- sh -*-
 dnl
 dnl the "ISO C9X: 7.18 Integer types <stdint.h>" section requires the

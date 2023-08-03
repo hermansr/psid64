@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 # Process this file with automake to produce Makefile.in
 
 SUBDIRS = libpsid64 sidtune sidutils

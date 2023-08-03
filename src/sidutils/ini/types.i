@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 /***************************************************************************
                           types.i - Libini supported data types
                                     Use readString for others

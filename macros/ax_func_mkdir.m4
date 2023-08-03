@@ -1,3 +1,5 @@
+dnl SPDX-License-Identifier: GPL-2.0-or-later
+dnl
 # ===========================================================================
 #       http://www.gnu.org/software/autoconf-archive/ax_func_mkdir.html
 # ===========================================================================

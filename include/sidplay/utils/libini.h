@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 /***************************************************************************
                           libini.h  -  Header file of functions to
                                        manipulate an ini file.
