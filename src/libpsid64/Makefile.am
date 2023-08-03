@@ -51,20 +51,29 @@ BUILT_SOURCES = \
 	psiddrv.h \
 	psidextdrv.h
 
+define my_xa_recipe
+set -o pipefail ; \
+if xa -M -c -R -G $< -o - $(1) | \
+od -v -An -tx1 | \
+sed -re 's/[[:alnum:]]+/0x&,/g' -e 's/[[:space:]]+//g' -e '/^$$/d' > $(srcdir)/$@ ; \
+then true ; \
+else status=$$? ; $(RM) $(srcdir)/$@ ; exit $$status ; \
+fi
+endef
+
 SUFFIXES = .a65
 
 .h : .a65
-	xa -R -G $< -o $(srcdir)/$*.o65
-	od -v -An -w8 -tx1 $(srcdir)/$*.o65 | sed -re 's/[[:alnum:]]+/0x&,/g' > $(srcdir)/$@
+	$(call my_xa_recipe,)
 
 psidboot.h: psidboot.a65
-	xa -c -R -G $< -o - -DSMOOTH_SCROLL | od -v -An -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' -e 's/[[:space:]]+//g' > $(srcdir)/$@
+	$(call my_xa_recipe,)
 
 psidextboot.h: psidboot.a65
-	xa -c -R -G $< -o - -DSCREEN -DSMOOTH_SCROLL | od -v -An -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' -e 's/[[:space:]]+//g' > $(srcdir)/$@
+	$(call my_xa_recipe,-DSCREEN -DSMOOTH_SCROLL)
 
 psiddrv.h: psiddrv.a65
-	xa -c -R -G $< -o - | od -v -An -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' -e 's/[[:space:]]+//g' > $(srcdir)/$@
+	$(call my_xa_recipe,)
 
 psidextdrv.h: psiddrv.a65
-	xa -c -R -G $< -o - -DSCREEN -DSMOOTH_SCROLL | od -v -An -tx1 | sed -re 's/[[:alnum:]]+/0x&,/g' -e 's/[[:space:]]+//g' > $(srcdir)/$@
+	$(call my_xa_recipe,-DSCREEN -DSMOOTH_SCROLL)
