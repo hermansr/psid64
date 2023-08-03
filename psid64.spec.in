@@ -35,9 +35,6 @@ make %{?_smp_mflags}
 rm -rf %{buildroot}
 make DESTDIR=%{buildroot} install
 
-%clean
-rm -rf %{buildroot}
-
 %files
 %defattr(-,root,root)
 %doc AUTHORS COPYING INSTALL NEWS README TODO
@@ -50,6 +47,9 @@ rm -rf %{buildroot}
 %{_libdir}/libpsid64.a
 
 %changelog
+* Thu Aug  3 2023 Roland Hermans <rolandh at users.sourceforge.net> 1.3-1
+- remove superfluous %clean section
+
 * Sat Feb 24 2007 Roland Hermans <rolandh at users.sourceforge.net> 0.8-1
 - upgraded to RPM 4.4
 - separate development package for header files and libraries
