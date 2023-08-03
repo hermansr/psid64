@@ -26,4 +26,4 @@ EXTRA_DIST = \
 	macros/ac_compile_check_sizeof.m4 \
 	macros/ac_create_stdint_h.m4 \
 	macros/sidtune.m4
-# AUTHORS COPYING INSTALL NEWS README TODO
+# AUTHORS COPYING INSTALL NEWS.md README.md TODO
