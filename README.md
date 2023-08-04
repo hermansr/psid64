@@ -180,27 +180,29 @@ Other tools
 -----------
 
 Andre Fachat's relocating 6502 cross assembler XA is used to create the
-relocatable driver code. XA can be found at:
+relocatable driver code.
 
 https://www.floodgap.com/retrotech/xa/
 
 The DJGPP cross-compiler djcross-gcc-12.2.0 has been used to build the MS-DOS
-executable. It is available at:
+executable.
 
-    https://www.delorie.com/djgpp/
-    https://www.delorie.com/pub/djgpp/rpms/
+https://www.delorie.com/djgpp/
+
+https://www.delorie.com/pub/djgpp/rpms/
 
 UPX is a free, portable, extendable, high-performance executable packer for
 several different executable formats. It has been used to create the compressed
 executable of the MS-DOS release.
 
-    https://upx.sourceforge.net/
+https://upx.sourceforge.net/
 
 The Fedora MinGW-w64 cross-compiler environment has been used to build the
 Windows 32-bit and 64-bit executables.
 
-    https://fedoraproject.org/wiki/MinGW
-    https://www.mingw-w64.org/
+https://fedoraproject.org/wiki/MinGW
+
+https://www.mingw-w64.org/
 
 
 Copyright and licensing
