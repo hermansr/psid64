@@ -4,9 +4,9 @@
 
 SUBDIRS = libpsid64 sidtune sidutils
 
-bin_PROGRAMS = psid64
+AM_CXXFLAGS = $(WARNINGCXXFLAGS)
 
-psid64_CFLAGS = $(AM_CFLAGS)
+bin_PROGRAMS = psid64
 
 psid64_SOURCES = \
 	ConsoleApp.cpp \

@@ -2,9 +2,10 @@
 
 EXTRA_DIST = stilview/README.txt stilview/STILView-config.patch
 
-lib_LIBRARIES = libpsid64.a
+AM_CFLAGS = $(WARNINGCFLAGS)
+AM_CXXFLAGS = $(WARNINGCXXFLAGS)
 
-libpsid64_a_CFLAGS = $(AM_CFLAGS)
+lib_LIBRARIES = libpsid64.a
 
 libpsid64_a_SOURCES = \
 	psid64.cpp \

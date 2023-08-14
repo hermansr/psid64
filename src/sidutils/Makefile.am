@@ -2,8 +2,8 @@
 
 SUBDIRS = MD5 ini
 
-noinst_LIBRARIES = libsidutils.a
+AM_CXXFLAGS = $(WARNINGCXXFLAGS)
 
-libsidutils_a_CFLAGS = $(AM_CFLAGS)
+noinst_LIBRARIES = libsidutils.a
 
 libsidutils_a_SOURCES = SidDatabase.cpp SidTuneMod.cpp

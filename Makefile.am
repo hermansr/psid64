@@ -30,3 +30,5 @@ EXTRA_DIST = \
 	macros/ax_func_mkdir.m4 \
 	macros/sidtune.m4
 # AUTHORS COPYING INSTALL NEWS.md README.md TODO
+
+ACLOCAL_AMFLAGS = -I macros

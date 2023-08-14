@@ -102,8 +102,8 @@ dnl END_SIDTUNE_TESTS
 dnl
 
 dnl enable warnings and turn them into errors to enforce warning free code
-CFLAGS="$CFLAGS -Wall -Werror"
-CXXFLAGS="$CXXFLAGS -Wall -Werror"
+AC_SUBST([WARNINGCFLAGS],['-Wall -Werror'])
+AC_SUBST([WARNINGCXXFLAGS],['-Wall -Werror'])
 
 AC_CONFIG_FILES([Doxyfile
                  Makefile

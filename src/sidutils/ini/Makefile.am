@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 # The library.
+AM_CXXFLAGS = $(WARNINGCXXFLAGS)
 
 noinst_LIBRARIES = libini.a
 

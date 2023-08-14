@@ -2,7 +2,7 @@
 
 noinst_LIBRARIES = libsidtune.a
 
-libsidtune_a_CFLAGS = $(AM_CFLAGS)
+AM_CXXFLAGS = $(WARNINGCXXFLAGS)
 
 libsidtune_a_SOURCES = IconInfo.cpp \
 InfoFile.cpp \
