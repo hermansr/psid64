@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 /*
     xa65 - 6502 cross assembler and utility suite
     reloc65 - relocates 'o65' files

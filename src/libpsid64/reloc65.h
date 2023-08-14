@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 /*
     psid64 - PlaySID player for a real C64 environment
     Copyright (C) 2001-2003  Roland Hermans <rolandh@users.sourceforge.net>
