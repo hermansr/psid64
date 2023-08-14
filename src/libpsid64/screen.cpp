@@ -75,7 +75,7 @@ Screen::~Screen()
 
 void Screen::clear()
 {
-    uint_least8_t c = iso2scr (' ');
+    uint_least8_t c = iso2scr(' ');
     for (unsigned int i = 0; i < m_screenSize; ++i)
     {
         m_screen[i] = c;
@@ -103,7 +103,7 @@ void Screen::putchar(char c)
     else
     {
         unsigned int offs = offset(m_x, m_y);
-        m_screen[offs] = iso2scr ((uint_least8_t) c);
+        m_screen[offs] = iso2scr((uint_least8_t) c);
         moveRight();
     }
 }
@@ -123,7 +123,7 @@ void Screen::poke(unsigned int x, unsigned int y, uint_least8_t value)
 {
     if ((x < m_width) && (y < m_height))
     {
-        unsigned int offs = offset (x, y);
+        unsigned int offs = offset(x, y);
         m_screen[offs] = value;
     }
 }

@@ -46,8 +46,8 @@ private:
 
     Psid64 m_psid64;
 
-    static void printUsage ();
-    static void printHelp ();
+    static void printUsage();
+    static void printHelp();
 
     static bool isdir(const std::string& path);
     static std::string basename(const std::string& path);
@@ -57,4 +57,4 @@ private:
     bool convert(const std::string& pathName);
 };
 
-#endif // CONSOLEAPP_H
+#endif  // CONSOLEAPP_H

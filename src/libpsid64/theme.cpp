@@ -102,20 +102,20 @@ DriverTheme* DriverTheme::createBlueTheme()
          0x07, 0x0a, 0x04, 0x02, 0x09, 0x06, 0x06, 0x06};
 
     return new DriverTheme(
-        0x06, // border color
-        0x06, // background color
-        0x0e, // raster time color
-        0x0e, // title color
-        lineColors, // line colors
-        0x0d, // field name color
-        0x07, // field colon color
-        0x01, // field value color
-        0x07, // legend color
-        0x0d, // progress bar fill color
-        0x01, // progress bar background color
-        0x01, // scroller color
-        scrollerColors, // scroller colors
-        footerColors); // footer colors
+        0x06,  // border color
+        0x06,  // background color
+        0x0e,  // raster time color
+        0x0e,  // title color
+        lineColors,  // line colors
+        0x0d,  // field name color
+        0x07,  // field colon color
+        0x01,  // field value color
+        0x07,  // legend color
+        0x0d,  // progress bar fill color
+        0x01,  // progress bar background color
+        0x01,  // scroller color
+        scrollerColors,  // scroller colors
+        footerColors);  // footer colors
 }
 
 
@@ -131,20 +131,20 @@ DriverTheme* DriverTheme::createC1541UltimateTheme()
          0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f};
 
     return new DriverTheme(
-        0x00, // border color
-        0x00, // background color
-        0x07, // raster time color
-        0x0f, // title color
-        lineColors, // line colors
-        0x07, // field name color
-        0x07, // field colon color
-        0x0f, // field value color
-        0x0f, // legend color
-        0x07, // progress bar fill color
-        0x0f, // progress bar background color
-        0x0f, // scroller color
-        scrollerColors, // scroller colors
-        footerColors); // footer colors
+        0x00,  // border color
+        0x00,  // background color
+        0x07,  // raster time color
+        0x0f,  // title color
+        lineColors,  // line colors
+        0x07,  // field name color
+        0x07,  // field colon color
+        0x0f,  // field value color
+        0x0f,  // legend color
+        0x07,  // progress bar fill color
+        0x0f,  // progress bar background color
+        0x0f,  // scroller color
+        scrollerColors,  // scroller colors
+        footerColors);  // footer colors
 }
 
 
@@ -160,20 +160,20 @@ DriverTheme* DriverTheme::createCoalTheme()
          0x0f, 0x0f, 0x0c, 0x0c, 0x0b, 0x0b, 0x00, 0x00};
 
     return new DriverTheme(
-        0x00, // border color
-        0x00, // background color
-        0x0b, // raster time color
-        0x0c, // title color
-        lineColors, // line colors
-        0x0b, // field name color
-        0x0c, // field colon color
-        0x0f, // field value color
-        0x0c, // legend color
-        0x0b, // progress bar fill color
-        0x0c, // progress bar background color
-        0x0b, // scroller color
-        scrollerColors, // scroller colors
-        footerColors); // footer colors
+        0x00,  // border color
+        0x00,  // background color
+        0x0b,  // raster time color
+        0x0c,  // title color
+        lineColors,  // line colors
+        0x0b,  // field name color
+        0x0c,  // field colon color
+        0x0f,  // field value color
+        0x0c,  // legend color
+        0x0b,  // progress bar fill color
+        0x0c,  // progress bar background color
+        0x0b,  // scroller color
+        scrollerColors,  // scroller colors
+        footerColors);  // footer colors
 }
 
 
@@ -189,20 +189,20 @@ DriverTheme* DriverTheme::createDefaultTheme()
          0x07, 0x0a, 0x04, 0x02, 0x09, 0x00, 0x00, 0x00};
 
     return new DriverTheme(
-        0x00, // border color
-        0x00, // background color
-        0x06, // raster time color
-        0x0f, // title color
-        lineColors, // line colors
-        0x0d, // field name color
-        0x07, // field colon color
-        0x01, // field value color
-        0x0c, // legend color
-        0x06, // progress bar fill color
-        0x0e, // progress bar background color
-        0x01, // scroller color
-        scrollerColors, // scroller colors
-        footerColors); // footer colors
+        0x00,  // border color
+        0x00,  // background color
+        0x06,  // raster time color
+        0x0f,  // title color
+        lineColors,  // line colors
+        0x0d,  // field name color
+        0x07,  // field colon color
+        0x01,  // field value color
+        0x0c,  // legend color
+        0x06,  // progress bar fill color
+        0x0e,  // progress bar background color
+        0x01,  // scroller color
+        scrollerColors,  // scroller colors
+        footerColors);  // footer colors
 }
 
 
@@ -218,20 +218,20 @@ DriverTheme* DriverTheme::createDutchTheme()
          0x0f, 0x0a, 0x08, 0x02, 0x09, 0x00, 0x00, 0x00};
 
     return new DriverTheme(
-        0x00, // border color
-        0x00, // background color
-        0x08, // raster time color
-        0x0f, // title color
-        lineColors, // line colors
-        0x0f, // field name color
-        0x0f, // field colon color
-        0x01, // field value color
-        0x0a, // legend color
-        0x02, // progress bar fill color
-        0x0b, // progress bar background color
-        0x01, // scroller color
-        scrollerColors, // scroller colors
-        footerColors); // footer colors
+        0x00,  // border color
+        0x00,  // background color
+        0x08,  // raster time color
+        0x0f,  // title color
+        lineColors,  // line colors
+        0x0f,  // field name color
+        0x0f,  // field colon color
+        0x01,  // field value color
+        0x0a,  // legend color
+        0x02,  // progress bar fill color
+        0x0b,  // progress bar background color
+        0x01,  // scroller color
+        scrollerColors,  // scroller colors
+        footerColors);  // footer colors
 }
 
 
@@ -247,20 +247,20 @@ DriverTheme* DriverTheme::createKernalTheme()
          0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06};
 
     return new DriverTheme(
-        0x0e, // border color
-        0x06, // background color
-        0x06, // raster time color
-        0x0e, // title color
-        lineColors, // line colors
-        0x0e, // field name color
-        0x0e, // field colon color
-        0x0e, // field value color
-        0x0e, // legend color
-        0x0e, // progress bar fill color
-        0x06, // progress bar background color
-        0x0e, // scroller color
-        scrollerColors, // scroller colors
-        footerColors); // footer colors
+        0x0e,  // border color
+        0x06,  // background color
+        0x06,  // raster time color
+        0x0e,  // title color
+        lineColors,  // line colors
+        0x0e,  // field name color
+        0x0e,  // field colon color
+        0x0e,  // field value color
+        0x0e,  // legend color
+        0x0e,  // progress bar fill color
+        0x06,  // progress bar background color
+        0x0e,  // scroller color
+        scrollerColors,  // scroller colors
+        footerColors);  // footer colors
 }
 
 
@@ -276,20 +276,20 @@ DriverTheme* DriverTheme::createLightTheme()
          0x02, 0x04, 0x0a, 0x07, 0x0d, 0x01, 0x01, 0x01};
 
     return new DriverTheme(
-        0x01, // border color
-        0x01, // background color
-        0x0d, // raster time color
-        0x0b, // title color
-        lineColors, // line colors
-        0x05, // field name color
-        0x0d, // field colon color
-        0x00, // field value color
-        0x0c, // legend color
-        0x0e, // progress bar fill color
-        0x06, // progress bar background color
-        0x0b, // scroller color
-        scrollerColors, // scroller colors
-        footerColors); // footer colors
+        0x01,  // border color
+        0x01,  // background color
+        0x0d,  // raster time color
+        0x0b,  // title color
+        lineColors,  // line colors
+        0x05,  // field name color
+        0x0d,  // field colon color
+        0x00,  // field value color
+        0x0c,  // legend color
+        0x0e,  // progress bar fill color
+        0x06,  // progress bar background color
+        0x0b,  // scroller color
+        scrollerColors,  // scroller colors
+        footerColors);  // footer colors
 }
 
 
@@ -305,20 +305,20 @@ DriverTheme* DriverTheme::createMondriaanTheme()
          0x07, 0x07, 0x0e, 0x0e, 0x06, 0x06, 0x00, 0x00};
 
     return new DriverTheme(
-        0x00, // border color
-        0x00, // background color
-        0x02, // raster time color
-        0x0f, // title color
-        lineColors, // line colors
-        0x0c, // field name color
-        0x0e, // field colon color
-        0x0f, // field value color
-        0x07, // legend color
-        0x06, // progress bar fill color
-        0x0e, // progress bar background color
-        0x01, // scroller color
-        scrollerColors, // scroller colors
-        footerColors); // footer colors
+        0x00,  // border color
+        0x00,  // background color
+        0x02,  // raster time color
+        0x0f,  // title color
+        lineColors,  // line colors
+        0x0c,  // field name color
+        0x0e,  // field colon color
+        0x0f,  // field value color
+        0x07,  // legend color
+        0x06,  // progress bar fill color
+        0x0e,  // progress bar background color
+        0x01,  // scroller color
+        scrollerColors,  // scroller colors
+        footerColors);  // footer colors
 }
 
 
@@ -334,20 +334,20 @@ DriverTheme* DriverTheme::createOceanTheme()
          0x06, 0x06, 0x06, 0x06, 0x04, 0x0e, 0x0f, 0x01};
 
     return new DriverTheme(
-        0x01, // border color
-        0x01, // background color
-        0x0e, // raster time color
-        0x06, // title color
-        lineColors, // line colors
-        0x03, // field name color
-        0x0e, // field colon color
-        0x06, // field value color
-        0x0e, // legend color
-        0x06, // progress bar fill color
-        0x0e, // progress bar background color
-        0x0b, // scroller color
-        scrollerColors, // scroller colors
-        footerColors); // footer colors
+        0x01,  // border color
+        0x01,  // background color
+        0x0e,  // raster time color
+        0x06,  // title color
+        lineColors,  // line colors
+        0x03,  // field name color
+        0x0e,  // field colon color
+        0x06,  // field value color
+        0x0e,  // legend color
+        0x06,  // progress bar fill color
+        0x0e,  // progress bar background color
+        0x0b,  // scroller color
+        scrollerColors,  // scroller colors
+        footerColors);  // footer colors
 }
 
 
@@ -363,20 +363,20 @@ DriverTheme* DriverTheme::createPencilTheme()
          0x00, 0x00, 0x00, 0x00, 0x0b, 0x0c, 0x0f, 0x01};
 
     return new DriverTheme(
-        0x01, // border color
-        0x01, // background color
-        0x0f, // raster time color
-        0x00, // title color
-        lineColors, // line colors
-        0x0c, // field name color
-        0x0f, // field colon color
-        0x0b, // field value color
-        0x0c, // legend color
-        0x0b, // progress bar fill color
-        0x0c, // progress bar background color
-        0x0b, // scroller color
-        scrollerColors, // scroller colors
-        footerColors); // footer colors
+        0x01,  // border color
+        0x01,  // background color
+        0x0f,  // raster time color
+        0x00,  // title color
+        lineColors,  // line colors
+        0x0c,  // field name color
+        0x0f,  // field colon color
+        0x0b,  // field value color
+        0x0c,  // legend color
+        0x0b,  // progress bar fill color
+        0x0c,  // progress bar background color
+        0x0b,  // scroller color
+        scrollerColors,  // scroller colors
+        footerColors);  // footer colors
 }
 
 
@@ -392,18 +392,18 @@ DriverTheme* DriverTheme::createRainbowTheme()
          0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f};
 
     return new DriverTheme(
-        0x00, // border color
-        0x00, // background color
-        0x0b, // raster time color
-        0x0f, // title color
-        lineColors, // line colors
-        0x0f, // field name color
-        0x0c, // field colon color
-        0x01, // field value color
-        0x0c, // legend color
-        0x0b, // progress bar fill color
-        0x0f, // progress bar background color
-        0x01, // scroller color
-        scrollerColors, // scroller colors
-        footerColors); // footer colors
+        0x00,  // border color
+        0x00,  // background color
+        0x0b,  // raster time color
+        0x0f,  // title color
+        lineColors,  // line colors
+        0x0f,  // field name color
+        0x0c,  // field colon color
+        0x01,  // field value color
+        0x0c,  // legend color
+        0x0b,  // progress bar fill color
+        0x0f,  // progress bar background color
+        0x01,  // scroller color
+        scrollerColors,  // scroller colors
+        footerColors);  // footer colors
 }

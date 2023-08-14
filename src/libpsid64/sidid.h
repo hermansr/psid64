@@ -75,4 +75,4 @@ public:
     std::string identify(const std::vector<uint_least8_t>& buffer);
 };
 
-#endif // SIDID_H
+#endif  // SIDID_H

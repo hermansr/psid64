@@ -151,4 +151,4 @@ private:
     int m_footerColors[NUM_FOOTER_COLORS];
 };
 
-#endif // THEME_H
+#endif  // THEME_H

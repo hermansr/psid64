@@ -375,7 +375,7 @@ Psid64::convert()
     }
 
     // relocate and initialize the driver
-    initDriver (&psid_mem, &psid_driver, &driver_size);
+    initDriver(&psid_mem, &psid_driver, &driver_size);
 
     // copy SID data
     uint_least8_t c64buf[65536];
@@ -586,20 +586,20 @@ Psid64::convert()
     // free memory of relocated boot code
     delete[] boot_mem;
 
-    uint_least16_t addr = 5; // parameter offset in psidboot.a65
+    uint_least16_t addr = 5;  // parameter offset in psidboot.a65
     uint_least16_t eof = load_addr + file_size;
     if (m_screenPage != 0x00)
     {
-        dest[addr++] = (uint_least8_t) (m_charPage); // page for character set, or 0
+        dest[addr++] = (uint_least8_t) (m_charPage);  // page for character set, or 0
     }
-    dest[addr++] = (uint_least8_t) (eof & 0xff); // end of C64 file
+    dest[addr++] = (uint_least8_t) (eof & 0xff);  // end of C64 file
     dest[addr++] = (uint_least8_t) (eof >> 8);
-    dest[addr++] = (uint_least8_t) (0x10000 & 0xff); // end of high memory
+    dest[addr++] = (uint_least8_t) (0x10000 & 0xff);  // end of high memory
     dest[addr++] = (uint_least8_t) (0x10000 >> 8);
-    dest[addr++] = (uint_least8_t) ((size + 0xff) >> 8); // number of pages to copy
-    dest[addr++] = (uint_least8_t) ((0x10000 - size) & 0xff); // start of blocks after moving
+    dest[addr++] = (uint_least8_t) ((size + 0xff) >> 8);  // number of pages to copy
+    dest[addr++] = (uint_least8_t) ((0x10000 - size) & 0xff);  // start of blocks after moving
     dest[addr++] = (uint_least8_t) ((0x10000 - size) >> 8);
-    dest[addr++] = (uint_least8_t) (blocks.size() - 1); // number of blocks - 1
+    dest[addr++] = (uint_least8_t) (blocks.size() - 1);  // number of blocks - 1
 
     // copy block data to psidboot.a65 parameters
     for (vector<block_t>::const_iterator block_iter = blocks.begin();
@@ -798,7 +798,8 @@ Psid64::convertBASIC()
         // of m_programData are skipped as these contain the load address.
         int start = end;
         uint_least8_t* compressedData = new uint_least8_t[0x10000];
-        m_programSize = exomizer(m_programData + 2, m_programSize - 2, load_addr, start, compressedData);
+        m_programSize = exomizer(m_programData + 2, m_programSize - 2,
+                                 load_addr, start, compressedData);
         delete[] m_programData;
         m_programData = compressedData;
     }
@@ -961,7 +962,7 @@ Psid64::getSongLengths()
             // bar_pixels / ticks_per_sec / 2, which is 0.253333s for a 19 chars
             // wide progress bar and 5 (NTSC) or 6 (PAL) ticks per frame.
             const int_least32_t bar_pixels = BAR_WIDTH * 8;
-            const int_least32_t ticks_per_sec = 300; // PAL: 50 Hz * 6, NTSC: 60 Hz * 5
+            const int_least32_t ticks_per_sec = 300;  // PAL: 50 Hz * 6, NTSC: 60 Hz * 5
             int_least32_t bartpi = roundDiv(length * ticks_per_sec, bar_pixels);
             m_songlengthsData[i + (2 * m_tuneInfo.songs)] = bartpi & 0xff;
             m_songlengthsData[i + (3 * m_tuneInfo.songs)] = (bartpi >> 8) & 0xff;
@@ -1197,7 +1198,7 @@ Psid64::findFreeSpace()
                         continue;
 
                     driver =
-                        findDriverSpace (pages, scr, chars, NUM_EXTDRV_PAGES);
+                        findDriverSpace(pages, scr, chars, NUM_EXTDRV_PAGES);
                     if (driver)
                     {
                         m_driverPage = driver;
@@ -1401,8 +1402,8 @@ Psid64::initDriver(uint_least8_t** mem, uint_least8_t** ptr, int* n)
     psid_reloc[addr++] = (uint_least8_t) (speed >> 24);
 
     psid_reloc[addr++] = (uint_least8_t) ((m_tuneInfo.loadAddr < 0x31a) ? 0xff : 0x05);
-    psid_reloc[addr++] = iomap (m_tuneInfo.initAddr);
-    psid_reloc[addr++] = iomap (m_tuneInfo.playAddr);
+    psid_reloc[addr++] = iomap(m_tuneInfo.initAddr);
+    psid_reloc[addr++] = iomap(m_tuneInfo.playAddr);
 
     *mem = psid_mem;
     *ptr = psid_reloc;
@@ -1453,15 +1454,15 @@ Psid64::drawScreen()
     m_screen->clear();
 
     // set title
-    m_screen->moveTo(5,1);
-    m_screen->write("PSID64 v" VERSION " by Roland Hermans!");
+    m_screen->moveTo(5, 1);
+    m_screen->write("PSID64 v" PACKAGE_VERSION " by Roland Hermans!");
 
     // characters for color line effect
-    m_screen->poke( 4, 0, 0x70);
+    m_screen->poke(4, 0, 0x70);
     m_screen->poke(35, 0, 0x6e);
-    m_screen->poke( 4, 1, 0x5d);
+    m_screen->poke(4, 1, 0x5d);
     m_screen->poke(35, 1, 0x5d);
-    m_screen->poke( 4, 2, 0x6d);
+    m_screen->poke(4, 2, 0x6d);
     m_screen->poke(35, 2, 0x7d);
     for (unsigned int i = 0; i < 30; ++i)
     {
@@ -1472,13 +1473,13 @@ Psid64::drawScreen()
     // information lines
     m_screen->moveTo(0, 4);
     m_screen->write("Name   : ");
-    m_screen->write(string(m_tuneInfo.infoString[0]).substr(0,31));
+    m_screen->write(string(m_tuneInfo.infoString[0]).substr(0, 31));
 
     m_screen->write("\nAuthor : ");
-    m_screen->write(string(m_tuneInfo.infoString[1]).substr(0,31));
+    m_screen->write(string(m_tuneInfo.infoString[1]).substr(0, 31));
 
     m_screen->write("\nRelease: ");
-    m_screen->write(string(m_tuneInfo.infoString[2]).substr(0,31));
+    m_screen->write(string(m_tuneInfo.infoString[2]).substr(0, 31));
 
     m_screen->write("\nLoad   : $");
     m_screen->write(toHexWord(m_tuneInfo.loadAddr));
@@ -1660,8 +1661,8 @@ Psid64::drawScreen()
     m_screen->write("  [RUN/STOP] Stop [CTRL+CBM+DEL] Reset\n");
 
     // flashing bottom line (should be exactly 38 characters)
-    m_screen->moveTo(4,24);
     m_screen->write("Website: https://www.psid64.org/");
+    m_screen->moveTo(4, 24);
 
     // initialize lookup table for progress bar sprite graphics
     for (unsigned int i = 0; i < 8; ++i)

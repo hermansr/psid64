@@ -91,7 +91,7 @@ using std::vector;
 #endif
 #endif
 
-typedef map<string,Psid64::Theme> ThemesMap;
+typedef map<string, Psid64::Theme> ThemesMap;
 
 
 // constructor
@@ -111,15 +111,15 @@ ConsoleApp::~ConsoleApp()
 }
 
 
-void ConsoleApp::printUsage ()
+void ConsoleApp::printUsage()
 {
     cout << "Usage: " << PACKAGE << " [OPTION]... PSID_FILE..." << endl;
 }
 
 
-void ConsoleApp::printHelp ()
+void ConsoleApp::printHelp()
 {
-    printUsage ();
+    printUsage();
     cout << endl;
 #ifdef HAVE_GETOPT_LONG
     cout << "  -b, --blank-screen     use a minimal driver that blanks the screen" << endl;
@@ -279,7 +279,8 @@ bool ConsoleApp::convertDir(const string& inputDirName, const string& outputDirN
     {
         if (mkdir(outputDirName.c_str(), ACCESSPERMS) != 0)
         {
-            cerr << PACKAGE << ": Cannot create directory `" << outputDirName << "': " << strerror(errno) << "\n";
+            cerr << PACKAGE << ": Cannot create directory `" << outputDirName
+                 << "': " << strerror(errno) << "\n";
             retval = false;
         }
     }
@@ -428,17 +429,17 @@ bool ConsoleApp::main(int argc, char **argv)
     m_psid64.setUseGlobalComment(false);
     m_psid64.setBlankScreen(false);
     m_psid64.setNoDriver(false);
-    const char* hvscBase = getenv ("HVSC_BASE");
+    const char* hvscBase = getenv("HVSC_BASE");
     if (hvscBase != NULL)
     {
         hvscRoot = hvscBase;
     }
-    const char* hvscSongLengths = getenv ("HVSC_SONGLENGTHS");
+    const char* hvscSongLengths = getenv("HVSC_SONGLENGTHS");
     if (hvscSongLengths != NULL)
     {
         databaseFileName = hvscSongLengths;
     }
-    const char* sididcfg = getenv ("SIDIDCFG");
+    const char* sididcfg = getenv("SIDIDCFG");
     if (sididcfg != NULL)
     {
         sidIdConfigFileName = sididcfg;
@@ -446,10 +447,10 @@ bool ConsoleApp::main(int argc, char **argv)
     m_outputPathName.clear();
 
 #ifdef HAVE_GETOPT_LONG
-    c = getopt_long (argc, argv, STR_GETOPT_OPTIONS, long_options,
-                     &option_index);
+    c = getopt_long(argc, argv, STR_GETOPT_OPTIONS, long_options,
+                    &option_index);
 #else
-    c = getopt (argc, argv, STR_GETOPT_OPTIONS);
+    c = getopt(argc, argv, STR_GETOPT_OPTIONS);
 #endif
     while (c != -1)
     {
@@ -465,8 +466,8 @@ bool ConsoleApp::main(int argc, char **argv)
             m_psid64.setUseGlobalComment(true);
             break;
         case 'h':
-            printHelp ();
-            exit (0);
+            printHelp();
+            exit(0);
             break;
         case 'i':
             {
@@ -531,7 +532,7 @@ bool ConsoleApp::main(int argc, char **argv)
             break;
         case 'V':
             cout << PACKAGE << " version " << VERSION << endl;
-            exit (0);
+            exit(0);
             break;
         case ':':
             cerr << PACKAGE << ": option requires an argument -- "
@@ -549,16 +550,16 @@ bool ConsoleApp::main(int argc, char **argv)
             break;
         }
 #ifdef HAVE_GETOPT_LONG
-        c = getopt_long (argc, argv, STR_GETOPT_OPTIONS, long_options,
-                         &option_index);
+        c = getopt_long(argc, argv, STR_GETOPT_OPTIONS, long_options,
+                        &option_index);
 #else
-        c = getopt (argc, argv, STR_GETOPT_OPTIONS);
+        c = getopt(argc, argv, STR_GETOPT_OPTIONS);
 #endif
     }
 
     if ((argc - optind) < 1)
     {
-        printUsage ();
+        printUsage();
         ++errflg;
     }
 

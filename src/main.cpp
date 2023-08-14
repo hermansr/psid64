@@ -59,7 +59,7 @@
  ****************************************************************************/
 
 int
-main (int argc, char **argv)
+main(int argc, char **argv)
 {
     int retval = 0;
     ConsoleApp app;
