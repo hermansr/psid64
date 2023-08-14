@@ -1,7 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(psid64, 1.3)
+AC_INIT([psid64],[1.3],,,[https://www.psid64.org/])
 AC_CONFIG_SRCDIR(src/main.cpp)
-AM_CONFIG_HEADER(src/config.h)
+AC_CONFIG_HEADERS([src/config.h])
+AC_CONFIG_MACRO_DIRS([macros])
 AM_INIT_AUTOMAKE([subdir-objects])
 
 dnl Checks for programs.
@@ -10,13 +11,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_RANLIB
 
-dnl Checks for libraries.
-dnl PKG_CHECK_MODULES(DEPS, glib-2.0 >= 2.2)
-dnl AC_SUBST(DEPS_CFLAGS)
-dnl AC_SUBST(DEPS_LIBS)
-
 dnl Checks for header files.
-AC_HEADER_STDC
 AC_CHECK_HEADERS([getopt.h limits.h stdlib.h string.h unistd.h])
 AC_CHECK_HEADER_STDBOOL
 
@@ -29,13 +24,9 @@ AC_TYPE_UINT8_T
 
 dnl Checks for library functions.
 AC_FUNC_MEMCMP
-AC_FUNC_ERROR_AT_LINE
 AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK
 AC_CHECK_FUNCS([getopt_long lstat memmove memset mkdir snprintf strcasecmp strchr strdup strerror strncasecmp strrchr strstr])
 AX_FUNC_MKDIR
-
-dnl Enable compilation wth per-target flags
-AM_PROG_CC_C_O
 
 dnl
 dnl BEGIN_SIDTUNE_TESTS
@@ -51,17 +42,15 @@ fi
 AX_CREATE_STDINT_H(include/sidplay/sidint.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
-AC_C_BIGENDIAN
-if test $ac_cv_c_bigendian = yes; then
-    MY_SUBST(SID_WORDS_ENDIANESS,SID_WORDS_BIGENDIAN)
-else
-    MY_SUBST(SID_WORDS_ENDIANESS,SID_WORDS_LITTLEENDIAN)
-fi
+AC_C_BIGENDIAN(
+    [MY_SUBST(SID_WORDS_ENDIANESS,SID_WORDS_BIGENDIAN)],
+    [MY_SUBST(SID_WORDS_ENDIANESS,SID_WORDS_LITTLEENDIAN)]
+)
 
-AC_CHECK_SIZEOF(char, 1)
-AC_CHECK_SIZEOF(short int, 2)
-AC_CHECK_SIZEOF(int, 4)
-AC_CHECK_SIZEOF(long int, 4)
+AC_CHECK_SIZEOF(char)
+AC_CHECK_SIZEOF(short int)
+AC_CHECK_SIZEOF(int)
+AC_CHECK_SIZEOF(long int)
 
 MY_SUBST(SID_SIZEOF_CHAR,$ac_cv_sizeof_char)
 MY_SUBST(SID_SIZEOF_SHORT_INT,$ac_cv_sizeof_short_int)
@@ -94,9 +83,6 @@ dnl Add absolute directory for header files
 CXXFLAGS="$CXXFLAGS -I\$(top_srcdir)/include -I\$(top_srcdir)/include/sidplay\
  -I\$(top_srcdir)/include/sidplay/utils"
 
-ACLOCAL_AMFLAGS="-I macros"
-AC_SUBST(ACLOCAL_AMFLAGS)
-
 dnl
 dnl END_SIDTUNE_TESTS
 dnl
@@ -113,6 +99,6 @@ AC_CONFIG_FILES([Doxyfile
                  src/libpsid64/Makefile
                  src/sidtune/Makefile
                  src/sidutils/Makefile
-		 src/sidutils/MD5/Makefile
-		 src/sidutils/ini/Makefile])
+                 src/sidutils/MD5/Makefile
+                 src/sidutils/ini/Makefile])
 AC_OUTPUT

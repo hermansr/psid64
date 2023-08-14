@@ -25,5 +25,6 @@ Makefile.in
 
 /src/config.h
 /src/config.h.in
+/src/config.h.in~
 /src/psid64
 /src/stamp-h1

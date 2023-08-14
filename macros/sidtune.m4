@@ -30,9 +30,11 @@ AC_DEFUN([MY_CHECK_BOOL],
     AC_MSG_CHECKING([for bool])
     AC_CACHE_VAL(test_cv_have_bool,
     [
-        AC_TRY_COMPILE(
-            [],
-            [bool aBool = true;],
+        AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM(
+                [[]],
+                [[bool aBool = true;]]
+            )],
             [test_cv_have_bool=yes],
             [test_cv_have_bool=no]
         )
@@ -53,9 +55,11 @@ AC_DEFUN([MY_CHECK_IOS_BIN],
     AC_MSG_CHECKING([whether standard member ios::binary is available])
     AC_CACHE_VAL(test_cv_have_ios_binary,
     [
-        AC_TRY_COMPILE(
-            [#include <fstream>],
-            [std::ifstream myTest("",std::ios::in|std::ios::binary);],
+        AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM(
+                [[#include <fstream>]],
+                [[std::ifstream myTest("",std::ios::in|std::ios::binary);]]
+            )],
             [test_cv_have_ios_binary=yes],
             [test_cv_have_ios_binary=no]
         )
@@ -78,10 +82,11 @@ AC_DEFUN([MY_CHECK_IOS_OPENMODE],
     AC_MSG_CHECKING([whether standard member ios::openmode is available])
     AC_CACHE_VAL(test_cv_have_ios_openmode,
     [
-        AC_TRY_COMPILE(
-            [#include <fstream>
-             #include <iomanip>],
-            [std::ios::openmode myTest = std::ios::in;],
+        AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM
+                ([[#include <fstream>
+            #include <iomanip>
+            ]], [[std::ios::openmode myTest = std::ios::in;]])],
             [test_cv_have_ios_openmode=yes],
             [test_cv_have_ios_openmode=no]
         )
@@ -104,9 +109,11 @@ AC_DEFUN([MY_CHECK_EXCEPTIONS],
     AC_MSG_CHECKING([whether exceptions are available])
     AC_CACHE_VAL(test_cv_have_exceptions,
     [
-        AC_TRY_COMPILE(
-            [#include <new>],
-            [char* buf = std::new(nothrow) char[1024];],
+        AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM(
+                [[#include <new>]],
+                [[char* buf = std::new(nothrow) char[1024];]]
+            )],
             [test_cv_have_exceptions=yes],
             [test_cv_have_exceptions=no]
         )
