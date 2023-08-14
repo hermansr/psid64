@@ -62,19 +62,23 @@ else status=$$? ; $(RM) $(srcdir)/$@ ; exit $$status ; \
 fi
 endef
 
+define my_xa_recipe_ext
+set -o pipefail ; \
+if xa -M -c -R -G $< -o - -DSCREEN -DSMOOTH_SCROLL | \
+od -v -An -tx1 | \
+sed -re 's/[[:alnum:]]+/0x&,/g' -e 's/[[:space:]]+//g' -e '/^$$/d' > $(srcdir)/$@ ; \
+then true ; \
+else status=$$? ; $(RM) $(srcdir)/$@ ; exit $$status ; \
+fi
+endef
+
 SUFFIXES = .a65
 
-.h : .a65
-	$(call my_xa_recipe,)
-
-psidboot.h: psidboot.a65
-	$(call my_xa_recipe,)
+.a65.h:
+	$(my_xa_recipe)
 
 psidextboot.h: psidboot.a65
-	$(call my_xa_recipe,-DSCREEN -DSMOOTH_SCROLL)
-
-psiddrv.h: psiddrv.a65
-	$(call my_xa_recipe,)
+	$(my_xa_recipe_ext)
 
 psidextdrv.h: psiddrv.a65
-	$(call my_xa_recipe,-DSCREEN -DSMOOTH_SCROLL)
+	$(my_xa_recipe_ext)
