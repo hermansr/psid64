@@ -83,10 +83,10 @@ AC_DEFUN([MY_CHECK_IOS_OPENMODE],
     AC_CACHE_VAL(test_cv_have_ios_openmode,
     [
         AC_COMPILE_IFELSE(
-            [AC_LANG_PROGRAM
-                ([[#include <fstream>
-            #include <iomanip>
-            ]], [[std::ios::openmode myTest = std::ios::in;]])],
+            [AC_LANG_PROGRAM(
+                [[#include <fstream>
+#include <iomanip>]],
+                [[std::ios::openmode myTest = std::ios::in;]])],
             [test_cv_have_ios_openmode=yes],
             [test_cv_have_ios_openmode=no]
         )
