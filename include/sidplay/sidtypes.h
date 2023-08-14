@@ -45,19 +45,7 @@
 #endif /* SID_HAVE_BOOL */
 
 /* Custom types */
-typedef int sid_fc_t[2];
-typedef struct
-{
-    sid_fc_t       cutoff[0x800];
-    uint_least16_t points;
-} sid_filter_t;
-#define sid_filter_t sid_filter_t
 
 typedef unsigned int uint;
-typedef float    float32_t;
-typedef double   float64_t;
-
-#define SID_FOREVER for(;;)
-#define SID_SWAP(x,y) ((x)^=(y)^=(x)^=(y))
 
 #endif /* _sidtypes_h_ */
